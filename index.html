@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIRAT LIBAS | বোরকা, টুপি, পাঞ্জাবি, কটি, জুব্বা</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@500;600;700&family=Hind+Siliguri:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0A0A09; --black2:#161512; --black3:#211F1A;
+    --gold:#C9A227; --gold-bright:#E8C468; --gold-dim:#8a742a;
+    --cream:#F5F1E6; --cream-dim:#C9C3B4;
+    --line:rgba(201,162,39,.22);
+    --danger:#B4552F;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--black); color:var(--cream); font-family:'Hind Siliguri',sans-serif; }
+  h1,h2,h3,.serif{ font-family:'Noto Serif Bengali',serif; }
+  .en{ font-family:'Cormorant Garamond',serif; }
+  a{ color:inherit; }
+  button{ font-family:inherit; cursor:pointer; }
+  img{ max-width:100%; display:block; }
+
+  #setupBanner{
+    display:none; background:var(--danger); color:#fff; text-align:center;
+    padding:14px 5vw; font-size:14px; line-height:1.7; position:sticky; top:0; z-index:300;
+  }
+  #setupBanner b{ text-decoration:underline; }
+
+  header{
+    position:sticky; top:0; z-index:60;
+    background:rgba(10,10,9,.96); backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 5vw;
+  }
+  .logo{ font-family:'Cormorant Garamond',serif; font-style:italic; letter-spacing:.12em; font-size:22px; }
+  .logo b{ color:var(--gold-bright); font-weight:600; }
+  .head-right{ display:flex; align-items:center; gap:18px; }
+  #cartBtn{
+    background:none; border:1px solid var(--line); color:var(--cream);
+    padding:9px 16px; border-radius:2px; font-size:14px; display:flex; align-items:center; gap:8px;
+  }
+  #cartBtn .count{
+    background:var(--gold); color:var(--black); font-weight:700; font-size:12px;
+    width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  }
+
+  .hero{
+    padding:70px 5vw 60px; text-align:center;
+    background:radial-gradient(ellipse at 50% 0%, rgba(201,162,39,.10), transparent 60%);
+    border-bottom:1px solid var(--line);
+  }
+  .hero .eyebrow{ color:var(--gold-bright); font-size:13px; letter-spacing:.32em; font-style:italic; margin-bottom:16px; }
+  .hero h1{ font-size:clamp(30px,6vw,54px); margin-bottom:14px; }
+  .hero h1 span{ color:var(--gold-bright); }
+  .hero p{ color:var(--cream-dim); max-width:480px; margin:0 auto; line-height:1.85; font-size:15.5px; }
+
+  .tabs{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; padding:26px 5vw; border-bottom:1px solid var(--line); }
+  .tab{ background:none; border:1px solid var(--line); color:var(--cream-dim); padding:9px 20px; border-radius:20px; font-size:13.5px; transition:.2s; }
+  .tab.active, .tab:hover{ border-color:var(--gold); color:var(--gold-bright); }
+
+  .grid-wrap{ padding:50px 5vw 90px; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:22px; max-width:1200px; margin:0 auto; }
+  .card{ background:var(--black2); border:1px solid var(--line); border-radius:3px; overflow:hidden; display:flex; flex-direction:column; transition:transform .2s ease, border-color .2s ease; }
+  .card:hover{ transform:translateY(-3px); border-color:var(--gold-dim); }
+  .thumb{ aspect-ratio:4/5; position:relative; display:flex; align-items:center; justify-content:center;
+    background: repeating-linear-gradient(135deg, rgba(201,162,39,.05) 0 2px, transparent 2px 18px), linear-gradient(160deg,var(--black3),var(--black)); }
+  .thumb .mono{ font-family:'Noto Serif Bengali',serif; font-size:42px; color:var(--gold-dim); opacity:.6; }
+  .badge{ position:absolute; top:10px; left:10px; background:var(--gold); color:var(--black); font-weight:700; font-size:11.5px; padding:4px 9px; border-radius:2px; }
+  .card-body{ padding:16px; display:flex; flex-direction:column; gap:8px; flex:1; }
+  .cat-label{ font-size:11px; letter-spacing:.14em; color:var(--gold-dim); text-transform:uppercase; }
+  .card-body h3{ font-size:16px; line-height:1.4; }
+  .price-row{ display:flex; align-items:baseline; gap:8px; margin-top:auto; }
+  .price-now{ color:var(--gold-bright); font-weight:700; font-size:17px; }
+  .price-old{ color:var(--cream-dim); text-decoration:line-through; font-size:13px; opacity:.7; }
+  .card-btn{ margin-top:8px; background:none; border:1px solid var(--gold-dim); color:var(--gold-bright); padding:9px; border-radius:2px; font-size:13.5px; font-weight:600; transition:.2s; }
+  .card-btn:hover{ background:var(--gold); color:var(--black); border-color:var(--gold); }
+  .empty-msg{ text-align:center; color:var(--cream-dim); padding:40px; grid-column:1/-1; }
+
+  .overlay{ position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:200; display:none; align-items:center; justify-content:center; padding:20px; }
+  .overlay.open{ display:flex; }
+  .modal{ background:var(--black2); border:1px solid var(--line); border-radius:4px; max-width:520px; width:100%; max-height:88vh; overflow-y:auto; padding:28px; position:relative; }
+  .modal.wide{ max-width:820px; }
+  .modal-close{ position:absolute; top:16px; right:16px; background:none; border:none; color:var(--cream-dim); font-size:22px; line-height:1; }
+  .modal h2{ font-size:22px; margin-bottom:18px; padding-right:24px; }
+
+  .pm-thumb{ aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; margin-bottom:18px;
+    background:repeating-linear-gradient(135deg, rgba(201,162,39,.06) 0 2px, transparent 2px 20px), linear-gradient(160deg,var(--black3),var(--black)); border-radius:3px; }
+  .pm-thumb .mono{ font-family:'Noto Serif Bengali',serif; font-size:60px; color:var(--gold-dim); opacity:.6; }
+  .field-label{ font-size:13px; color:var(--cream-dim); margin:16px 0 8px; letter-spacing:.03em; }
+  .size-opts{ display:flex; gap:8px; flex-wrap:wrap; }
+  .size-opt{ border:1px solid var(--line); background:none; color:var(--cream); padding:8px 15px; border-radius:2px; font-size:13.5px; }
+  .size-opt.selected{ border-color:var(--gold); background:var(--gold); color:var(--black); font-weight:700; }
+  .qty-row{ display:flex; align-items:center; gap:14px; }
+  .qty-btn{ width:32px; height:32px; border:1px solid var(--line); background:none; color:var(--cream); border-radius:2px; font-size:16px; }
+  input[type=text], input[type=tel], input[type=email], input[type=password], textarea, select{
+    width:100%; background:var(--black); border:1px solid var(--line); color:var(--cream); padding:11px 13px; border-radius:2px; font-family:inherit; font-size:14.5px; }
+  textarea{ resize:vertical; min-height:70px; }
+  .btn-gold{ width:100%; background:var(--gold); color:var(--black); border:none; font-weight:700; padding:14px; border-radius:2px; font-size:15px; margin-top:20px; transition:.2s; }
+  .btn-gold:hover{ background:var(--gold-bright); }
+  .btn-gold:disabled{ opacity:.4; }
+  .btn-outline-sm{ background:none; border:1px solid var(--line); color:var(--cream-dim); padding:9px 16px; border-radius:2px; font-size:13px; }
+
+  #cartOverlay{ justify-content:flex-end; padding:0; }
+  #cartOverlay .modal{ max-width:400px; height:100vh; max-height:100vh; border-radius:0; border-left:1px solid var(--line); display:flex; flex-direction:column; }
+  .cart-items{ flex:1; overflow-y:auto; margin-top:10px; }
+  .cart-item{ display:flex; gap:12px; padding:14px 0; border-bottom:1px solid var(--line); }
+  .cart-item .ci-thumb{ width:52px; height:52px; flex:none; border-radius:2px; background:linear-gradient(160deg,var(--black3),var(--black)); display:flex; align-items:center; justify-content:center; font-family:'Noto Serif Bengali',serif; color:var(--gold-dim); font-size:18px; }
+  .ci-info{ flex:1; }
+  .ci-info h4{ font-size:14px; font-weight:600; margin-bottom:3px; }
+  .ci-meta{ font-size:12px; color:var(--cream-dim); }
+  .ci-remove{ background:none; border:none; color:var(--danger); font-size:12px; margin-top:4px; }
+  .cart-summary{ border-top:1px solid var(--line); padding-top:16px; margin-top:8px; }
+  .sum-row{ display:flex; justify-content:space-between; font-size:14px; margin-bottom:8px; color:var(--cream-dim); }
+  .sum-row.total{ color:var(--gold-bright); font-weight:700; font-size:17px; }
+  .radio-row{ display:flex; gap:10px; margin-top:8px; }
+  .radio-opt{ flex:1; border:1px solid var(--line); border-radius:2px; padding:9px; text-align:center; font-size:13px; }
+  .radio-opt.selected{ border-color:var(--gold); color:var(--gold-bright); }
+
+  .note-box{ background:var(--black); border:1px dashed var(--line); border-radius:2px; padding:12px 14px; font-size:13px; color:var(--cream-dim); margin-top:14px; line-height:1.7; }
+
+  .admin-tabs{ display:flex; gap:8px; margin-bottom:20px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .admin-tab{ background:none; border:none; color:var(--cream-dim); padding:10px 4px; font-size:14px; border-bottom:2px solid transparent; }
+  .admin-tab.active{ color:var(--gold-bright); border-color:var(--gold); }
+  .admin-panel{ display:none; }
+  .admin-panel.active{ display:block; }
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .form-grid .full{ grid-column:1/-1; }
+  .admin-list-item{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:14px; }
+  .admin-list-item .del{ background:none; border:none; color:var(--danger); font-size:13px; }
+  .hint{ font-size:12px; color:var(--cream-dim); margin-top:4px; }
+  #adminEmailBar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; font-size:13px; color:var(--cream-dim); }
+
+  footer{ border-top:1px solid var(--line); padding:50px 5vw 30px; text-align:center; }
+  footer .logo{ display:block; margin-bottom:16px; }
+  .foot-info{ font-size:13.5px; color:var(--cream-dim); line-height:2.1; margin-bottom:20px; }
+  .foot-info a{ color:var(--gold-bright); text-decoration:none; }
+  .copyright{ font-size:12px; opacity:.45; }
+
+  @media(max-width:600px){
+    .form-grid{ grid-template-columns:1fr; }
+    header{ padding:14px 4vw; }
+    .hero{ padding:50px 4vw 40px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="setupBanner">
+  ⚠ Firebase কনফিগার করা হয়নি। কোডে <b>firebaseConfig</b> অংশে আপনার Firebase প্রজেক্টের তথ্য বসান — নিচের চ্যাটে দেওয়া ধাপগুলো অনুসরণ করুন।
+</div>
+
+<header>
+  <div class="logo">SIRAT <b>LIBAS</b></div>
+  <div class="head-right">
+    <button id="cartBtn" onclick="openCart()">🛍 কার্ট <span class="count" id="cartCount">0</span></button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="eyebrow en">est. modest wear</div>
+  <h1>বোরকা · টুপি · পাঞ্জাবি<br><span>কটি · জুব্বা</span></h1>
+  <p>মানসম্মত কাপড়, পরিপাটি সেলাই — সরাসরি আপনার ঠিকানায়। ক্যাশ অন ডেলিভারি সুবিধাসহ।</p>
+</section>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="grid-wrap">
+  <div class="grid" id="grid"><div class="empty-msg">লোড হচ্ছে...</div></div>
+</div>
+
+<footer>
+  <div class="logo">SIRAT <b>LIBAS</b></div>
+  <div class="foot-info" id="footInfo"></div>
+  <div class="copyright">© 2026 Sirat Libas. সর্বস্বত্ব সংরক্ষিত। &nbsp;•&nbsp; <a href="#" onclick="openAdmin();return false;" style="opacity:.5;">Admin</a></div>
+</footer>
+
+<!-- product modal -->
+<div class="overlay" id="productOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('productOverlay')">&times;</button>
+    <div class="pm-thumb"><span class="mono" id="pmMono">স</span></div>
+    <div class="cat-label" id="pmCat"></div>
+    <h2 id="pmName"></h2>
+    <div class="price-row">
+      <span class="price-now" id="pmPriceNow"></span>
+      <span class="price-old" id="pmPriceOld"></span>
+      <span class="badge" id="pmBadge" style="position:static;"></span>
+    </div>
+    <p style="font-size:13.5px;color:var(--cream-dim);margin-top:10px;" id="pmDesc"></p>
+    <div class="field-label" id="pmSizeLabel">সাইজ বাছাই করুন</div>
+    <div class="size-opts" id="pmSizes"></div>
+    <div class="field-label">পরিমাণ</div>
+    <div class="qty-row">
+      <button class="qty-btn" onclick="changeQty(-1)">−</button>
+      <span id="pmQty">1</span>
+      <button class="qty-btn" onclick="changeQty(1)">+</button>
+    </div>
+    <button class="btn-gold" onclick="addToCart()">কার্টে যোগ করুন</button>
+  </div>
+</div>
+
+<!-- cart drawer -->
+<div class="overlay" id="cartOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('cartOverlay')">&times;</button>
+    <h2>আপনার কার্ট</h2>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-summary">
+      <div class="field-label" style="margin-top:0;">ডেলিভারি এলাকা</div>
+      <div class="radio-row">
+        <div class="radio-opt selected" id="areaInside" onclick="setArea('inside')">ঢাকার ভিতরে (৳৬০)</div>
+        <div class="radio-opt" id="areaOutside" onclick="setArea('outside')">ঢাকার বাইরে (৳১২০)</div>
+      </div>
+      <div class="sum-row" style="margin-top:16px;"><span>সাবটোটাল</span><span id="sumSubtotal">৳0</span></div>
+      <div class="sum-row"><span>ডেলিভারি চার্জ</span><span id="sumDelivery">৳60</span></div>
+      <div class="sum-row total"><span>সর্বমোট</span><span id="sumTotal">৳0</span></div>
+      <button class="btn-gold" id="checkoutBtn" onclick="openCheckout()">চেকআউট করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- checkout modal -->
+<div class="overlay" id="checkoutOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('checkoutOverlay')">&times;</button>
+    <h2>অর্ডার তথ্য দিন</h2>
+    <div class="field-label" style="margin-top:0;">পুরো নাম</div>
+    <input type="text" id="coName" placeholder="আপনার নাম">
+    <div class="field-label">মোবাইল নাম্বার</div>
+    <input type="tel" id="coPhone" placeholder="01XXXXXXXXX">
+    <div class="field-label">সম্পূর্ণ ঠিকানা</div>
+    <textarea id="coAddress" placeholder="বাসা/রোড, এলাকা, থানা, জেলা"></textarea>
+    <div class="field-label">পেমেন্ট মাধ্যম</div>
+    <div class="radio-row">
+      <div class="radio-opt selected" id="payCod" onclick="setPayment('cod')">ক্যাশ অন ডেলিভারি</div>
+      <div class="radio-opt" id="payBkash" onclick="setPayment('bkash')">বিকাশ</div>
+      <div class="radio-opt" id="payNagad" onclick="setPayment('nagad')">নগদ</div>
+    </div>
+    <div class="note-box" id="payNote">অর্ডার হাতে পাওয়ার সময় টাকা পরিশোধ করবেন — ডেলিভারি চার্জসহ মোট: <b id="payNoteTotal">৳0</b></div>
+    <button class="btn-gold" id="submitOrderBtn" onclick="submitOrder()">WhatsApp-এ অর্ডার পাঠান</button>
+  </div>
+</div>
+
+<!-- admin modal -->
+<div class="overlay" id="adminOverlay">
+  <div class="modal wide">
+    <button class="modal-close" onclick="closeModal('adminOverlay')">&times;</button>
+    <h2>অ্যাডমিন প্যানেল</h2>
+    <div id="adminGate">
+      <div class="field-label" style="margin-top:0;">ইমেইল</div>
+      <input type="email" id="adminEmail" placeholder="admin@example.com">
+      <div class="field-label">পাসওয়ার্ড</div>
+      <input type="password" id="adminPass" placeholder="পাসওয়ার্ড">
+      <button class="btn-gold" onclick="adminSignIn()">লগইন করুন</button>
+      <p class="hint">Firebase Authentication-এ যে ইমেইল/পাসওয়ার্ড দিয়ে ইউজার তৈরি করেছেন সেটা দিন।</p>
+    </div>
+    <div id="adminBody" style="display:none;">
+      <div id="adminEmailBar">
+        <span id="adminEmailShow"></span>
+        <button class="btn-outline-sm" onclick="adminSignOut()">লগআউট</button>
+      </div>
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="prod" onclick="switchAdminTab('prod')">প্রোডাক্ট</button>
+        <button class="admin-tab" data-tab="orders" onclick="switchAdminTab('orders')">অর্ডার তালিকা</button>
+        <button class="admin-tab" data-tab="shop" onclick="switchAdminTab('shop')">দোকানের তথ্য</button>
+      </div>
+
+      <div class="admin-panel active" id="adminProd">
+        <div id="seedRow" style="display:none;margin-bottom:20px;">
+          <p class="hint" style="margin-bottom:8px;">প্রোডাক্ট তালিকা খালি — শুরু করার জন্য কিছু নমুনা প্রোডাক্ট লোড করতে পারেন।</p>
+          <button class="btn-outline-sm" onclick="seedDefaultProducts()">নমুনা প্রোডাক্ট লোড করুন</button>
+        </div>
+        <h3 style="font-size:16px;margin-bottom:14px;">নতুন প্রোডাক্ট যোগ করুন</h3>
+        <div class="form-grid">
+          <div class="full"><div class="field-label" style="margin-top:0;">প্রোডাক্টের নাম</div><input type="text" id="npName"></div>
+          <div><div class="field-label">ক্যাটাগরি</div>
+            <select id="npCat" onchange="suggestSizes()">
+              <option value="বোরকা">বোরকা</option>
+              <option value="টুপি">টুপি</option>
+              <option value="পাঞ্জাবি">পাঞ্জাবি</option>
+              <option value="কটি">কটি</option>
+              <option value="জুব্বা">জুব্বা</option>
+            </select>
+          </div>
+          <div><div class="field-label">মনোগ্রাম অক্ষর</div><input type="text" id="npMono" maxlength="1" placeholder="যেমন: ব"></div>
+          <div><div class="field-label">অরিজিনাল মূল্য (৳)</div><input type="text" id="npOrig" placeholder="1800"></div>
+          <div><div class="field-label">ডিসকাউন্ট মূল্য (৳) — না থাকলে খালি রাখুন</div><input type="text" id="npDisc" placeholder="1500"></div>
+          <div class="full"><div class="field-label">সাইজ (কমা দিয়ে আলাদা করুন)</div><input type="text" id="npSizes" placeholder="S, M, L, XL, XXL"></div>
+          <div class="full"><div class="field-label">বিবরণ</div><textarea id="npDesc" placeholder="কাপড়ের ধরন, বৈশিষ্ট্য..."></textarea></div>
+        </div>
+        <button class="btn-gold" onclick="addProduct()">প্রোডাক্ট যোগ করুন</button>
+        <h3 style="font-size:16px;margin:28px 0 10px;">বর্তমান প্রোডাক্ট তালিকা</h3>
+        <div id="adminProdList"></div>
+      </div>
+
+      <div class="admin-panel" id="adminOrders">
+        <div id="adminOrderList"></div>
+      </div>
+
+      <div class="admin-panel" id="adminShop">
+        <div class="form-grid">
+          <div class="full"><div class="field-label" style="margin-top:0;">দোকানের ঠিকানা</div><textarea id="siAddress"></textarea></div>
+          <div><div class="field-label">Gmail</div><input type="text" id="siGmail"></div>
+          <div><div class="field-label">WhatsApp নাম্বার (৮৮০ দিয়ে শুরু)</div><input type="text" id="siWhatsapp"></div>
+          <div><div class="field-label">বিকাশ নাম্বার</div><input type="text" id="siBkash"></div>
+          <div><div class="field-label">নগদ নাম্বার</div><input type="text" id="siNagad"></div>
+        </div>
+        <button class="btn-gold" onclick="saveShopInfo()">সংরক্ষণ করুন</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, getDoc, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+/* ============================================================
+   ধাপ ১: এখানে আপনার Firebase প্রজেক্টের কনফিগার বসান।
+   Firebase Console > Project settings > Your apps থেকে কপি করুন।
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDZ2d1ytbevTWuojJXX0hCbeJ_6GmXrAJY",
+  authDomain: "sirat-libas-d566e.firebaseapp.com",
+  projectId: "sirat-libas-d566e",
+  storageBucket: "sirat-libas-d566e.firebasestorage.app",
+  messagingSenderId: "982025693380",
+  appId: "1:982025693380:web:360bf2c4203a0174d1c191"
+};
+
+const CONFIG_MISSING = firebaseConfig.apiKey.startsWith("PASTE_");
+if (CONFIG_MISSING) {
+  document.getElementById('setupBanner').style.display = 'block';
+}
+
+let app, db, auth;
+if (!CONFIG_MISSING) {
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  auth = getAuth(app);
+}
+
+const CATEGORIES = ["বোরকা","টুপি","পাঞ্জাবি","কটি","জুব্বা"];
+const SIZE_TEMPLATES = {
+  "বোরকা": ["S","M","L","XL","XXL"],
+  "টুপি": ["Free Size","56cm","58cm","60cm","62cm"],
+  "পাঞ্জাবি": ["S","M","L","XL","XXL"],
+  "কটি": ["S","M","L","XL","XXL"],
+  "জুব্বা": ["S","M","L","XL","XXL"]
+};
+const DEFAULT_SHOP_INFO = {
+  address: "[ আপনার দোকানের ঠিকানা এখানে যোগ করুন — অ্যাডমিন প্যানেল থেকে ]",
+  gmail: "[ আপনার Gmail এখানে যোগ করুন ]",
+  whatsapp: "8801873845076",
+  bkash: "[ বিকাশ নাম্বার যোগ করুন ]",
+  nagad: "[ নগদ নাম্বার যোগ করুন ]"
+};
+const SEED_PRODUCTS = [
+  {name:"প্রিমিয়াম নাইদা বোরকা",category:"বোরকা",mono:"ব",original:2200,discount:1800,sizes:["S","M","L","XL","XXL"],desc:"নরম ও ভারী নাইদা কাপড়, দৈনন্দিন ব্যবহারের জন্য আরামদায়ক।"},
+  {name:"খিমার সেট বোরকা",category:"বোরকা",mono:"খ",original:2600,discount:2200,sizes:["S","M","L","XL","XXL"],desc:"খিমারসহ সম্পূর্ণ সেট, এমব্রয়ডারি ডিজাইন।"},
+  {name:"সাদা সুতি টুপি",category:"টুপি",mono:"ট",original:250,discount:200,sizes:["Free Size","56cm","58cm","60cm"],desc:"হালকা সুতি কাপড়ের আরামদায়ক টুপি।"},
+  {name:"এমব্রয়ডারি ডিজাইন টুপি",category:"টুপি",mono:"এ",original:400,discount:null,sizes:["Free Size","56cm","58cm","60cm","62cm"],desc:"হাতের কাজের এমব্রয়ডারি টুপি।"},
+  {name:"সেমি সিল্ক পাঞ্জাবি",category:"পাঞ্জাবি",mono:"প",original:1800,discount:1500,sizes:["S","M","L","XL","XXL"],desc:"অনুষ্ঠান উপযোগী সেমি সিল্ক ফেব্রিক।"},
+  {name:"কটন পাঞ্জাবি",category:"পাঞ্জাবি",mono:"ক",original:1200,discount:999,sizes:["S","M","L","XL","XXL"],desc:"প্রতিদিনের ব্যবহারের জন্য নরম কটন কাপড়।"},
+  {name:"মেরুন কটি",category:"কটি",mono:"ম",original:900,discount:750,sizes:["S","M","L","XL","XXL"],desc:"পাঞ্জাবির সাথে মানানসই ক্লাসিক কটি।"},
+  {name:"সৌদি জুব্বা",category:"জুব্বা",mono:"জ",original:3200,discount:2800,sizes:["S","M","L","XL","XXL"],desc:"প্রিমিয়াম ফেব্রিকের সৌদি স্টাইল জুব্বা।"}
+];
+
+let products = [];
+let shopInfo = {...DEFAULT_SHOP_INFO};
+let orders = [];
+let cart = [];
+let activeCategory = "সব";
+let deliveryArea = "inside";
+let paymentMethod = "cod";
+let currentProduct = null;
+let currentSize = null;
+let currentQty = 1;
+
+async function loadProducts(){
+  if (CONFIG_MISSING) { products = []; return; }
+  const snap = await getDocs(collection(db,'products'));
+  products = snap.docs.map(d => ({id:d.id, ...d.data()}));
+}
+async function loadShopInfo(){
+  if (CONFIG_MISSING) { shopInfo = DEFAULT_SHOP_INFO; return; }
+  const snap = await getDoc(doc(db,'settings','shopInfo'));
+  shopInfo = snap.exists() ? snap.data() : DEFAULT_SHOP_INFO;
+}
+async function loadOrders(){
+  const snap = await getDocs(query(collection(db,'orders'), orderBy('createdAt','desc')));
+  orders = snap.docs.map(d => ({id:d.id, ...d.data()}));
+}
+
+function renderTabs(){
+  const el = document.getElementById('tabs');
+  const cats = ["সব", ...CATEGORIES];
+  el.innerHTML = cats.map(c => `<button class="tab ${c===activeCategory?'active':''}" onclick="filterCat('${c}')">${c}</button>`).join('');
+}
+function filterCat(c){ activeCategory = c; renderTabs(); renderGrid(); }
+
+function renderGrid(){
+  const el = document.getElementById('grid');
+  const list = activeCategory === "সব" ? products : products.filter(p => p.category === activeCategory);
+  if(list.length === 0){
+    el.innerHTML = `<div class="empty-msg">${CONFIG_MISSING ? 'Firebase কনফিগার করা হয়নি — উপরের নোটিশ দেখুন।' : 'এই ক্যাটাগরিতে এখনো কোনো প্রোডাক্ট নেই।'}</div>`;
+    return;
+  }
+  el.innerHTML = list.map(p => {
+    const hasDisc = p.discount && p.discount < p.original;
+    const pct = hasDisc ? Math.round((1 - p.discount/p.original)*100) : 0;
+    return `
+    <div class="card">
+      <div class="thumb">
+        ${hasDisc ? `<div class="badge">${pct}% ছাড়</div>` : ''}
+        <span class="mono">${p.mono || p.name[0]}</span>
+      </div>
+      <div class="card-body">
+        <div class="cat-label">${p.category}</div>
+        <h3>${p.name}</h3>
+        <div class="price-row">
+          <span class="price-now">৳${hasDisc ? p.discount : p.original}</span>
+          ${hasDisc ? `<span class="price-old">৳${p.original}</span>` : ''}
+        </div>
+        <button class="card-btn" onclick="openProduct('${p.id}')">বিস্তারিত দেখুন</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderFooter(){
+  document.getElementById('footInfo').innerHTML = `
+    ঠিকানা: ${shopInfo.address}<br>
+    WhatsApp: <a href="https://wa.me/${shopInfo.whatsapp}" target="_blank">+${shopInfo.whatsapp}</a>
+    &nbsp;•&nbsp; Gmail: ${shopInfo.gmail}
+  `;
+}
+
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+function openProduct(id){
+  currentProduct = products.find(p => p.id === id);
+  currentQty = 1;
+  currentSize = currentProduct.sizes[0];
+  document.getElementById('pmMono').textContent = currentProduct.mono || currentProduct.name[0];
+  document.getElementById('pmCat').textContent = currentProduct.category;
+  document.getElementById('pmName').textContent = currentProduct.name;
+  document.getElementById('pmDesc').textContent = currentProduct.desc || '';
+  const hasDisc = currentProduct.discount && currentProduct.discount < currentProduct.original;
+  document.getElementById('pmPriceNow').textContent = '৳' + (hasDisc ? currentProduct.discount : currentProduct.original);
+  document.getElementById('pmPriceOld').textContent = hasDisc ? '৳' + currentProduct.original : '';
+  document.getElementById('pmBadge').textContent = hasDisc ? Math.round((1-currentProduct.discount/currentProduct.original)*100) + '% ছাড়' : '';
+  document.getElementById('pmQty').textContent = currentQty;
+  document.getElementById('pmSizes').innerHTML = currentProduct.sizes.map((s,i) =>
+    `<button class="size-opt ${i===0?'selected':''}" onclick="selectSize('${s}', this)">${s}</button>`).join('');
+  openModal('productOverlay');
+}
+function selectSize(s, btn){
+  currentSize = s;
+  document.querySelectorAll('#pmSizes .size-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function changeQty(d){
+  currentQty = Math.max(1, currentQty + d);
+  document.getElementById('pmQty').textContent = currentQty;
+}
+function addToCart(){
+  const hasDisc = currentProduct.discount && currentProduct.discount < currentProduct.original;
+  const price = hasDisc ? currentProduct.discount : currentProduct.original;
+  cart.push({ id: currentProduct.id, name: currentProduct.name, mono: currentProduct.mono, size: currentSize, qty: currentQty, price });
+  updateCartCount();
+  closeModal('productOverlay');
+  openCart();
+}
+function updateCartCount(){
+  document.getElementById('cartCount').textContent = cart.reduce((s,i)=>s+i.qty,0);
+}
+function openCart(){ renderCart(); openModal('cartOverlay'); }
+function renderCart(){
+  const el = document.getElementById('cartItems');
+  if(cart.length === 0){ el.innerHTML = '<p style="color:var(--cream-dim);font-size:14px;padding:20px 0;">কার্ট খালি।</p>'; }
+  else{
+    el.innerHTML = cart.map((item, idx) => `
+      <div class="cart-item">
+        <div class="ci-thumb">${item.mono || item.name[0]}</div>
+        <div class="ci-info">
+          <h4>${item.name}</h4>
+          <div class="ci-meta">সাইজ: ${item.size} • পরিমাণ: ${item.qty} • ৳${item.price * item.qty}</div>
+          <button class="ci-remove" onclick="removeFromCart(${idx})">সরিয়ে ফেলুন</button>
+        </div>
+      </div>`).join('');
+  }
+  updateSummary();
+}
+function removeFromCart(idx){ cart.splice(idx,1); updateCartCount(); renderCart(); }
+function setArea(a){
+  deliveryArea = a;
+  document.getElementById('areaInside').classList.toggle('selected', a==='inside');
+  document.getElementById('areaOutside').classList.toggle('selected', a==='outside');
+  updateSummary();
+}
+function getDeliveryCharge(){ return deliveryArea === 'inside' ? 60 : 120; }
+function getSubtotal(){ return cart.reduce((s,i)=>s+i.price*i.qty,0); }
+function updateSummary(){
+  const sub = getSubtotal();
+  const del = cart.length ? getDeliveryCharge() : 0;
+  document.getElementById('sumSubtotal').textContent = '৳' + sub;
+  document.getElementById('sumDelivery').textContent = '৳' + del;
+  document.getElementById('sumTotal').textContent = '৳' + (sub + del);
+  document.getElementById('checkoutBtn').disabled = cart.length === 0;
+}
+function openCheckout(){
+  if(cart.length === 0) return;
+  closeModal('cartOverlay');
+  document.getElementById('payNoteTotal').textContent = '৳' + (getSubtotal() + getDeliveryCharge());
+  openModal('checkoutOverlay');
+}
+function setPayment(m){
+  paymentMethod = m;
+  ['payCod','payBkash','payNagad'].forEach(id => document.getElementById(id).classList.remove('selected'));
+  document.getElementById('pay' + m[0].toUpperCase() + m.slice(1)).classList.add('selected');
+  const noteEl = document.getElementById('payNote');
+  const total = getSubtotal() + getDeliveryCharge();
+  if(m === 'cod'){
+    noteEl.innerHTML = `অর্ডার হাতে পাওয়ার সময় টাকা পরিশোধ করবেন — ডেলিভারি চার্জসহ মোট: <b>৳${total}</b>`;
+  } else if(m === 'bkash'){
+    noteEl.innerHTML = `বিকাশ নাম্বারে <b>৳${total}</b> Send Money করে WhatsApp-এ Transaction ID পাঠান: <b>${shopInfo.bkash}</b>`;
+  } else {
+    noteEl.innerHTML = `নগদ নাম্বারে <b>৳${total}</b> Send Money করে WhatsApp-এ Transaction ID পাঠান: <b>${shopInfo.nagad}</b>`;
+  }
+}
+async function submitOrder(){
+  if (CONFIG_MISSING) { alert('Firebase কনফিগার করা হয়নি — অর্ডার সংরক্ষণ করা যাবে না।'); return; }
+  const name = document.getElementById('coName').value.trim();
+  const phone = document.getElementById('coPhone').value.trim();
+  const address = document.getElementById('coAddress').value.trim();
+  if(!name || !phone || !address){ alert('নাম, মোবাইল নাম্বার ও ঠিকানা দিন।'); return; }
+
+  const btn = document.getElementById('submitOrderBtn');
+  btn.disabled = true; btn.textContent = 'পাঠানো হচ্ছে...';
+
+  const sub = getSubtotal();
+  const del = getDeliveryCharge();
+  const total = sub + del;
+  const payLabel = paymentMethod === 'cod' ? 'ক্যাশ অন ডেলিভারি' : (paymentMethod === 'bkash' ? 'বিকাশ' : 'নগদ');
+  const areaLabel = deliveryArea === 'inside' ? 'ঢাকার ভিতরে' : 'ঢাকার বাইরে';
+
+  try{
+    await addDoc(collection(db,'orders'), {
+      name, phone, address, area: areaLabel, payment: payLabel,
+      items: cart, subtotal: sub, delivery: del, total,
+      createdAt: Date.now()
+    });
+  }catch(e){
+    alert('অর্ডার সংরক্ষণে সমস্যা হয়েছে, কিন্তু WhatsApp-এ পাঠানো হবে।');
+  }
+
+  const itemsText = cart.map(i => `${i.name} (সাইজ: ${i.size}, পরিমাণ: ${i.qty}) — ৳${i.price*i.qty}`).join('%0A');
+  const msg = `নতুন অর্ডার — SIRAT LIBAS%0A%0Aনাম: ${name}%0Aমোবাইল: ${phone}%0Aঠিকানা: ${address}%0Aএলাকা: ${areaLabel}%0A%0Aপণ্য:%0A${itemsText}%0A%0Aসাবটোটাল: ৳${sub}%0Aডেলিভারি চার্জ: ৳${del}%0Aসর্বমোট: ৳${total}%0Aপেমেন্ট: ${payLabel}`;
+  window.open(`https://wa.me/${shopInfo.whatsapp}?text=${msg}`, '_blank');
+
+  cart = [];
+  updateCartCount();
+  closeModal('checkoutOverlay');
+  btn.disabled = false; btn.textContent = 'WhatsApp-এ অর্ডার পাঠান';
+  alert('অর্ডার সংরক্ষণ হয়েছে এবং WhatsApp খোলা হয়েছে — মেসেজ পাঠিয়ে অর্ডার নিশ্চিত করুন।');
+}
+
+/* ---------- admin ---------- */
+function openAdmin(){ openModal('adminOverlay'); }
+async function adminSignIn(){
+  if (CONFIG_MISSING) { alert('আগে Firebase কনফিগার করুন।'); return; }
+  const email = document.getElementById('adminEmail').value.trim();
+  const pass = document.getElementById('adminPass').value;
+  try{
+    await signInWithEmailAndPassword(auth, email, pass);
+  }catch(e){
+    alert('লগইন ব্যর্থ হয়েছে। ইমেইল/পাসওয়ার্ড ঠিক আছে কিনা, এবং Firebase Authentication-এ এই ইউজার তৈরি করা আছে কিনা চেক করুন।');
+  }
+}
+function adminSignOut(){ signOut(auth); }
+
+if (!CONFIG_MISSING) {
+  onAuthStateChanged(auth, async (user) => {
+    if(user){
+      document.getElementById('adminGate').style.display = 'none';
+      document.getElementById('adminBody').style.display = 'block';
+      document.getElementById('adminEmailShow').textContent = 'লগইন: ' + user.email;
+      await loadOrders(); renderAdminOrders();
+      renderAdminProducts();
+      fillShopInfoForm();
+      document.getElementById('seedRow').style.display = products.length === 0 ? 'block' : 'none';
+    } else {
+      document.getElementById('adminGate').style.display = 'block';
+      document.getElementById('adminBody').style.display = 'none';
+    }
+  });
+}
+
+function switchAdminTab(tab){
+  document.querySelectorAll('.admin-tab').forEach(b => b.classList.toggle('active', b.dataset.tab===tab));
+  document.getElementById('adminProd').classList.toggle('active', tab==='prod');
+  document.getElementById('adminOrders').classList.toggle('active', tab==='orders');
+  document.getElementById('adminShop').classList.toggle('active', tab==='shop');
+}
+function suggestSizes(){
+  const cat = document.getElementById('npCat').value;
+  document.getElementById('npSizes').value = SIZE_TEMPLATES[cat].join(', ');
+}
+async function seedDefaultProducts(){
+  for(const p of SEED_PRODUCTS){
+    await addDoc(collection(db,'products'), {...p, createdAt: Date.now()});
+  }
+  await loadProducts();
+  renderGrid(); renderAdminProducts();
+  document.getElementById('seedRow').style.display = 'none';
+  alert('নমুনা প্রোডাক্ট লোড করা হয়েছে।');
+}
+async function addProduct(){
+  const name = document.getElementById('npName').value.trim();
+  const category = document.getElementById('npCat').value;
+  const mono = document.getElementById('npMono').value.trim() || name[0];
+  const original = parseFloat(document.getElementById('npOrig').value);
+  const discRaw = document.getElementById('npDisc').value.trim();
+  const discount = discRaw ? parseFloat(discRaw) : null;
+  const sizes = document.getElementById('npSizes').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const desc = document.getElementById('npDesc').value.trim();
+  if(!name || !original || sizes.length===0){ alert('নাম, অরিজিনাল মূল্য ও সাইজ দিন।'); return; }
+
+  await addDoc(collection(db,'products'), { name, category, mono, original, discount, sizes, desc, createdAt: Date.now() });
+  await loadProducts();
+  renderGrid(); renderAdminProducts();
+  ['npName','npMono','npOrig','npDisc','npDesc'].forEach(id => document.getElementById(id).value = '');
+  alert('প্রোডাক্ট যোগ করা হয়েছে।');
+}
+function renderAdminProducts(){
+  const el = document.getElementById('adminProdList');
+  el.innerHTML = products.map(p => `
+    <div class="admin-list-item">
+      <span>${p.name} <span style="color:var(--cream-dim);">(${p.category} — ৳${p.discount||p.original})</span></span>
+      <button class="del" onclick="deleteProduct('${p.id}')">মুছুন</button>
+    </div>`).join('');
+}
+async function deleteProduct(id){
+  if(!confirm('প্রোডাক্টটি মুছে ফেলতে চান?')) return;
+  await deleteDoc(doc(db,'products',id));
+  await loadProducts();
+  renderGrid(); renderAdminProducts();
+}
+function renderAdminOrders(){
+  const el = document.getElementById('adminOrderList');
+  if(orders.length === 0){ el.innerHTML = '<p style="color:var(--cream-dim);font-size:14px;">এখনো কোনো অর্ডার নেই।</p>'; return; }
+  el.innerHTML = orders.map(o => `
+    <div class="admin-list-item" style="display:block;">
+      <div style="display:flex;justify-content:space-between;"><b>${o.name}</b><span style="color:var(--gold-bright);">৳${o.total}</span></div>
+      <div class="hint">${o.phone} • ${o.area} • ${o.payment} • ${new Date(o.createdAt).toLocaleString('bn-BD')}</div>
+      <div class="hint">${o.address}</div>
+    </div>`).join('');
+}
+function fillShopInfoForm(){
+  document.getElementById('siAddress').value = shopInfo.address;
+  document.getElementById('siGmail').value = shopInfo.gmail;
+  document.getElementById('siWhatsapp').value = shopInfo.whatsapp;
+  document.getElementById('siBkash').value = shopInfo.bkash;
+  document.getElementById('siNagad').value = shopInfo.nagad;
+}
+async function saveShopInfo(){
+  shopInfo = {
+    address: document.getElementById('siAddress').value.trim(),
+    gmail: document.getElementById('siGmail').value.trim(),
+    whatsapp: document.getElementById('siWhatsapp').value.trim().replace(/^0/, '880'),
+    bkash: document.getElementById('siBkash').value.trim(),
+    nagad: document.getElementById('siNagad').value.trim()
+  };
+  await setDoc(doc(db,'settings','shopInfo'), shopInfo);
+  renderFooter();
+  alert('দোকানের তথ্য সংরক্ষণ হয়েছে।');
+}
+
+async function init(){
+  renderTabs();
+  await loadProducts();
+  await loadShopInfo();
+  renderGrid();
+  renderFooter();
+}
+init();
+
+Object.assign(window, {
+  filterCat, openProduct, selectSize, changeQty, addToCart, openCart, removeFromCart,
+  setArea, openCheckout, setPayment, submitOrder, openAdmin, adminSignIn, adminSignOut,
+  switchAdminTab, suggestSizes, addProduct, deleteProduct, saveShopInfo, seedDefaultProducts,
+  closeModal
+});
+</script>
+</body>
+</html>
