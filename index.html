@@ -352,7 +352,7 @@
           <div><div class="field-label">ডিসকাউন্ট মূল্য (৳)</div><input type="text" id="npDisc"></div>
           <div class="full"><div class="field-label">সাইজ (কমা দিয়ে আলাদা করুন)</div><input type="text" id="npSizes"></div>
           <div class="full"><div class="field-label">বিবরণ</div><textarea id="npDesc"></textarea></div>
-          <div class="full"><div class="field-label">নতুন ছবি যোগ করুন (একাধিক)</div><input type="file" id="npImages" accept="image/*" multiple></div>
+          <div class="full"><div class="field-label">ছবির লিংক (Imgur ইত্যাদিতে আপলোড করে লিংক বসান, একাধিক হলে কমা দিয়ে আলাদা করুন)</div><textarea id="npImages" placeholder="https://i.imgur.com/xxxx.jpg, https://i.imgur.com/yyyy.jpg"></textarea></div>
         </div>
         <button class="btn-gold" id="addProdBtn" onclick="addProduct()">প্রোডাক্ট যোগ করুন</button>
         <button class="btn-outline-sm" id="cancelEditBtn" style="display:none;margin-top:10px;width:100%;" onclick="cancelEditProduct()">বাতিল করুন</button>
@@ -382,7 +382,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, getDoc, query, orderBy, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDZ2d1ytbevTWuojJXX0hCbeJ_6GmXrAJY",
@@ -394,8 +393,8 @@ const firebaseConfig = {
 };
 const CONFIG_MISSING = firebaseConfig.apiKey.startsWith("PASTE_");
 if (CONFIG_MISSING) document.getElementById('setupBanner').style.display = 'block';
-let app, db, auth, storage;
-if (!CONFIG_MISSING) { app=initializeApp(firebaseConfig); db=getFirestore(app); auth=getAuth(app); storage=getStorage(app); }
+let app, db, auth;
+if (!CONFIG_MISSING) { app=initializeApp(firebaseConfig); db=getFirestore(app); auth=getAuth(app); }
 
 const CATEGORIES = ["বোরকা","টুপি","পাঞ্জাবি","কটি","জুব্বা"];
 const SIZE_TEMPLATES = { "বোরকা":["S","M","L","XL","XXL"], "টুপি":["Free Size","56cm","58cm","60cm","62cm"], "পাঞ্জাবি":["S","M","L","XL","XXL"], "কটি":["S","M","L","XL","XXL"], "জুব্বা":["S","M","L","XL","XXL"] };
@@ -658,11 +657,6 @@ async function seedDefaultProducts(){
   document.getElementById('seedRow').style.display='none';
   alert('নমুনা প্রোডাক্ট লোড করা হয়েছে।');
 }
-async function uploadProductImages(files, productId){
-  const urls=[];
-  for(const file of files){ const fileRef=ref(storage, `products/${productId}/${Date.now()}_${file.name}`); await uploadBytes(fileRef,file); urls.push(await getDownloadURL(fileRef)); }
-  return urls;
-}
 function editProduct(id){
   const p = products.find(x=>x.id===id); if(!p) return;
   editingProductId=id;
@@ -693,26 +687,23 @@ async function addProduct(){
   const discount=discRaw?parseFloat(discRaw):null;
   const sizes=document.getElementById('npSizes').value.split(',').map(s=>s.trim()).filter(Boolean);
   const desc=document.getElementById('npDesc').value.trim();
-  const files=document.getElementById('npImages').files;
+  const newImageUrls = document.getElementById('npImages').value.split(',').map(s=>s.trim()).filter(Boolean);
   if(!name||!original||sizes.length===0){ alert('নাম, অরিজিনাল মূল্য ও সাইজ দিন।'); return; }
 
-  const btn=document.getElementById('addProdBtn'); btn.disabled=true; btn.textContent = files.length?'ছবি আপলোড হচ্ছে...':'সংরক্ষণ হচ্ছে...';
+  const btn=document.getElementById('addProdBtn'); btn.disabled=true; btn.textContent='সংরক্ষণ হচ্ছে...';
 
   if(editingProductId){
     const existing = products.find(p=>p.id===editingProductId);
-    let images = existing.images || [];
-    if(files.length){ try{ const newUrls=await uploadProductImages(files, editingProductId); images=[...images,...newUrls]; }catch(e){ alert('ছবি আপলোডে সমস্যা হয়েছে।'); } }
+    const images = [...(existing.images||[]), ...newImageUrls];
     await updateDoc(doc(db,'products',editingProductId), { name,category,mono,original,discount,sizes,desc,images });
     editingProductId=null;
     document.getElementById('prodFormTitle').textContent='নতুন প্রোডাক্ট যোগ করুন';
     document.getElementById('cancelEditBtn').style.display='none';
   } else {
-    const docRef = await addDoc(collection(db,'products'), { name,category,mono,original,discount,sizes,desc,images:[],createdAt:Date.now() });
-    if(files.length){ try{ const urls=await uploadProductImages(files, docRef.id); await updateDoc(doc(db,'products',docRef.id), { images:urls }); }catch(e){ alert('ছবি আপলোডে সমস্যা হয়েছে, প্রোডাক্ট যোগ হয়েছে (ছবি ছাড়া)।'); } }
+    await addDoc(collection(db,'products'), { name,category,mono,original,discount,sizes,desc,images:newImageUrls,createdAt:Date.now() });
   }
   await loadProducts(); renderGrid(); renderAdminProducts();
-  ['npName','npMono','npOrig','npDisc','npDesc','npSizes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('npImages').value='';
+  ['npName','npMono','npOrig','npDisc','npDesc','npSizes','npImages'].forEach(id=>document.getElementById(id).value='');
   btn.disabled=false; btn.textContent='প্রোডাক্ট যোগ করুন';
   alert('সংরক্ষণ সম্পন্ন হয়েছে।');
 }
