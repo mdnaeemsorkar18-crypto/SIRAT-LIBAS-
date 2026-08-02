@@ -436,21 +436,28 @@ function onSearch(){ searchText=document.getElementById('searchInput').value.tri
 function renderGrid(){
   const el=document.getElementById('grid');
   let list = activeCategory==="সব"?products:products.filter(p=>p.category===activeCategory);
-  if(searchText) list=list.filter(p=>p.name.toLowerCase().includes(searchText));
+  if(searchText) list=list.filter(p=>p.name && p.name.toLowerCase().includes(searchText));
   if(list.length===0){ el.innerHTML=`<div class="empty-msg">${CONFIG_MISSING?'Firebase কনফিগার করা হয়নি।':'কোনো প্রোডাক্ট পাওয়া যায়নি।'}</div>`; return; }
   el.innerHTML = list.map(p=>{
-    const hasDisc = p.discount && p.discount<p.original;
-    const pct = hasDisc?Math.round((1-p.discount/p.original)*100):0;
-    const r = ratingFor(p.id);
-    const img = (p.images&&p.images.length) ? `<img src="${p.images[0]}">` : `<span class="mono">${p.mono||p.name[0]}</span>`;
-    return `<div class="card">
-      <div class="thumb">${hasDisc?`<div class="badge">${pct}% ছাড়</div>`:''}${img}</div>
-      <div class="card-body">
-        <div class="cat-label">${p.category}</div><h3>${p.name}</h3>
-        ${r.count>0?`<div><span class="stars">${starsHtml(r.avg)}</span> <span class="rating-count">(${r.count})</span></div>`:''}
-        <div class="price-row"><span class="price-now">৳${hasDisc?p.discount:p.original}</span>${hasDisc?`<span class="price-old">৳${p.original}</span>`:''}</div>
-        <button class="card-btn" onclick="openProduct('${p.id}')">বিস্তারিত দেখুন</button>
-      </div></div>`;
+    try{
+      const name = p.name || '(নাম নেই)';
+      const category = p.category || 'অন্যান্য';
+      const original = Number(p.original) || 0;
+      const discount = (p.discount && Number(p.discount)) || null;
+      const images = Array.isArray(p.images) ? p.images : [];
+      const hasDisc = discount && discount < original;
+      const pct = hasDisc ? Math.round((1-discount/original)*100) : 0;
+      const r = ratingFor(p.id);
+      const img = images.length ? `<img src="${images[0]}">` : `<span class="mono">${(p.mono||name[0]||'?')}</span>`;
+      return `<div class="card">
+        <div class="thumb">${hasDisc?`<div class="badge">${pct}% ছাড়</div>`:''}${img}</div>
+        <div class="card-body">
+          <div class="cat-label">${category}</div><h3>${name}</h3>
+          ${r.count>0?`<div><span class="stars">${starsHtml(r.avg)}</span> <span class="rating-count">(${r.count})</span></div>`:''}
+          <div class="price-row"><span class="price-now">৳${hasDisc?discount:original}</span>${hasDisc?`<span class="price-old">৳${original}</span>`:''}</div>
+          <button class="card-btn" onclick="openProduct('${p.id}')">বিস্তারিত দেখুন</button>
+        </div></div>`;
+    }catch(e){ return ''; }
   }).join('');
 }
 
@@ -475,7 +482,11 @@ function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 
 function openProduct(id){
-  currentProduct=products.find(p=>p.id===id); currentQty=1; currentSize=currentProduct.sizes[0];
+  currentProduct=products.find(p=>p.id===id);
+  if(!currentProduct){ alert('প্রোডাক্টটি পাওয়া যায়নি।'); return; }
+  if(!Array.isArray(currentProduct.sizes) || currentProduct.sizes.length===0) currentProduct.sizes=['Free Size'];
+  if(!Array.isArray(currentProduct.images)) currentProduct.images=[];
+  currentQty=1; currentSize=currentProduct.sizes[0];
   const imgs=currentProduct.images||[];
   document.getElementById('pmMainThumb').innerHTML = imgs.length?`<img src="${imgs[0]}">`:`<span class="mono">${currentProduct.mono||currentProduct.name[0]}</span>`;
   document.getElementById('pmThumbs').innerHTML = imgs.map((u,i)=>`<img src="${u}" class="${i===0?'active':''}" onclick="switchImg(${i})">`).join('');
@@ -738,11 +749,20 @@ async function addProduct(){
   alert('সংরক্ষণ সম্পন্ন হয়েছে।');
 }
 function renderAdminProducts(){
-  document.getElementById('adminProdList').innerHTML = products.map(p=>`
-    <div class="admin-list-item">
-      <span>${p.name} <span style="color:var(--ink-soft);">(${p.category} — ৳${p.discount||p.original}${p.images&&p.images.length?', '+p.images.length+'টি ছবি':''})</span></span>
-      <span class="actions"><button class="edit" onclick="editProduct('${p.id}')">এডিট</button><button class="del" onclick="deleteProduct('${p.id}')">মুছুন</button></span>
-    </div>`).join('');
+  document.getElementById('adminProdList').innerHTML = products.map(p=>{
+    try{
+      const name = p.name || '(নাম নেই)';
+      const category = p.category || 'অন্যান্য';
+      const price = p.discount || p.original || 0;
+      const imgCount = Array.isArray(p.images) ? p.images.length : 0;
+      return `<div class="admin-list-item">
+        <span>${name} <span style="color:var(--ink-soft);">(${category} — ৳${price}${imgCount?', '+imgCount+'টি ছবি':''})</span></span>
+        <span class="actions"><button class="edit" onclick="editProduct('${p.id}')">এডিট</button><button class="del" onclick="deleteProduct('${p.id}')">মুছুন</button></span>
+      </div>`;
+    }catch(e){
+      return `<div class="admin-list-item"><span style="color:var(--danger);">একটা প্রোডাক্টের ডেটা সমস্যাযুক্ত (ID: ${p.id})</span><span class="actions"><button class="del" onclick="deleteProduct('${p.id}')">মুছুন</button></span></div>`;
+    }
+  }).join('');
 }
 async function deleteProduct(id){
   if(!confirm('প্রোডাক্টটি মুছে ফেলতে চান?')) return;
