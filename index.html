@@ -523,11 +523,11 @@ function updateSummary(){
   document.getElementById('checkoutBtn').disabled = cart.length===0;
 }
 function populateDistricts(){ document.getElementById('coDistrict').innerHTML = DISTRICTS.map(d=>`<option value="${d}">${d}</option>`).join(''); }
-function onDistrictChange(){ document.getElementById('payNoteTotal').textContent='৳'+(getSubtotal()+getDeliveryCharge()); setPayment(paymentMethod); }
+function onDistrictChange(){ setPayment(paymentMethod); }
 function openCheckout(){
   if(cart.length===0) return;
   closeModal('cartOverlay'); populateDistricts();
-  document.getElementById('payNoteTotal').textContent='৳'+(getSubtotal()+getDeliveryCharge());
+  setPayment(paymentMethod);
   openModal('checkoutOverlay');
 }
 function setPayment(m){
@@ -535,9 +535,17 @@ function setPayment(m){
   ['payCod','payBkash','payNagad'].forEach(id=>document.getElementById(id).classList.remove('selected'));
   document.getElementById('pay'+m[0].toUpperCase()+m.slice(1)).classList.add('selected');
   const total=getSubtotal()+getDeliveryCharge(); const noteEl=document.getElementById('payNote');
-  if(m==='cod') noteEl.innerHTML=`অর্ডার হাতে পাওয়ার সময় টাকা পরিশোধ করবেন — মোট: <b>৳${total}</b> (ডেলিভারি চার্জসহ)`;
-  else if(m==='bkash') noteEl.innerHTML=`বিকাশ নাম্বারে <b>৳${total}</b> Send Money করে Transaction ID WhatsApp-এ পাঠান: <b>${shopInfo.bkash}</b>`;
-  else noteEl.innerHTML=`নগদ নাম্বারে <b>৳${total}</b> Send Money করে Transaction ID WhatsApp-এ পাঠান: <b>${shopInfo.nagad}</b>`;
+  const btn=document.getElementById('submitOrderBtn');
+  if(m==='cod'){
+    noteEl.innerHTML=`ক্লিক করলেই অর্ডার সরাসরি কনফার্ম হয়ে যাবে — পণ্য হাতে পাওয়ার সময় টাকা পরিশোধ করবেন। মোট: <b>৳${total}</b>`;
+    btn.textContent='অর্ডার কনফার্ম করুন';
+  } else if(m==='bkash'){
+    noteEl.innerHTML=`বিকাশ নাম্বারে <b>৳${total}</b> পেমেন্ট করে WhatsApp-এ Transaction ID পাঠান: <b>${shopInfo.bkash}</b>`;
+    btn.textContent='WhatsApp-এ অর্ডার পাঠান';
+  } else {
+    noteEl.innerHTML=`নগদ নাম্বারে <b>৳${total}</b> Send Money করে WhatsApp-এ Transaction ID পাঠান: <b>${shopInfo.nagad}</b>`;
+    btn.textContent='WhatsApp-এ অর্ডার পাঠান';
+  }
 }
 function genTrackingId(){ const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<6;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
 
@@ -548,7 +556,7 @@ async function submitOrder(){
   const district=document.getElementById('coDistrict').value;
   const address=document.getElementById('coAddress').value.trim();
   if(!name||!phone||!address){ alert('নাম, মোবাইল নাম্বার ও ঠিকানা দিন।'); return; }
-  const btn=document.getElementById('submitOrderBtn'); btn.disabled=true; btn.textContent='পাঠানো হচ্ছে...';
+  const btn=document.getElementById('submitOrderBtn'); btn.disabled=true; btn.textContent='সংরক্ষণ হচ্ছে...';
 
   const sub=getSubtotal(), del=getDeliveryCharge(), total=sub+del;
   const payLabel=paymentMethod==='cod'?'ক্যাশ অন ডেলিভারি':(paymentMethod==='bkash'?'বিকাশ':'নগদ');
@@ -558,15 +566,27 @@ async function submitOrder(){
   try{
     await addDoc(collection(db,'orders'), { name,phone,district,address,payment:payLabel,items:cart,subtotal:sub,delivery:del,total,trackingId,read:false,createdAt:Date.now() });
     await setDoc(doc(db,'tracking',trackingId), { status:'pending', itemsSummary, total, createdAt:Date.now() });
-  }catch(e){ alert('অর্ডার সংরক্ষণে সমস্যা হয়েছে, তবে WhatsApp-এ পাঠানো হবে।'); }
+  }catch(e){
+    alert('অর্ডার সংরক্ষণে সমস্যা হয়েছে। ইন্টারনেট সংযোগ চেক করে আবার চেষ্টা করুন।');
+    btn.disabled=false; btn.textContent = paymentMethod==='cod' ? 'অর্ডার কনফার্ম করুন' : 'WhatsApp-এ অর্ডার পাঠান';
+    return;
+  }
 
-  const itemsText=cart.map(i=>`${i.name} (সাইজ: ${i.size}, পরিমাণ: ${i.qty}) — ৳${i.price*i.qty}`).join('%0A');
-  const msg=`নতুন অর্ডার — SIRAT LIBAS%0A%0Aনাম: ${name}%0Aমোবাইল: ${phone}%0Aজেলা: ${district}%0Aঠিকানা: ${address}%0A%0Aপণ্য:%0A${itemsText}%0A%0Aসাবটোটাল: ৳${sub}%0Aডেলিভারি চার্জ: ৳${del}%0Aসর্বমোট: ৳${total}%0Aপেমেন্ট: ${payLabel}%0Aট্র্যাকিং আইডি: ${trackingId}`;
-  window.open(`https://wa.me/${shopInfo.whatsapp}?text=${msg}`, '_blank');
+  if(paymentMethod !== 'cod'){
+    const itemsText=cart.map(i=>`${i.name} (সাইজ: ${i.size}, পরিমাণ: ${i.qty}) — ৳${i.price*i.qty}`).join('%0A');
+    const payNote = paymentMethod==='bkash' ? 'বিকাশে পেমেন্ট করা হয়েছে' : 'নগদে সেন্ড মানি করা হয়েছে';
+    const msg=`নতুন অর্ডার — SIRAT LIBAS%0A%0Aনাম: ${name}%0Aমোবাইল: ${phone}%0Aজেলা: ${district}%0Aঠিকানা: ${address}%0A%0Aপণ্য:%0A${itemsText}%0A%0Aসাবটোটাল: ৳${sub}%0Aডেলিভারি চার্জ: ৳${del}%0Aসর্বমোট: ৳${total}%0Aপেমেন্ট: ${payLabel} (${payNote})%0Aট্র্যাকিং আইডি: ${trackingId}`;
+    window.open(`https://wa.me/${shopInfo.whatsapp}?text=${msg}`, '_blank');
+  }
 
   cart=[]; updateCartCount(); closeModal('checkoutOverlay');
-  btn.disabled=false; btn.textContent='WhatsApp-এ অর্ডার পাঠান';
-  alert(`অর্ডার সফল হয়েছে! আপনার ট্র্যাকিং আইডি: ${trackingId}\n\nএই আইডি দিয়ে "ট্র্যাক" অপশনে অর্ডারের অবস্থা দেখতে পারবেন।`);
+  btn.disabled=false; btn.textContent = paymentMethod==='cod' ? 'অর্ডার কনফার্ম করুন' : 'WhatsApp-এ অর্ডার পাঠান';
+
+  if(paymentMethod==='cod'){
+    alert(`✅ আপনার অর্ডার কনফার্ম হয়েছে!\n\nট্র্যাকিং আইডি: ${trackingId}\nমোট: ৳${total} (ক্যাশ অন ডেলিভারি)\n\nএই আইডি দিয়ে "ট্র্যাক" অপশনে অর্ডারের অবস্থা দেখতে পারবেন।`);
+  } else {
+    alert(`অর্ডার সফল হয়েছে! আপনার ট্র্যাকিং আইডি: ${trackingId}\n\nWhatsApp-এ মেসেজ পাঠিয়ে অর্ডার নিশ্চিত করুন।`);
+  }
 }
 
 function openTrack(){ document.getElementById('trackResult').innerHTML=''; document.getElementById('trackId').value=''; openModal('trackOverlay'); }
@@ -676,7 +696,9 @@ function cancelEditProduct(){
   document.getElementById('prodFormTitle').textContent='নতুন প্রোডাক্ট যোগ করুন';
   document.getElementById('addProdBtn').textContent='প্রোডাক্ট যোগ করুন';
   document.getElementById('cancelEditBtn').style.display='none';
-  ['npName','npMono','npOrig','npDisc','npDesc','npSizes'].forEach(id=>document.getElementById(id).value='');
+  ['npName','npMono','npOrig','npDisc','npDesc','npSizes','npImages'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('npCat').value = CATEGORIES[0];
+  suggestSizes();
 }
 async function addProduct(){
   const name=document.getElementById('npName').value.trim();
@@ -692,18 +714,26 @@ async function addProduct(){
 
   const btn=document.getElementById('addProdBtn'); btn.disabled=true; btn.textContent='সংরক্ষণ হচ্ছে...';
 
-  if(editingProductId){
-    const existing = products.find(p=>p.id===editingProductId);
-    const images = [...(existing.images||[]), ...newImageUrls];
-    await updateDoc(doc(db,'products',editingProductId), { name,category,mono,original,discount,sizes,desc,images });
-    editingProductId=null;
-    document.getElementById('prodFormTitle').textContent='নতুন প্রোডাক্ট যোগ করুন';
-    document.getElementById('cancelEditBtn').style.display='none';
-  } else {
-    await addDoc(collection(db,'products'), { name,category,mono,original,discount,sizes,desc,images:newImageUrls,createdAt:Date.now() });
+  try{
+    if(editingProductId){
+      const existing = products.find(p=>p.id===editingProductId);
+      const images = [...(existing.images||[]), ...newImageUrls];
+      await updateDoc(doc(db,'products',editingProductId), { name,category,mono,original,discount,sizes,desc,images });
+      editingProductId=null;
+      document.getElementById('prodFormTitle').textContent='নতুন প্রোডাক্ট যোগ করুন';
+      document.getElementById('cancelEditBtn').style.display='none';
+    } else {
+      await addDoc(collection(db,'products'), { name,category,mono,original,discount,sizes,desc,images:newImageUrls,createdAt:Date.now() });
+    }
+  }catch(e){
+    alert('সংরক্ষণে সমস্যা হয়েছে। সম্ভবত অ্যাডমিন লগইন সেশন শেষ হয়ে গেছে — লগআউট করে আবার লগইন করে দেখুন।');
+    btn.disabled=false; btn.textContent='প্রোডাক্ট যোগ করুন';
+    return;
   }
   await loadProducts(); renderGrid(); renderAdminProducts();
   ['npName','npMono','npOrig','npDisc','npDesc','npSizes','npImages'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('npCat').value = CATEGORIES[0];
+  suggestSizes();
   btn.disabled=false; btn.textContent='প্রোডাক্ট যোগ করুন';
   alert('সংরক্ষণ সম্পন্ন হয়েছে।');
 }
@@ -714,7 +744,15 @@ function renderAdminProducts(){
       <span class="actions"><button class="edit" onclick="editProduct('${p.id}')">এডিট</button><button class="del" onclick="deleteProduct('${p.id}')">মুছুন</button></span>
     </div>`).join('');
 }
-async function deleteProduct(id){ if(!confirm('প্রোডাক্টটি মুছে ফেলতে চান?')) return; await deleteDoc(doc(db,'products',id)); await loadProducts(); renderGrid(); renderAdminProducts(); }
+async function deleteProduct(id){
+  if(!confirm('প্রোডাক্টটি মুছে ফেলতে চান?')) return;
+  try{
+    await deleteDoc(doc(db,'products',id));
+    await loadProducts(); renderGrid(); renderAdminProducts();
+  }catch(e){
+    alert('মুছতে সমস্যা হয়েছে। সম্ভবত অ্যাডমিন লগইন সেশন শেষ হয়ে গেছে — লগআউট করে আবার লগইন করে দেখুন।');
+  }
+}
 
 async function markOrderRead(orderId){ await updateDoc(doc(db,'orders',orderId), { read:true }); }
 function renderAdminOrders(){
