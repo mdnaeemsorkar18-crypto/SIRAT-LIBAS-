@@ -180,11 +180,47 @@
   .foot-links{ font-size:12px; color:var(--ink-soft); margin-bottom:16px; }
   .copyright{ font-size:12px; opacity:.6; }
 
+  /* ---- Hero banner slider ---- */
+  .banner-slider{ position:relative; width:100%; aspect-ratio:2.5/1; max-height:420px; overflow:hidden; background:var(--gold-tint); border-bottom:1px solid var(--line); }
+  .banner-slide{ position:absolute; inset:0; opacity:0; transition:opacity .8s ease; display:flex; align-items:flex-end; justify-content:flex-start; }
+  .banner-slide.active{ opacity:1; }
+  .banner-slide img{ width:100%; height:100%; object-fit:cover; }
+  .banner-slide .no-img{ width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    background:linear-gradient(135deg,var(--gold-tint),#fff); color:var(--gold); font-family:'Noto Serif Bengali',serif; }
+  .banner-slide .no-img .big{ font-size:28px; }
+  .banner-slide .no-img .small{ font-size:12px; color:var(--ink-soft); font-family:'Hind Siliguri',sans-serif; }
+  .banner-caption{ position:absolute; left:5vw; bottom:22px; background:rgba(27,26,23,.62); color:#fff; padding:8px 16px; border-radius:2px; font-size:14px; }
+  .banner-dots{ position:absolute; bottom:14px; right:5vw; display:flex; gap:7px; }
+  .banner-dots span{ width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.6); border:1px solid rgba(0,0,0,.15); cursor:pointer; }
+  .banner-dots span.active{ background:var(--gold); }
+
+  /* ---- Measurement / style options ---- */
+  .size-mode-row{ display:flex; gap:10px; margin:10px 0; }
+  .size-mode-opt{ flex:1; border:1px solid var(--line); background:#fff; color:var(--ink); padding:9px; border-radius:2px; font-size:13px; text-align:center; }
+  .size-mode-opt.selected{ border-color:var(--gold); background:var(--gold-tint); color:var(--gold-bright); font-weight:700; }
+  .measure-box{ border:1px dashed var(--line); border-radius:4px; padding:14px; margin-top:6px; }
+  .measure-box h4{ font-size:13.5px; color:var(--gold-bright); margin-bottom:10px; }
+  .measure-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .measure-field label{ display:block; font-size:12px; color:var(--ink-soft); margin-bottom:4px; }
+  .measure-field input{ padding:9px 10px; font-size:14px; }
+  .style-opt-row{ margin-top:10px; }
+  .style-opt-row .field-label{ margin:12px 0 6px; }
+  .style-opt-row select{ padding:9px 10px; }
+  .measure-photo-hint{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; line-height:1.6; }
+  .cloth-code-tag{ display:inline-block; font-size:11px; color:var(--ink-soft); border:1px solid var(--line); border-radius:2px; padding:1px 7px; margin-left:6px; }
+  .cat-manage-row{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .cat-manage-row select, .cat-manage-row input{ flex:1; min-width:120px; }
+  .cat-chip-list{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .cat-chip{ display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:16px; padding:5px 10px 5px 12px; font-size:12.5px; background:var(--bg-soft); }
+  .cat-chip button{ background:none; border:none; color:var(--danger); font-size:13px; }
+
   @media(max-width:600px){
     .form-grid, .contact-grid{ grid-template-columns:1fr; }
     header{ padding:14px 4vw; }
     .hero{ padding:50px 4vw 40px; }
     nav.main-nav{ display:none; }
+    .measure-grid{ grid-template-columns:1fr; }
+    .banner-slider{ aspect-ratio:4/5; max-height:520px; }
   }
 </style>
 </head>
@@ -202,6 +238,9 @@
     <button id="cartBtn" onclick="openCart()">🛍 কার্ট <span class="count" id="cartCount">0</span></button>
   </div>
 </header>
+
+
+<div class="banner-slider" id="bannerSlider"></div>
 
 <section class="hero">
   <div class="eyebrow en">est. modest wear</div>
@@ -255,8 +294,23 @@
       <span class="badge" id="pmBadge" style="position:static;"></span>
     </div>
     <p style="font-size:13.5px;color:var(--ink-soft);margin-top:10px;" id="pmDesc"></p>
-    <div class="field-label">সাইজ বাছাই করুন</div>
-    <div class="size-opts" id="pmSizes"></div>
+
+    <div class="field-label">সাইজ কীভাবে দিতে চান?</div>
+    <div class="size-mode-row">
+      <div class="size-mode-opt selected" id="sizeModeStd" onclick="setSizeMode('std')">স্ট্যান্ডার্ড সাইজ</div>
+      <div class="size-mode-opt" id="sizeModeCustom" onclick="setSizeMode('custom')">নিজের মাপ দেব</div>
+    </div>
+    <div id="pmStdWrap">
+      <div class="size-opts" id="pmSizes"></div>
+    </div>
+    <div id="pmCustomWrap" style="display:none;">
+      <div id="pmMeasureGroups"></div>
+      <div id="pmStyleOptions"></div>
+      <div class="field-label">মাপের কাগজ/ছবি থাকলে দিন (ঐচ্ছিক)</div>
+      <input type="file" id="pmMeasurePhoto" accept="image/*">
+      <div class="measure-photo-hint">নিজের হাতে মাপ নিতে সমস্যা হলে টেইলার্স থেকে লেখা মাপ বা ছবি তুলে দিন — আমরা সেটা দেখেই বানিয়ে দেব।</div>
+    </div>
+
     <div class="field-label">পরিমাণ</div>
     <div class="qty-row"><button class="qty-btn" onclick="changeQty(-1)">−</button><span id="pmQty">1</span><button class="qty-btn" onclick="changeQty(1)">+</button></div>
     <button class="btn-gold" onclick="addToCart()">কার্টে যোগ করুন</button>
@@ -342,14 +396,16 @@
         <div class="form-grid">
           <div class="full"><div class="field-label" style="margin-top:0;">প্রোডাক্টের নাম</div><input type="text" id="npName"></div>
           <div><div class="field-label">ক্যাটাগরি</div>
-            <select id="npCat" onchange="suggestSizes()">
-              <option value="বোরকা">বোরকা</option><option value="টুপি">টুপি</option><option value="পাঞ্জাবি">পাঞ্জাবি</option>
-              <option value="কটি">কটি</option><option value="জুব্বা">জুব্বা</option>
-            </select>
+            <select id="npCat" onchange="suggestSizes()"></select>
           </div>
+          <div><div class="field-label">কোড নাম্বার (এড/সার্চের জন্য)</div><input type="text" id="npCode" placeholder="যেমন: PJ-101"></div>
           <div><div class="field-label">মনোগ্রাম অক্ষর</div><input type="text" id="npMono" maxlength="1"></div>
           <div><div class="field-label">অরিজিনাল মূল্য (৳)</div><input type="text" id="npOrig"></div>
           <div><div class="field-label">ডিসকাউন্ট মূল্য (৳)</div><input type="text" id="npDisc"></div>
+          <div class="full" style="display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="npIsCloth" style="width:auto;" onchange="renderNpMeasurePreview()">
+            <label for="npIsCloth" style="font-size:13.5px;">এটি শুধু কাপড় (থান) — পাঞ্জাবি ও সেলোয়ার দুই ধরনের মাপ একসাথে দেখাবে</label>
+          </div>
           <div class="full"><div class="field-label">সাইজ (কমা দিয়ে আলাদা করুন)</div><input type="text" id="npSizes"></div>
           <div class="full"><div class="field-label">বিবরণ</div><textarea id="npDesc"></textarea></div>
           <div class="full"><div class="field-label">ছবি সরাসরি আপলোড করুন (একাধিক বাছাই করা যাবে)</div><input type="file" id="npImageFiles" accept="image/*" multiple></div>
@@ -357,6 +413,19 @@
         </div>
         <button class="btn-gold" id="addProdBtn" onclick="addProduct()">প্রোডাক্ট যোগ করুন</button>
         <button class="btn-outline-sm" id="cancelEditBtn" style="display:none;margin-top:10px;width:100%;" onclick="cancelEditProduct()">বাতিল করুন</button>
+
+        <h3 style="font-size:16px;margin:28px 0 10px;">ক্যাটাগরি ম্যানেজমেন্ট</h3>
+        <div class="cat-manage-row">
+          <input type="text" id="newCatName" placeholder="নতুন ক্যাটাগরির নাম">
+          <select id="newCatGroup">
+            <option value="top6">উপরের পোশাকের মাপ (৬ ঘর)</option>
+            <option value="bottom3">সেলোয়ার/পায়জামার মাপ (৩ ঘর)</option>
+            <option value="none">মাপ প্রয়োজন নেই</option>
+          </select>
+          <button class="btn-outline-sm" onclick="addCategory()">যোগ করুন</button>
+        </div>
+        <div class="cat-chip-list" id="catChipList"></div>
+
         <h3 style="font-size:16px;margin:28px 0 10px;">বর্তমান প্রোডাক্ট তালিকা</h3>
         <div id="adminProdList"></div>
       </div>
@@ -364,6 +433,17 @@
       <div class="admin-panel" id="adminOrders"><div id="adminOrderList"></div></div>
 
       <div class="admin-panel" id="adminShop">
+        <h3 style="font-size:16px;margin-bottom:6px;">হোমপেজ ব্যানার (৩টি ছবি, ডানে-বামে স্বয়ংক্রিয়ভাবে বদলাবে)</h3>
+        <div class="hint" style="margin-bottom:14px;">প্রস্তাবিত সাইজ: <b>1600 × 640 পিক্সেল</b> (অনুপাত প্রায় ২.৫:১), JPG/WEBP, ফাইল সাইজ ৩০০KB এর কম হলে দ্রুত লোড হবে। এআই দিয়ে ছবি বানানোর সময় এই মাপ অনুযায়ী বানান, তাহলে ছবি কাটা পড়বে না।</div>
+        <div class="form-grid">
+          <div class="full"><div class="field-label" style="margin-top:0;">ব্যানার ১ — পাঞ্জাবি, জুব্বা ও টুপি</div><input type="text" id="siBanner1" placeholder="ছবির লিংক (1600x640px)"></div>
+          <div class="full"><div class="field-label">ব্যানার ১ এর ক্যাপশন</div><input type="text" id="siBanner1Cap" placeholder="যেমন: পাঞ্জাবি · জুব্বা · টুপি"></div>
+          <div class="full"><div class="field-label">ব্যানার ২ — বোরকা ও হিজাব</div><input type="text" id="siBanner2" placeholder="ছবির লিংক (1600x640px)"></div>
+          <div class="full"><div class="field-label">ব্যানার ২ এর ক্যাপশন</div><input type="text" id="siBanner2Cap" placeholder="যেমন: বোরকা · হিজাব"></div>
+          <div class="full"><div class="field-label">ব্যানার ৩ — সেলোয়ার, পায়জামা</div><input type="text" id="siBanner3" placeholder="ছবির লিংক (1600x640px)"></div>
+          <div class="full"><div class="field-label">ব্যানার ৩ এর ক্যাপশন</div><input type="text" id="siBanner3Cap" placeholder="যেমন: সেলোয়ার · পায়জামা"></div>
+        </div>
+        <h3 style="font-size:16px;margin:24px 0 10px;">দোকানের তথ্য</h3>
         <div class="form-grid">
           <div class="full"><div class="field-label" style="margin-top:0;">"আমাদের কথা" সেকশনের লেখা</div><textarea id="siAbout"></textarea></div>
           <div class="full"><div class="field-label">দোকানের ঠিকানা</div><textarea id="siAddress"></textarea></div>
@@ -414,8 +494,48 @@ async function uploadToImgbb(file){
 let app, db, auth;
 if (!CONFIG_MISSING) { app=initializeApp(firebaseConfig); db=getFirestore(app); auth=getAuth(app); }
 
-const CATEGORIES = ["বোরকা","টুপি","পাঞ্জাবি","কটি","জুব্বা"];
-const SIZE_TEMPLATES = { "বোরকা":["S","M","L","XL","XXL"], "টুপি":["Free Size","56cm","58cm","60cm","62cm"], "পাঞ্জাবি":["S","M","L","XL","XXL"], "কটি":["S","M","L","XL","XXL"], "জুব্বা":["S","M","L","XL","XXL"] };
+const DEFAULT_CATEGORY_DEFS = [
+  { name:"বোরকা", group:"top6" },
+  { name:"টুপি", group:"none" },
+  { name:"পাঞ্জাবি", group:"top6" },
+  { name:"কটি", group:"top6" },
+  { name:"জুব্বা", group:"top6" },
+  { name:"সেলোয়ার-পায়জামা", group:"bottom3" },
+  { name:"শার্ট-ফতুয়া", group:"top6" }
+];
+let CATEGORY_DEFS = [...DEFAULT_CATEGORY_DEFS];
+function CATEGORIES(){ return CATEGORY_DEFS.map(c=>c.name); }
+function catGroup(name){ const c=CATEGORY_DEFS.find(x=>x.name===name); return c?c.group:'none'; }
+
+const SIZE_TEMPLATES_DEFAULT = { "বোরকা":["S","M","L","XL","XXL"], "টুপি":["Free Size","56cm","58cm","60cm","62cm"], "পাঞ্জাবি":["S","M","L","XL","XXL"], "কটি":["S","M","L","XL","XXL"], "জুব্বা":["S","M","L","XL","XXL"], "সেলোয়ার-পায়জামা":["S","M","L","XL","XXL"], "শার্ট-ফতুয়া":["S","M","L","XL","XXL"] };
+function sizeTemplateFor(cat){ return SIZE_TEMPLATES_DEFAULT[cat] || ["S","M","L","XL","XXL"]; }
+
+/* মাপের ঘর — টেইলার্সের খাতার মতো */
+const MEASURE_FIELDS = {
+  top6: [ {k:'lomba',label:'লম্বা'}, {k:'body',label:'বডি (বুক)'}, {k:'kandh',label:'ফুট/কাঁধ'}, {k:'hata_lomba',label:'হাতার লম্বা'}, {k:'hata_mukh',label:'হাতার মুখ'}, {k:'collar',label:'কলার'} ],
+  bottom3: [ {k:'lomba',label:'লম্বা'}, {k:'mohuri',label:'মহুরি'}, {k:'komor',label:'কমর'} ]
+};
+/* পাঞ্জাবি/জুব্বা/শার্ট-ফতুয়ার জন্য স্টাইল অপশন */
+const STYLE_OPTIONS_BY_CAT = {
+  "পাঞ্জাবি": [
+    {k:'collarType', label:'কলার', opts:['নরমাল কলার','শেরওয়ানি কলার','বেন কলার']},
+    {k:'plate', label:'প্লেট', opts:['চুকা','সমান']},
+    {k:'pocket', label:'বুক পকেট', opts:['নেই','গোল','কোনাকাটা']},
+    {k:'button', label:'কাপড়ের সাথে মিলিয়ে বাটন', opts:['হ্যাঁ','না']},
+    {k:'sleeve', label:'হাতা', opts:['ফুল হাতা','হাফ হাতা']}
+  ],
+  "জুব্বা": [
+    {k:'collarType', label:'কলার', opts:['নরমাল কলার','শেরওয়ানি কলার','বেন কলার']},
+    {k:'plate', label:'প্লেট', opts:['চুকা','সমান']},
+    {k:'pocket', label:'বুক পকেট', opts:['নেই','গোল','কোনাকাটা']},
+    {k:'gulpi', label:'গুলপি', opts:['লাগবে না','লাগবে']},
+    {k:'cuff', label:'কপ হাতা', opts:['লাগবে না','লাগবে']}
+  ],
+  "শার্ট-ফতুয়া": [
+    {k:'sleeve', label:'হাতা', opts:['ফুল হাতা','হাফ হাতা']},
+    {k:'pocket', label:'বুক পকেট', opts:['নেই','গোল','কোনাকাটা']}
+  ]
+};
 const DISTRICTS = ["ঢাকা","ফরিদপুর","গাজীপুর","গোপালগঞ্জ","কিশোরগঞ্জ","মাদারীপুর","মানিকগঞ্জ","মুন্সিগঞ্জ","নারায়ণগঞ্জ","নরসিংদী","রাজবাড়ী","শরীয়তপুর","টাঙ্গাইল","বাগেরহাট","চুয়াডাঙ্গা","যশোর","ঝিনাইদহ","খুলনা","কুষ্টিয়া","মাগুরা","মেহেরপুর","নড়াইল","সাতক্ষীরা","বান্দরবান","ব্রাহ্মণবাড়িয়া","চাঁদপুর","চট্টগ্রাম","কুমিল্লা","কক্সবাজার","ফেনী","খাগড়াছড়ি","লক্ষ্মীপুর","নোয়াখালী","রাঙামাটি","বগুড়া","জয়পুরহাট","নওগাঁ","নাটোর","চাঁপাইনবাবগঞ্জ","পাবনা","রাজশাহী","সিরাজগঞ্জ","জামালপুর","ময়মনসিংহ","নেত্রকোণা","শেরপুর","দিনাজপুর","গাইবান্ধা","কুড়িগ্রাম","লালমনিরহাট","নীলফামারী","পঞ্চগড়","রংপুর","ঠাকুরগাঁও","বরগুনা","বরিশাল","ভোলা","ঝালকাঠি","পটুয়াখালী","পিরোজপুর","হবিগঞ্জ","মৌলভীবাজার","সুনামগঞ্জ","সিলেট"];
 const FAQS = [
   {q:"অর্ডার করলে ডেলিভারি পেতে কতদিন লাগে?", a:"ঢাকার ভিতরে সাধারণত ১-২ দিন, ঢাকার বাইরে ৩-৫ দিন সময় লাগে।"},
@@ -423,7 +543,8 @@ const FAQS = [
   {q:"কীভাবে অর্ডার ট্র্যাক করব?", a:"অর্ডার করার পর একটা ট্র্যাকিং আইডি পাবেন। উপরের 'ট্র্যাক' বাটনে গিয়ে সেই আইডি দিলেই বর্তমান অবস্থা দেখা যাবে।"},
   {q:"পেমেন্ট কীভাবে করব?", a:"ক্যাশ অন ডেলিভারি, বিকাশ অথবা নগদে সরাসরি Send Money করে পেমেন্ট করতে পারবেন।"}
 ];
-const DEFAULT_SHOP_INFO = { about:"সিরাত লিবাস — মানসম্মত কাপড় ও পরিপাটি সেলাইয়ে তৈরি পোশাক, সরাসরি আপনার দরজায়।", address:"[ ঠিকানা যোগ করুন ]", gmail:"[ Gmail যোগ করুন ]", whatsapp:"8801873845076", facebook:"#", bkash:"[ বিকাশ নাম্বার যোগ করুন ]", nagad:"[ নগদ নাম্বার যোগ করুন ]" };
+const DEFAULT_SHOP_INFO = { about:"সিরাত লিবাস — মানসম্মত কাপড় ও পরিপাটি সেলাইয়ে তৈরি পোশাক, সরাসরি আপনার দরজায়।", address:"[ ঠিকানা যোগ করুন ]", gmail:"[ Gmail যোগ করুন ]", whatsapp:"8801873845076", facebook:"#", bkash:"[ বিকাশ নাম্বার যোগ করুন ]", nagad:"[ নগদ নাম্বার যোগ করুন ]",
+  banner1:"", banner1Cap:"পাঞ্জাবি · জুব্বা · টুপি", banner2:"", banner2Cap:"বোরকা · হিজাব", banner3:"", banner3Cap:"সেলোয়ার · পায়জামা" };
 const SEED_PRODUCTS = [
   {name:"প্রিমিয়াম নাইদা বোরকা",category:"বোরকা",mono:"ব",original:2200,discount:1800,sizes:["S","M","L","XL","XXL"],desc:"নরম ও ভারী নাইদা কাপড়।",images:[]},
   {name:"খিমার সেট বোরকা",category:"বোরকা",mono:"খ",original:2600,discount:2200,sizes:["S","M","L","XL","XXL"],desc:"খিমারসহ সম্পূর্ণ সেট।",images:[]},
@@ -436,25 +557,58 @@ const SEED_PRODUCTS = [
 
 let products=[], shopInfo={...DEFAULT_SHOP_INFO}, orders=[], reviews=[], cart=[];
 let activeCategory="সব", searchText="", paymentMethod="cod";
-let currentProduct=null, currentSize=null, currentQty=1, rvRating=5;
+let currentProduct=null, currentSize=null, currentQty=1, rvRating=5, sizeMode='std';
 let editingProductId=null;
 let ordersUnsub=null, firstOrderLoad=true;
 
 async function loadProducts(){ if(CONFIG_MISSING){products=[];return;} const s=await getDocs(collection(db,'products')); products=s.docs.map(d=>({id:d.id,...d.data()})); }
+async function loadCategories(){
+  if(CONFIG_MISSING){ CATEGORY_DEFS=[...DEFAULT_CATEGORY_DEFS]; return; }
+  const s=await getDoc(doc(db,'settings','categories'));
+  CATEGORY_DEFS = (s.exists() && Array.isArray(s.data().list) && s.data().list.length) ? s.data().list : [...DEFAULT_CATEGORY_DEFS];
+}
+async function saveCategories(){ await setDoc(doc(db,'settings','categories'), { list:CATEGORY_DEFS }); }
+async function addCategory(){
+  const name=document.getElementById('newCatName').value.trim();
+  const group=document.getElementById('newCatGroup').value;
+  if(!name){ alert('ক্যাটাগরির নাম দিন।'); return; }
+  if(CATEGORY_DEFS.some(c=>c.name===name)){ alert('এই ক্যাটাগরি আগে থেকেই আছে।'); return; }
+  CATEGORY_DEFS.push({name,group});
+  await saveCategories();
+  document.getElementById('newCatName').value='';
+  renderCatOptions(); renderCatChipList(); renderTabs();
+  alert('ক্যাটাগরি যোগ করা হয়েছে।');
+}
+async function deleteCategory(name){
+  if(!confirm(`"${name}" ক্যাটাগরিটি মুছে ফেলতে চান? (এই ক্যাটাগরির পুরনো প্রোডাক্টগুলো থেকে যাবে, শুধু নতুন প্রোডাক্টের তালিকা থেকে সরে যাবে)`)) return;
+  CATEGORY_DEFS = CATEGORY_DEFS.filter(c=>c.name!==name);
+  await saveCategories();
+  renderCatOptions(); renderCatChipList(); renderTabs();
+}
+function renderCatOptions(){
+  const sel=document.getElementById('npCat');
+  const cur=sel.value;
+  sel.innerHTML = CATEGORIES().map(c=>`<option value="${c}">${c}</option>`).join('');
+  if(CATEGORIES().includes(cur)) sel.value=cur;
+}
+function renderCatChipList(){
+  document.getElementById('catChipList').innerHTML = CATEGORY_DEFS.map(c=>
+    `<div class="cat-chip">${c.name} <button onclick="deleteCategory('${c.name}')" title="মুছুন">&times;</button></div>`).join('');
+}
 async function loadShopInfo(){ if(CONFIG_MISSING){shopInfo=DEFAULT_SHOP_INFO;return;} const s=await getDoc(doc(db,'settings','shopInfo')); shopInfo=s.exists()?{...DEFAULT_SHOP_INFO,...s.data()}:DEFAULT_SHOP_INFO; }
 async function loadReviews(){ if(CONFIG_MISSING){reviews=[];return;} const s=await getDocs(collection(db,'reviews')); reviews=s.docs.map(d=>({id:d.id,...d.data()})); }
 
 function ratingFor(pid){ const rs=reviews.filter(r=>r.productId===pid); if(rs.length===0) return {avg:0,count:0}; return {avg: rs.reduce((s,r)=>s+r.rating,0)/rs.length, count:rs.length}; }
 function starsHtml(avg){ let h=''; for(let i=1;i<=5;i++) h += i<=Math.round(avg)?'★':'<span class="empty">★</span>'; return h; }
 
-function renderTabs(){ document.getElementById('tabs').innerHTML = ["সব",...CATEGORIES].map(c=>`<button class="tab ${c===activeCategory?'active':''}" onclick="filterCat('${c}')">${c}</button>`).join(''); }
+function renderTabs(){ document.getElementById('tabs').innerHTML = ["সব",...CATEGORIES()].map(c=>`<button class="tab ${c===activeCategory?'active':''}" onclick="filterCat('${c}')">${c}</button>`).join(''); }
 function filterCat(c){ activeCategory=c; renderTabs(); renderGrid(); }
 function onSearch(){ searchText=document.getElementById('searchInput').value.trim().toLowerCase(); renderGrid(); }
 
 function renderGrid(){
   const el=document.getElementById('grid');
   let list = activeCategory==="সব"?products:products.filter(p=>p.category===activeCategory);
-  if(searchText) list=list.filter(p=>p.name && p.name.toLowerCase().includes(searchText));
+  if(searchText) list=list.filter(p=>(p.name && p.name.toLowerCase().includes(searchText)) || (p.clothCode && p.clothCode.toLowerCase().includes(searchText)));
   if(list.length===0){ el.innerHTML=`<div class="empty-msg">${CONFIG_MISSING?'Firebase কনফিগার করা হয়নি।':'কোনো প্রোডাক্ট পাওয়া যায়নি।'}</div>`; return; }
   el.innerHTML = list.map(p=>{
     try{
@@ -470,7 +624,7 @@ function renderGrid(){
       return `<div class="card">
         <div class="thumb">${hasDisc?`<div class="badge">${pct}% ছাড়</div>`:''}${img}</div>
         <div class="card-body">
-          <div class="cat-label">${category}</div><h3>${name}</h3>
+          <div class="cat-label">${category}${p.clothCode?`<span class="cloth-code-tag">${p.clothCode}</span>`:''}</div><h3>${name}</h3>
           ${r.count>0?`<div><span class="stars">${starsHtml(r.avg)}</span> <span class="rating-count">(${r.count})</span></div>`:''}
           <div class="price-row"><span class="price-now">৳${hasDisc?discount:original}</span>${hasDisc?`<span class="price-old">৳${original}</span>`:''}</div>
           <button class="card-btn" onclick="openProduct('${p.id}')">বিস্তারিত দেখুন</button>
@@ -486,6 +640,28 @@ function renderFooter(){
   document.getElementById('contactWhatsapp').href = 'https://wa.me/'+shopInfo.whatsapp;
   document.getElementById('contactGmail').textContent = shopInfo.gmail;
   document.getElementById('contactFacebook').href = shopInfo.facebook || '#';
+}
+let bannerTimer=null, bannerIdx=0;
+function renderBanners(){
+  const slides=[
+    {url:shopInfo.banner1, cap:shopInfo.banner1Cap, label:'পাঞ্জাবি · জুব্বা · টুপি'},
+    {url:shopInfo.banner2, cap:shopInfo.banner2Cap, label:'বোরকা · হিজাব'},
+    {url:shopInfo.banner3, cap:shopInfo.banner3Cap, label:'সেলোয়ার · পায়জামা'}
+  ];
+  const el=document.getElementById('bannerSlider');
+  el.innerHTML = slides.map((s,i)=>`
+    <div class="banner-slide ${i===0?'active':''}" data-i="${i}">
+      ${s.url?`<img src="${s.url}">`:`<div class="no-img"><span class="big serif">SIRAT LIBAS</span><span class="small">${s.label} — ব্যানার ছবি এখনো দেওয়া হয়নি (অ্যাডমিন → দোকানের তথ্য থেকে যোগ করুন)</span></div>`}
+      ${s.cap?`<div class="banner-caption">${s.cap}</div>`:''}
+    </div>`).join('') + `<div class="banner-dots">${slides.map((_,i)=>`<span class="${i===0?'active':''}" onclick="goToBanner(${i})"></span>`).join('')}</div>`;
+  bannerIdx=0;
+  if(bannerTimer) clearInterval(bannerTimer);
+  bannerTimer=setInterval(()=>goToBanner((bannerIdx+1)%slides.length), 4200);
+}
+function goToBanner(i){
+  bannerIdx=i;
+  document.querySelectorAll('.banner-slide').forEach((el,idx)=>el.classList.toggle('active', idx===i));
+  document.querySelectorAll('.banner-dots span').forEach((el,idx)=>el.classList.toggle('active', idx===i));
 }
 function renderFaq(){
   document.getElementById('faqList').innerHTML = FAQS.map((f,i)=>`
@@ -508,7 +684,7 @@ function openProduct(id){
   const imgs=currentProduct.images||[];
   document.getElementById('pmMainThumb').innerHTML = imgs.length?`<img src="${imgs[0]}">`:`<span class="mono">${currentProduct.mono||currentProduct.name[0]}</span>`;
   document.getElementById('pmThumbs').innerHTML = imgs.map((u,i)=>`<img src="${u}" class="${i===0?'active':''}" onclick="switchImg(${i})">`).join('');
-  document.getElementById('pmCat').textContent=currentProduct.category;
+  document.getElementById('pmCat').innerHTML = currentProduct.category + (currentProduct.clothCode?`<span class="cloth-code-tag">${currentProduct.clothCode}</span>`:'');
   document.getElementById('pmName').textContent=currentProduct.name;
   document.getElementById('pmDesc').textContent=currentProduct.desc||'';
   const r=ratingFor(currentProduct.id);
@@ -521,25 +697,94 @@ function openProduct(id){
   document.getElementById('pmQty').textContent=currentQty;
   document.getElementById('pmSizes').innerHTML = currentProduct.sizes.map((s,i)=>`<button class="size-opt ${i===0?'selected':''}" onclick="selectSize('${s}',this)">${s}</button>`).join('');
   renderReviewList(); rvRating=5; renderStarSelect();
+  document.getElementById('pmMeasurePhoto').value='';
+  setSizeMode('std');
+  renderMeasureGroups();
+  renderStyleOptions();
   openModal('productOverlay');
+}
+function setSizeMode(mode){
+  sizeMode=mode;
+  document.getElementById('sizeModeStd').classList.toggle('selected', mode==='std');
+  document.getElementById('sizeModeCustom').classList.toggle('selected', mode==='custom');
+  document.getElementById('pmStdWrap').style.display = mode==='std'?'block':'none';
+  document.getElementById('pmCustomWrap').style.display = mode==='custom'?'block':'none';
+}
+function measureGroupsForProduct(p){
+  if(p.isCloth) return ['top6','bottom3'];
+  const g=catGroup(p.category);
+  return g==='none'?[]:[g];
+}
+function renderMeasureGroups(){
+  const groups=measureGroupsForProduct(currentProduct);
+  const titles={top6:'উপরের পোশাকের মাপ (ইঞ্চিতে)', bottom3:'সেলোয়ার/পায়জামার মাপ (ইঞ্চিতে)'};
+  document.getElementById('pmMeasureGroups').innerHTML = groups.length===0
+    ? '<p class="hint">এই প্রোডাক্টের জন্য কাস্টম মাপ প্রযোজ্য নয় — স্ট্যান্ডার্ড সাইজ বেছে নিন।</p>'
+    : groups.map(g=>`<div class="measure-box"><h4>${titles[g]}</h4><div class="measure-grid">
+        ${MEASURE_FIELDS[g].map(f=>`<div class="measure-field"><label>${f.label}</label><input type="text" inputmode="decimal" id="meas_${g}_${f.k}" placeholder="ইঞ্চি"></div>`).join('')}
+      </div></div>`).join('');
+}
+function renderStyleOptions(){
+  const opts = STYLE_OPTIONS_BY_CAT[currentProduct.category] || [];
+  document.getElementById('pmStyleOptions').innerHTML = opts.length===0 ? '' :
+    `<div class="style-opt-row"><div class="field-label" style="margin-top:0;">পোশাকের স্টাইল বেছে নিন</div>
+     ${opts.map(o=>`<div class="field-label">${o.label}</div><select id="style_${o.k}">${o.opts.map(v=>`<option value="${v}">${v}</option>`).join('')}</select>`).join('')}
+    </div>`;
+}
+function collectCustomMeasurements(){
+  const groups=measureGroupsForProduct(currentProduct);
+  const measurements={};
+  groups.forEach(g=>{ MEASURE_FIELDS[g].forEach(f=>{ const el=document.getElementById(`meas_${g}_${f.k}`); if(el && el.value.trim()) measurements[f.label]=el.value.trim(); }); });
+  return measurements;
+}
+function collectStyleOptions(){
+  const opts = STYLE_OPTIONS_BY_CAT[currentProduct.category] || [];
+  const chosen={};
+  opts.forEach(o=>{ const el=document.getElementById(`style_${o.k}`); if(el) chosen[o.label]=el.value; });
+  return chosen;
 }
 function switchImg(i){ document.getElementById('pmMainThumb').innerHTML=`<img src="${currentProduct.images[i]}">`; document.querySelectorAll('#pmThumbs img').forEach((el,idx)=>el.classList.toggle('active',idx===i)); }
 function selectSize(s,btn){ currentSize=s; document.querySelectorAll('#pmSizes .size-opt').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); }
 function changeQty(d){ currentQty=Math.max(1,currentQty+d); document.getElementById('pmQty').textContent=currentQty; }
-function addToCart(){
+async function addToCart(){
   const hasDisc=currentProduct.discount && currentProduct.discount<currentProduct.original;
   const price=hasDisc?currentProduct.discount:currentProduct.original;
   const img=(currentProduct.images&&currentProduct.images[0])||null;
-  cart.push({id:currentProduct.id,name:currentProduct.name,mono:currentProduct.mono,img,size:currentSize,qty:currentQty,price});
+  const item={id:currentProduct.id,name:currentProduct.name,mono:currentProduct.mono,img,qty:currentQty,price,clothCode:currentProduct.clothCode||null};
+
+  if(sizeMode==='custom'){
+    item.size='নিজের মাপ (কাস্টম)';
+    item.measurements=collectCustomMeasurements();
+    item.styleOptions=collectStyleOptions();
+    const photoFile=document.getElementById('pmMeasurePhoto').files[0];
+    if(photoFile){
+      if(IMGBB_CONFIGURED){
+        try{ item.measurePhoto = await uploadToImgbb(photoFile); }
+        catch(e){ alert('মাপের ছবিটা আপলোড করা যায়নি, বাকি তথ্য দিয়েই অর্ডার এগিয়ে নিচ্ছি।'); }
+      } else { alert('ছবি আপলোড এখনো চালু করা হয়নি, তাই ছবি ছাড়াই মাপ যোগ হচ্ছে।'); }
+    }
+    if(Object.keys(item.measurements).length===0 && !item.measurePhoto){
+      alert('অন্তত একটা মাপ লিখুন অথবা মাপের ছবি দিন।'); return;
+    }
+  } else {
+    item.size=currentSize;
+  }
+
+  cart.push(item);
   updateCartCount(); closeModal('productOverlay'); openCart();
 }
 function updateCartCount(){ document.getElementById('cartCount').textContent=cart.reduce((s,i)=>s+i.qty,0); }
 function openCart(){ renderCart(); openModal('cartOverlay'); }
 function renderCart(){
   document.getElementById('cartItems').innerHTML = cart.length===0?'<p style="color:var(--ink-soft);font-size:14px;padding:20px 0;">কার্ট খালি।</p>':
-    cart.map((item,idx)=>`<div class="cart-item"><div class="ci-thumb">${item.img?`<img src="${item.img}">`:(item.mono||item.name[0])}</div>
+    cart.map((item,idx)=>{
+      const measTxt = item.measurements && Object.keys(item.measurements).length ? Object.entries(item.measurements).map(([k,v])=>`${k}: ${v}"`).join(', ') : '';
+      const photoTxt = item.measurePhoto ? ' • মাপের ছবি দেওয়া আছে' : '';
+      return `<div class="cart-item"><div class="ci-thumb">${item.img?`<img src="${item.img}">`:(item.mono||item.name[0])}</div>
       <div class="ci-info"><h4>${item.name}</h4><div class="ci-meta">সাইজ: ${item.size} • পরিমাণ: ${item.qty} • ৳${item.price*item.qty}</div>
-      <button class="ci-remove" onclick="removeFromCart(${idx})">সরিয়ে ফেলুন</button></div></div>`).join('');
+      ${measTxt?`<div class="ci-meta">মাপ: ${measTxt}${photoTxt}</div>`:''}
+      <button class="ci-remove" onclick="removeFromCart(${idx})">সরিয়ে ফেলুন</button></div></div>`;
+    }).join('');
   updateSummary();
 }
 function removeFromCart(idx){ cart.splice(idx,1); updateCartCount(); renderCart(); }
@@ -602,7 +847,12 @@ async function submitOrder(){
   }
 
   if(paymentMethod !== 'cod'){
-    const itemsText=cart.map(i=>`${i.name} (সাইজ: ${i.size}, পরিমাণ: ${i.qty}) — ৳${i.price*i.qty}`).join('%0A');
+    const itemsText=cart.map(i=>{
+      let line=`${i.name} (সাইজ: ${i.size}, পরিমাণ: ${i.qty}) — ৳${i.price*i.qty}`;
+      if(i.measurements && Object.keys(i.measurements).length) line += ' | মাপ: '+Object.entries(i.measurements).map(([k,v])=>`${k}:${v}"`).join(', ');
+      if(i.measurePhoto) line += ' | মাপের ছবি সংযুক্ত (অ্যাডমিন প্যানেলে দেখুন)';
+      return line;
+    }).join('%0A');
     const payNote = paymentMethod==='bkash' ? 'বিকাশে পেমেন্ট করা হয়েছে' : 'নগদে সেন্ড মানি করা হয়েছে';
     const msg=`নতুন অর্ডার — SIRAT LIBAS%0A%0Aনাম: ${name}%0Aমোবাইল: ${phone}%0Aজেলা: ${district}%0Aঠিকানা: ${address}%0A%0Aপণ্য:%0A${itemsText}%0A%0Aসাবটোটাল: ৳${sub}%0Aডেলিভারি চার্জ: ৳${del}%0Aসর্বমোট: ৳${total}%0Aপেমেন্ট: ${payLabel} (${payNote})%0Aট্র্যাকিং আইডি: ${trackingId}`;
     window.open(`https://wa.me/${shopInfo.whatsapp}?text=${msg}`, '_blank');
@@ -699,7 +949,8 @@ function switchAdminTab(tab){
   document.getElementById('adminOrders').classList.toggle('active', tab==='orders');
   document.getElementById('adminShop').classList.toggle('active', tab==='shop');
 }
-function suggestSizes(){ document.getElementById('npSizes').value = SIZE_TEMPLATES[document.getElementById('npCat').value].join(', '); }
+function suggestSizes(){ document.getElementById('npSizes').value = sizeTemplateFor(document.getElementById('npCat').value).join(', '); }
+function renderNpMeasurePreview(){ /* placeholder hook, kept for future live-preview */ }
 async function seedDefaultProducts(){
   for(const p of SEED_PRODUCTS) await addDoc(collection(db,'products'), {...p, createdAt:Date.now()});
   await loadProducts(); renderGrid(); renderAdminProducts();
@@ -712,6 +963,8 @@ function editProduct(id){
   document.getElementById('prodFormTitle').textContent = 'প্রোডাক্ট এডিট করুন: ' + p.name;
   document.getElementById('npName').value=p.name;
   document.getElementById('npCat').value=p.category;
+  document.getElementById('npCode').value=p.clothCode||'';
+  document.getElementById('npIsCloth').checked=!!p.isCloth;
   document.getElementById('npMono').value=p.mono||'';
   document.getElementById('npOrig').value=p.original;
   document.getElementById('npDisc').value=p.discount||'';
@@ -725,13 +978,16 @@ function cancelEditProduct(){
   document.getElementById('prodFormTitle').textContent='নতুন প্রোডাক্ট যোগ করুন';
   document.getElementById('addProdBtn').textContent='প্রোডাক্ট যোগ করুন';
   document.getElementById('cancelEditBtn').style.display='none';
-  ['npName','npMono','npOrig','npDisc','npDesc','npSizes','npImages','npImageFiles'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('npCat').value = CATEGORIES[0];
+  ['npName','npMono','npOrig','npDisc','npDesc','npSizes','npImages','npImageFiles','npCode'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('npIsCloth').checked=false;
+  document.getElementById('npCat').value = CATEGORIES()[0];
   suggestSizes();
 }
 async function addProduct(){
   const name=document.getElementById('npName').value.trim();
   const category=document.getElementById('npCat').value;
+  const clothCode=document.getElementById('npCode').value.trim();
+  const isCloth=document.getElementById('npIsCloth').checked;
   const mono=document.getElementById('npMono').value.trim()||name[0];
   const original=parseFloat(document.getElementById('npOrig').value);
   const discRaw=document.getElementById('npDisc').value.trim();
@@ -760,12 +1016,12 @@ async function addProduct(){
     if(editingProductId){
       const existing = products.find(p=>p.id===editingProductId);
       const images = [...(existing.images||[]), ...newImageUrls];
-      await updateDoc(doc(db,'products',editingProductId), { name,category,mono,original,discount,sizes,desc,images });
+      await updateDoc(doc(db,'products',editingProductId), { name,category,clothCode,isCloth,mono,original,discount,sizes,desc,images });
       editingProductId=null;
       document.getElementById('prodFormTitle').textContent='নতুন প্রোডাক্ট যোগ করুন';
       document.getElementById('cancelEditBtn').style.display='none';
     } else {
-      await addDoc(collection(db,'products'), { name,category,mono,original,discount,sizes,desc,images:newImageUrls,createdAt:Date.now() });
+      await addDoc(collection(db,'products'), { name,category,clothCode,isCloth,mono,original,discount,sizes,desc,images:newImageUrls,createdAt:Date.now() });
     }
   }catch(e){
     alert('সংরক্ষণে সমস্যা হয়েছে। সম্ভবত অ্যাডমিন লগইন সেশন শেষ হয়ে গেছে — লগআউট করে আবার লগইন করে দেখুন।');
@@ -773,8 +1029,9 @@ async function addProduct(){
     return;
   }
   await loadProducts(); renderGrid(); renderAdminProducts();
-  ['npName','npMono','npOrig','npDisc','npDesc','npSizes','npImages','npImageFiles'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('npCat').value = CATEGORIES[0];
+  ['npName','npMono','npOrig','npDisc','npDesc','npSizes','npImages','npImageFiles','npCode'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('npIsCloth').checked=false;
+  document.getElementById('npCat').value = CATEGORIES()[0];
   suggestSizes();
   btn.disabled=false; btn.textContent='প্রোডাক্ট যোগ করুন';
   alert('সংরক্ষণ সম্পন্ন হয়েছে।');
@@ -820,6 +1077,18 @@ function renderAdminOrders(){
       <div class="hint">${o.phone} • ${o.district||''} • ${o.payment} • ${new Date(o.createdAt).toLocaleString('bn-BD')}</div>
       <div class="hint">${o.address}</div>
       <div class="hint">ট্র্যাকিং আইডি: <b>${o.trackingId||'—'}</b></div>
+      <div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;">
+        ${(o.items||[]).map(it=>{
+          const measTxt = it.measurements && Object.keys(it.measurements).length ? Object.entries(it.measurements).map(([k,v])=>`${k}: ${v}″`).join(' • ') : '';
+          const styleTxt = it.styleOptions && Object.keys(it.styleOptions).length ? Object.entries(it.styleOptions).map(([k,v])=>`${k}: ${v}`).join(' • ') : '';
+          return `<div style="font-size:12.5px;margin-bottom:6px;">
+            <b>${it.name}</b> ${it.clothCode?`<span class="cloth-code-tag">${it.clothCode}</span>`:''} — সাইজ: ${it.size}, পরিমাণ: ${it.qty}
+            ${measTxt?`<div class="hint">মাপ: ${measTxt}</div>`:''}
+            ${styleTxt?`<div class="hint">স্টাইল: ${styleTxt}</div>`:''}
+            ${it.measurePhoto?`<div class="hint">মাপের ছবি: <a href="${it.measurePhoto}" target="_blank">দেখুন</a></div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
       ${o.trackingId?`<div style="margin-top:8px;display:flex;align-items:center;gap:8px;" onclick="event.stopPropagation()">
         <span class="hint">স্ট্যাটাস:</span>
         <select class="status-select" data-tid="${o.trackingId}" onchange="updateOrderStatus('${o.trackingId}', this.value)">
@@ -842,6 +1111,12 @@ function fillShopInfoForm(){
   document.getElementById('siFacebook').value=shopInfo.facebook;
   document.getElementById('siBkash').value=shopInfo.bkash;
   document.getElementById('siNagad').value=shopInfo.nagad;
+  document.getElementById('siBanner1').value=shopInfo.banner1||'';
+  document.getElementById('siBanner1Cap').value=shopInfo.banner1Cap||'';
+  document.getElementById('siBanner2').value=shopInfo.banner2||'';
+  document.getElementById('siBanner2Cap').value=shopInfo.banner2Cap||'';
+  document.getElementById('siBanner3').value=shopInfo.banner3||'';
+  document.getElementById('siBanner3Cap').value=shopInfo.banner3Cap||'';
 }
 async function saveShopInfo(){
   shopInfo = {
@@ -851,16 +1126,23 @@ async function saveShopInfo(){
     whatsapp:document.getElementById('siWhatsapp').value.trim().replace(/^0/,'880'),
     facebook:document.getElementById('siFacebook').value.trim(),
     bkash:document.getElementById('siBkash').value.trim(),
-    nagad:document.getElementById('siNagad').value.trim()
+    nagad:document.getElementById('siNagad').value.trim(),
+    banner1:document.getElementById('siBanner1').value.trim(),
+    banner1Cap:document.getElementById('siBanner1Cap').value.trim(),
+    banner2:document.getElementById('siBanner2').value.trim(),
+    banner2Cap:document.getElementById('siBanner2Cap').value.trim(),
+    banner3:document.getElementById('siBanner3').value.trim(),
+    banner3Cap:document.getElementById('siBanner3Cap').value.trim()
   };
   await setDoc(doc(db,'settings','shopInfo'), shopInfo);
-  renderFooter(); alert('দোকানের তথ্য সংরক্ষণ হয়েছে।');
+  renderFooter(); renderBanners(); alert('দোকানের তথ্য সংরক্ষণ হয়েছে।');
 }
 
 async function init(){
-  renderTabs(); renderFaq();
+  await loadCategories();
+  renderTabs(); renderFaq(); renderCatOptions(); renderCatChipList(); suggestSizes();
   await loadProducts(); await loadShopInfo(); await loadReviews();
-  renderGrid(); renderFooter();
+  renderGrid(); renderFooter(); renderBanners();
 }
 init();
 
@@ -868,7 +1150,8 @@ Object.assign(window, {
   filterCat, onSearch, openProduct, switchImg, selectSize, changeQty, addToCart, openCart, removeFromCart,
   openCheckout, onDistrictChange, setPayment, submitOrder, openTrack, checkTracking, setRvRating, submitReview,
   toggleFaq, openAdmin, adminSignIn, adminSignOut, switchAdminTab, suggestSizes, addProduct, editProduct,
-  cancelEditProduct, deleteProduct, saveShopInfo, seedDefaultProducts, updateOrderStatus, markOrderRead, closeModal
+  cancelEditProduct, deleteProduct, saveShopInfo, seedDefaultProducts, updateOrderStatus, markOrderRead, closeModal,
+  setSizeMode, addCategory, deleteCategory, renderNpMeasurePreview, goToBanner
 });
 </script>
 </body>
