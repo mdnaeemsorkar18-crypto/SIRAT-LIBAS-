@@ -436,11 +436,20 @@
         <h3 style="font-size:16px;margin-bottom:6px;">হোমপেজ ব্যানার (৩টি ছবি, ডানে-বামে স্বয়ংক্রিয়ভাবে বদলাবে)</h3>
         <div class="hint" style="margin-bottom:14px;">প্রস্তাবিত সাইজ: <b>1600 × 640 পিক্সেল</b> (অনুপাত প্রায় ২.৫:১), JPG/WEBP, ফাইল সাইজ ৩০০KB এর কম হলে দ্রুত লোড হবে। এআই দিয়ে ছবি বানানোর সময় এই মাপ অনুযায়ী বানান, তাহলে ছবি কাটা পড়বে না।</div>
         <div class="form-grid">
-          <div class="full"><div class="field-label" style="margin-top:0;">ব্যানার ১ — পাঞ্জাবি, জুব্বা ও টুপি</div><input type="text" id="siBanner1" placeholder="ছবির লিংক (1600x640px)"></div>
+          <div class="full"><div class="field-label" style="margin-top:0;">ব্যানার ১ — পাঞ্জাবি, জুব্বা ও টুপি</div>
+            <input type="file" id="siBanner1File" accept="image/*" onchange="uploadBannerImage(1)">
+            <div class="hint" id="siBanner1Status"></div>
+            <input type="text" id="siBanner1" placeholder="অথবা সরাসরি ছবির লিংক বসান" style="margin-top:6px;"></div>
           <div class="full"><div class="field-label">ব্যানার ১ এর ক্যাপশন</div><input type="text" id="siBanner1Cap" placeholder="যেমন: পাঞ্জাবি · জুব্বা · টুপি"></div>
-          <div class="full"><div class="field-label">ব্যানার ২ — বোরকা ও হিজাব</div><input type="text" id="siBanner2" placeholder="ছবির লিংক (1600x640px)"></div>
+          <div class="full"><div class="field-label">ব্যানার ২ — বোরকা ও হিজাব</div>
+            <input type="file" id="siBanner2File" accept="image/*" onchange="uploadBannerImage(2)">
+            <div class="hint" id="siBanner2Status"></div>
+            <input type="text" id="siBanner2" placeholder="অথবা সরাসরি ছবির লিংক বসান" style="margin-top:6px;"></div>
           <div class="full"><div class="field-label">ব্যানার ২ এর ক্যাপশন</div><input type="text" id="siBanner2Cap" placeholder="যেমন: বোরকা · হিজাব"></div>
-          <div class="full"><div class="field-label">ব্যানার ৩ — সেলোয়ার, পায়জামা</div><input type="text" id="siBanner3" placeholder="ছবির লিংক (1600x640px)"></div>
+          <div class="full"><div class="field-label">ব্যানার ৩ — সেলোয়ার, পায়জামা</div>
+            <input type="file" id="siBanner3File" accept="image/*" onchange="uploadBannerImage(3)">
+            <div class="hint" id="siBanner3Status"></div>
+            <input type="text" id="siBanner3" placeholder="অথবা সরাসরি ছবির লিংক বসান" style="margin-top:6px;"></div>
           <div class="full"><div class="field-label">ব্যানার ৩ এর ক্যাপশন</div><input type="text" id="siBanner3Cap" placeholder="যেমন: সেলোয়ার · পায়জামা"></div>
         </div>
         <h3 style="font-size:16px;margin:24px 0 10px;">দোকানের তথ্য</h3>
@@ -494,6 +503,22 @@ async function uploadToImgbb(file){
 let app, db, auth;
 if (!CONFIG_MISSING) { app=initializeApp(firebaseConfig); db=getFirestore(app); auth=getAuth(app); }
 
+async function uploadBannerImage(n){
+  const fileInput=document.getElementById(`siBanner${n}File`);
+  const statusEl=document.getElementById(`siBanner${n}Status`);
+  const file=fileInput.files[0];
+  if(!file) return;
+  if(!IMGBB_CONFIGURED){ statusEl.textContent='ছবি আপলোড এখনো চালু করা হয়নি — লিংক বক্সে সরাসরি লিংক বসান।'; return; }
+  statusEl.textContent='আপলোড হচ্ছে...';
+  try{
+    const url=await uploadToImgbb(file);
+    document.getElementById(`siBanner${n}`).value=url;
+    statusEl.textContent='✅ আপলোড সম্পন্ন — এখন নিচে "সংরক্ষণ করুন" চাপুন।';
+  }catch(e){
+    statusEl.textContent='❌ আপলোড ব্যর্থ হয়েছে, আবার চেষ্টা করুন।';
+  }
+}
+
 const DEFAULT_CATEGORY_DEFS = [
   { name:"বোরকা", group:"top6" },
   { name:"টুপি", group:"none" },
@@ -518,14 +543,14 @@ const MEASURE_FIELDS = {
 /* পাঞ্জাবি/জুব্বা/শার্ট-ফতুয়ার জন্য স্টাইল অপশন */
 const STYLE_OPTIONS_BY_CAT = {
   "পাঞ্জাবি": [
-    {k:'collarType', label:'কলার', opts:['নরমাল কলার','শেরওয়ানি কলার','বেন কলার']},
+    {k:'collarType', label:'কলার', opts:['নরমাল কলার','শার্ট কলার','শেরওয়ানি কলার','বেন কলার']},
     {k:'plate', label:'প্লেট', opts:['চুকা','সমান']},
     {k:'pocket', label:'বুক পকেট', opts:['নেই','গোল','কোনাকাটা']},
     {k:'button', label:'কাপড়ের সাথে মিলিয়ে বাটন', opts:['হ্যাঁ','না']},
     {k:'sleeve', label:'হাতা', opts:['ফুল হাতা','হাফ হাতা']}
   ],
   "জুব্বা": [
-    {k:'collarType', label:'কলার', opts:['নরমাল কলার','শেরওয়ানি কলার','বেন কলার']},
+    {k:'collarType', label:'কলার', opts:['নরমাল কলার','শার্ট কলার','শেরওয়ানি কলার','বেন কলার']},
     {k:'plate', label:'প্লেট', opts:['চুকা','সমান']},
     {k:'pocket', label:'বুক পকেট', opts:['নেই','গোল','কোনাকাটা']},
     {k:'gulpi', label:'গুলপি', opts:['লাগবে না','লাগবে']},
@@ -1117,6 +1142,8 @@ function fillShopInfoForm(){
   document.getElementById('siBanner2Cap').value=shopInfo.banner2Cap||'';
   document.getElementById('siBanner3').value=shopInfo.banner3||'';
   document.getElementById('siBanner3Cap').value=shopInfo.banner3Cap||'';
+  ['siBanner1File','siBanner2File','siBanner3File'].forEach(id=>document.getElementById(id).value='');
+  ['siBanner1Status','siBanner2Status','siBanner3Status'].forEach(id=>document.getElementById(id).textContent='');
 }
 async function saveShopInfo(){
   shopInfo = {
@@ -1151,7 +1178,7 @@ Object.assign(window, {
   openCheckout, onDistrictChange, setPayment, submitOrder, openTrack, checkTracking, setRvRating, submitReview,
   toggleFaq, openAdmin, adminSignIn, adminSignOut, switchAdminTab, suggestSizes, addProduct, editProduct,
   cancelEditProduct, deleteProduct, saveShopInfo, seedDefaultProducts, updateOrderStatus, markOrderRead, closeModal,
-  setSizeMode, addCategory, deleteCategory, renderNpMeasurePreview, goToBanner
+  setSizeMode, addCategory, deleteCategory, renderNpMeasurePreview, goToBanner, uploadBannerImage
 });
 </script>
 </body>
