@@ -184,7 +184,7 @@
   .banner-slider{ position:relative; width:100%; aspect-ratio:2.5/1; max-height:420px; overflow:hidden; background:var(--gold-tint); border-bottom:1px solid var(--line); }
   .banner-slide{ position:absolute; inset:0; opacity:0; transition:opacity .8s ease; display:flex; align-items:flex-end; justify-content:flex-start; }
   .banner-slide.active{ opacity:1; }
-  .banner-slide img{ width:100%; height:100%; object-fit:cover; }
+  .banner-slide img, .banner-slide video{ width:100%; height:100%; object-fit:cover; }
   .banner-slide .no-img{ width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
     background:linear-gradient(135deg,var(--gold-tint),#fff); color:var(--gold); font-family:'Noto Serif Bengali',serif; }
   .banner-slide .no-img .big{ font-size:28px; }
@@ -213,6 +213,59 @@
   .cat-chip-list{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
   .cat-chip{ display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:16px; padding:5px 10px 5px 12px; font-size:12.5px; background:var(--bg-soft); }
   .cat-chip button{ background:none; border:none; color:var(--danger); font-size:13px; }
+
+  /* ---- Trust badges ---- */
+  .trust-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding:16px 5vw 6px; }
+  .trust-item{ display:flex; align-items:center; gap:7px; font-size:12px; color:var(--ink-soft); border:1px solid var(--line); border-radius:20px; padding:7px 13px; background:#fff; }
+  .trust-item .ic{ font-size:15px; }
+
+  /* ---- Product tag badge (নতুন/বেস্ট সেলার) ---- */
+  .tag-badge{ position:absolute; top:10px; right:10px; background:var(--ink); color:#fff; font-weight:700; font-size:11px; padding:4px 9px; border-radius:2px; letter-spacing:.03em; }
+  .tag-badge.best{ background:var(--gold-bright); }
+
+  /* ---- WhatsApp floating button ---- */
+  .wa-float{ position:fixed; right:18px; bottom:18px; width:54px; height:54px; border-radius:50%; background:#25D366; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:27px; box-shadow:0 6px 18px rgba(0,0,0,.28); z-index:400; text-decoration:none; }
+  .wa-float:active{ transform:scale(.94); }
+
+  /* ---- Skeleton loader ---- */
+  .skeleton-card{ border:1px solid var(--line); border-radius:2px; overflow:hidden; }
+  .skeleton-thumb{ aspect-ratio:3/4; background:linear-gradient(90deg,#eee 25%,#f6f6f6 37%,#eee 63%); background-size:400% 100%; animation:shimmer 1.4s infinite; }
+  .skeleton-line{ height:10px; margin:10px 12px; border-radius:2px; background:linear-gradient(90deg,#eee 25%,#f6f6f6 37%,#eee 63%); background-size:400% 100%; animation:shimmer 1.4s infinite; }
+  .skeleton-line.w60{ width:60%; }
+  @keyframes shimmer{ 0%{background-position:100% 0;} 100%{background-position:-100% 0;} }
+
+  /* ---- Review highlight (homepage) ---- */
+  .review-highlight{ padding:36px 5vw; background:var(--bg-soft); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .review-highlight h2{ text-align:center; margin-bottom:18px; }
+  .rh-scroll{ display:flex; gap:14px; overflow-x:auto; padding-bottom:6px; -webkit-overflow-scrolling:touch; }
+  .rh-card{ flex:0 0 auto; width:240px; background:#fff; border:1px solid var(--line); border-radius:3px; padding:16px; }
+  .rh-card .stars{ font-size:13px; color:var(--gold-bright); }
+  .rh-card p{ font-size:13px; color:var(--ink); margin:8px 0; line-height:1.6; }
+  .rh-card .rh-name{ font-size:12px; color:var(--ink-soft); }
+
+  /* ---- Measurement guide thumbnails ---- */
+  .measure-field{ position:relative; }
+  .measure-field .mg-thumb{ width:34px; height:34px; border-radius:3px; object-fit:cover; border:1px solid var(--line); cursor:pointer; float:right; margin-top:-40px; }
+  .lightbox-overlay{ position:fixed; inset:0; background:rgba(20,18,15,.88); display:none; align-items:center; justify-content:center; z-index:900; padding:6vw; }
+  .lightbox-overlay.open{ display:flex; }
+  .lightbox-overlay img{ max-width:100%; max-height:85vh; border-radius:4px; }
+  .lightbox-overlay .lb-close{ position:absolute; top:18px; right:22px; color:#fff; font-size:30px; background:none; border:none; }
+  .mg-admin-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px; }
+  .mg-admin-item label{ display:block; font-size:12px; color:var(--ink-soft); margin-bottom:4px; }
+  .mg-admin-item img{ width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:3px; border:1px solid var(--line); margin-top:6px; display:none; }
+  .mg-admin-item img.show{ display:block; }
+  .mg-admin-item .mg-status{ font-size:11px; color:var(--ink-soft); margin-top:4px; }
+
+  /* ---- Order success overlay ---- */
+  .success-overlay{ position:fixed; inset:0; background:rgba(20,18,15,.88); display:none; align-items:center; justify-content:center; z-index:950; padding:6vw; }
+  .success-overlay.open{ display:flex; }
+  .success-box{ background:#fff; border-radius:6px; padding:38px 26px; text-align:center; max-width:380px; width:100%; }
+  .success-check{ width:70px; height:70px; border-radius:50%; background:var(--green); color:#fff; font-size:36px; display:flex; align-items:center; justify-content:center; margin:0 auto 18px; animation:pop .4s ease; }
+  @keyframes pop{ 0%{transform:scale(0);} 70%{transform:scale(1.15);} 100%{transform:scale(1);} }
+  .success-box h3{ font-size:19px; margin-bottom:8px; }
+  .success-box p{ font-size:13.5px; color:var(--ink-soft); line-height:1.7; margin-bottom:6px; }
+  .success-box .track-id{ font-size:20px; font-weight:800; color:var(--gold-bright); letter-spacing:.06em; margin:10px 0; }
 
   @media(max-width:600px){
     .form-grid, .contact-grid{ grid-template-columns:1fr; }
@@ -249,10 +302,27 @@
   <div class="search-wrap"><input type="text" id="searchInput" placeholder="প্রোডাক্ট খুঁজুন..." oninput="onSearch()"></div>
 </section>
 
+<div class="trust-row">
+  <div class="trust-item"><span class="ic">🚚</span> সারাদেশে ডেলিভারি</div>
+  <div class="trust-item"><span class="ic">💵</span> ক্যাশ অন ডেলিভারি</div>
+  <div class="trust-item"><span class="ic">🧵</span> ১০০% অথেন্টিক কাপড়</div>
+  <div class="trust-item"><span class="ic">📏</span> নিজের মাপে অর্ডার</div>
+</div>
+
 <div id="shop">
   <div class="tabs" id="tabs"></div>
-  <div class="grid-wrap"><div class="grid" id="grid"><div class="empty-msg">লোড হচ্ছে...</div></div></div>
+  <div class="grid-wrap"><div class="grid" id="grid">
+    <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-line"></div><div class="skeleton-line w60"></div></div>
+    <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-line"></div><div class="skeleton-line w60"></div></div>
+    <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-line"></div><div class="skeleton-line w60"></div></div>
+    <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-line"></div><div class="skeleton-line w60"></div></div>
+  </div></div>
 </div>
+
+<section class="review-highlight" id="reviewHighlight" style="display:none;">
+  <h2 class="serif">কাস্টমাররা যা বলছেন</h2>
+  <div class="rh-scroll" id="rhScroll"></div>
+</section>
 
 <section class="about-sec" id="about">
   <div class="section-title"><div class="eyebrow en">our story</div><h2>আমাদের কথা</h2></div>
@@ -280,6 +350,23 @@
   <div class="foot-links">ডেলিভারি: সারাদেশে &nbsp;•&nbsp; পেমেন্ট: ক্যাশ অন ডেলিভারি, বিকাশ, নগদ</div>
   <div class="copyright">© 2026 Sirat Libas. সর্বস্বত্ব সংরক্ষিত। &nbsp;•&nbsp; <a href="#" onclick="openAdmin();return false;" style="opacity:.6;">Admin</a></div>
 </footer>
+
+<a class="wa-float" id="waFloat" href="#" target="_blank" aria-label="WhatsApp">💬</a>
+
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+  <button class="lb-close" onclick="closeLightbox()">&times;</button>
+  <img id="lightboxImg" src="" onclick="event.stopPropagation()">
+</div>
+
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-check">✓</div>
+    <h3 id="successTitle">অর্ডার কনফার্ম হয়েছে!</h3>
+    <p id="successMsg"></p>
+    <div class="track-id" id="successTrackId"></div>
+    <button class="btn-gold" style="width:100%;margin-top:14px;" onclick="closeModal('successOverlay')">ঠিক আছে</button>
+  </div>
+</div>
 
 <div class="overlay" id="productOverlay">
   <div class="modal">
@@ -399,6 +486,13 @@
             <select id="npCat" onchange="suggestSizes()"></select>
           </div>
           <div><div class="field-label">কোড নাম্বার (এড/সার্চের জন্য)</div><input type="text" id="npCode" placeholder="যেমন: PJ-101"></div>
+          <div><div class="field-label">ট্যাগ (ঐচ্ছিক)</div>
+            <select id="npTag">
+              <option value="">কোনো ট্যাগ না</option>
+              <option value="নতুন">নতুন</option>
+              <option value="বেস্ট সেলার">বেস্ট সেলার</option>
+            </select>
+          </div>
           <div><div class="field-label">মনোগ্রাম অক্ষর</div><input type="text" id="npMono" maxlength="1"></div>
           <div><div class="field-label">অরিজিনাল মূল্য (৳)</div><input type="text" id="npOrig"></div>
           <div><div class="field-label">ডিসকাউন্ট মূল্য (৳)</div><input type="text" id="npDisc"></div>
@@ -426,6 +520,13 @@
         </div>
         <div class="cat-chip-list" id="catChipList"></div>
 
+        <h3 style="font-size:16px;margin:28px 0 10px;">মাপ নেওয়ার গাইড ছবি (কাস্টমারকে ছয়টা ঘর বুঝতে সাহায্য করবে)</h3>
+        <div class="hint" style="margin-bottom:8px;">প্রতিটা মাপের ঘরের পাশে একটা ছোট নমুনা ছবি দেখাবে, যাতে কাস্টমার নিজে নিজে ঠিকভাবে মাপ নিতে পারে। ছবি তুলে সরাসরি গ্যালারি থেকে বাছাই করুন — সাথে সাথে আপলোড ও সংরক্ষণ হয়ে যাবে।</div>
+        <div class="field-label" style="margin-top:14px;">উপরের পোশাক (পাঞ্জাবি/জুব্বা/বোরকা/কটি) — ৬টা ছবি</div>
+        <div class="mg-admin-grid" id="mgTop6Grid"></div>
+        <div class="field-label" style="margin-top:18px;">সেলোয়ার/পায়জামা — ৩টা ছবি</div>
+        <div class="mg-admin-grid" id="mgBottom3Grid"></div>
+
         <h3 style="font-size:16px;margin:28px 0 10px;">বর্তমান প্রোডাক্ট তালিকা</h3>
         <div id="adminProdList"></div>
       </div>
@@ -434,22 +535,22 @@
 
       <div class="admin-panel" id="adminShop">
         <h3 style="font-size:16px;margin-bottom:6px;">হোমপেজ ব্যানার (৩টি ছবি, ডানে-বামে স্বয়ংক্রিয়ভাবে বদলাবে)</h3>
-        <div class="hint" style="margin-bottom:14px;">প্রস্তাবিত সাইজ: <b>1600 × 640 পিক্সেল</b> (অনুপাত প্রায় ২.৫:১), JPG/WEBP, ফাইল সাইজ ৩০০KB এর কম হলে দ্রুত লোড হবে। এআই দিয়ে ছবি বানানোর সময় এই মাপ অনুযায়ী বানান, তাহলে ছবি কাটা পড়বে না।</div>
+        <div class="hint" style="margin-bottom:14px;">ছবি অথবা ভিডিও — দুটোই দেওয়া যাবে। ছবির প্রস্তাবিত সাইজ: <b>1600 × 640 পিক্সেল</b> (অনুপাত প্রায় ২.৫:১), JPG/WEBP, ফাইল সাইজ ৩০০KB এর কম হলে দ্রুত লোড হবে। ভিডিওর জন্য: <b>MP4 ফরম্যাট, ১০-১৫ সেকেন্ডের মধ্যে, ৫MB এর কম, সাউন্ড ছাড়া (মিউট হয়ে অটো-প্লে হবে)</b> — ভিডিও ফাইল উপরের "ফাইল বাছাই" বাটনে সরাসরি আপলোড হবে না (এটা শুধু ছবির জন্য), ভিডিওর ক্ষেত্রে নিচের লিংক বক্সে সরাসরি .mp4 লিংক বসাতে হবে। ভিডিও ফ্রিতে হোস্ট করতে <b>Cloudinary.com</b> এ ফ্রি একাউন্ট খুলে আপলোড করে ওখান থেকে direct link কপি করুন।</div>
         <div class="form-grid">
           <div class="full"><div class="field-label" style="margin-top:0;">ব্যানার ১ — পাঞ্জাবি, জুব্বা ও টুপি</div>
             <input type="file" id="siBanner1File" accept="image/*" onchange="uploadBannerImage(1)">
             <div class="hint" id="siBanner1Status"></div>
-            <input type="text" id="siBanner1" placeholder="অথবা সরাসরি ছবির লিংক বসান" style="margin-top:6px;"></div>
+            <input type="text" id="siBanner1" placeholder="ছবির লিংক অথবা .mp4 ভিডিও লিংক বসান" style="margin-top:6px;"></div>
           <div class="full"><div class="field-label">ব্যানার ১ এর ক্যাপশন</div><input type="text" id="siBanner1Cap" placeholder="যেমন: পাঞ্জাবি · জুব্বা · টুপি"></div>
           <div class="full"><div class="field-label">ব্যানার ২ — বোরকা ও হিজাব</div>
             <input type="file" id="siBanner2File" accept="image/*" onchange="uploadBannerImage(2)">
             <div class="hint" id="siBanner2Status"></div>
-            <input type="text" id="siBanner2" placeholder="অথবা সরাসরি ছবির লিংক বসান" style="margin-top:6px;"></div>
+            <input type="text" id="siBanner2" placeholder="ছবির লিংক অথবা .mp4 ভিডিও লিংক বসান" style="margin-top:6px;"></div>
           <div class="full"><div class="field-label">ব্যানার ২ এর ক্যাপশন</div><input type="text" id="siBanner2Cap" placeholder="যেমন: বোরকা · হিজাব"></div>
           <div class="full"><div class="field-label">ব্যানার ৩ — সেলোয়ার, পায়জামা</div>
             <input type="file" id="siBanner3File" accept="image/*" onchange="uploadBannerImage(3)">
             <div class="hint" id="siBanner3Status"></div>
-            <input type="text" id="siBanner3" placeholder="অথবা সরাসরি ছবির লিংক বসান" style="margin-top:6px;"></div>
+            <input type="text" id="siBanner3" placeholder="ছবির লিংক অথবা .mp4 ভিডিও লিংক বসান" style="margin-top:6px;"></div>
           <div class="full"><div class="field-label">ব্যানার ৩ এর ক্যাপশন</div><input type="text" id="siBanner3Cap" placeholder="যেমন: সেলোয়ার · পায়জামা"></div>
         </div>
         <h3 style="font-size:16px;margin:24px 0 10px;">দোকানের তথ্য</h3>
@@ -586,6 +687,43 @@ let currentProduct=null, currentSize=null, currentQty=1, rvRating=5, sizeMode='s
 let editingProductId=null;
 let ordersUnsub=null, firstOrderLoad=true;
 
+let measureGuide = { top6:{}, bottom3:{} };
+async function loadMeasureGuide(){
+  if(CONFIG_MISSING) return;
+  const s=await getDoc(doc(db,'settings','measureGuide'));
+  if(s.exists()) measureGuide = { top6:s.data().top6||{}, bottom3:s.data().bottom3||{} };
+}
+function renderMgAdminGrids(){
+  const build=(group)=> MEASURE_FIELDS[group].map(f=>{
+    const url=measureGuide[group][f.k]||'';
+    return `<div class="mg-admin-item">
+      <label>${f.label}</label>
+      <input type="file" accept="image/*" onchange="uploadMeasureGuideImage('${group}','${f.k}',this)">
+      <img src="${url}" class="${url?'show':''}" id="mgImg_${group}_${f.k}">
+      <div class="mg-status" id="mgStatus_${group}_${f.k}">${url?'✅ ছবি দেওয়া আছে':''}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('mgTop6Grid').innerHTML = build('top6');
+  document.getElementById('mgBottom3Grid').innerHTML = build('bottom3');
+}
+async function uploadMeasureGuideImage(group, key, inputEl){
+  const file=inputEl.files[0];
+  if(!file) return;
+  const statusEl=document.getElementById(`mgStatus_${group}_${key}`);
+  if(!IMGBB_CONFIGURED){ statusEl.textContent='ছবি আপলোড এখনো চালু করা হয়নি।'; return; }
+  statusEl.textContent='আপলোড হচ্ছে...';
+  try{
+    const url=await uploadToImgbb(file);
+    measureGuide[group][key]=url;
+    await setDoc(doc(db,'settings','measureGuide'), measureGuide);
+    const imgEl=document.getElementById(`mgImg_${group}_${key}`);
+    imgEl.src=url; imgEl.classList.add('show');
+    statusEl.textContent='✅ ছবি দেওয়া আছে';
+  }catch(e){ statusEl.textContent='❌ আপলোড ব্যর্থ হয়েছে, আবার চেষ্টা করুন।'; }
+}
+function openLightbox(url){ if(!url) return; document.getElementById('lightboxImg').src=url; document.getElementById('lightboxOverlay').classList.add('open'); }
+function closeLightbox(){ document.getElementById('lightboxOverlay').classList.remove('open'); }
+
 async function loadProducts(){ if(CONFIG_MISSING){products=[];return;} const s=await getDocs(collection(db,'products')); products=s.docs.map(d=>({id:d.id,...d.data()})); }
 async function loadCategories(){
   if(CONFIG_MISSING){ CATEGORY_DEFS=[...DEFAULT_CATEGORY_DEFS]; return; }
@@ -646,8 +784,9 @@ function renderGrid(){
       const pct = hasDisc ? Math.round((1-discount/original)*100) : 0;
       const r = ratingFor(p.id);
       const img = images.length ? `<img src="${images[0]}">` : `<span class="mono">${(p.mono||name[0]||'?')}</span>`;
+      const tagBadge = p.tag==='নতুন' ? `<div class="tag-badge">নতুন</div>` : p.tag==='বেস্ট সেলার' ? `<div class="tag-badge best">বেস্ট সেলার</div>` : '';
       return `<div class="card">
-        <div class="thumb">${hasDisc?`<div class="badge">${pct}% ছাড়</div>`:''}${img}</div>
+        <div class="thumb">${hasDisc?`<div class="badge">${pct}% ছাড়</div>`:''}${tagBadge}${img}</div>
         <div class="card-body">
           <div class="cat-label">${category}${p.clothCode?`<span class="cloth-code-tag">${p.clothCode}</span>`:''}</div><h3>${name}</h3>
           ${r.count>0?`<div><span class="stars">${starsHtml(r.avg)}</span> <span class="rating-count">(${r.count})</span></div>`:''}
@@ -665,8 +804,10 @@ function renderFooter(){
   document.getElementById('contactWhatsapp').href = 'https://wa.me/'+shopInfo.whatsapp;
   document.getElementById('contactGmail').textContent = shopInfo.gmail;
   document.getElementById('contactFacebook').href = shopInfo.facebook || '#';
+  document.getElementById('waFloat').href = 'https://wa.me/'+shopInfo.whatsapp;
 }
 let bannerTimer=null, bannerIdx=0;
+function isVideoUrl(url){ return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url.trim()); }
 function renderBanners(){
   const slides=[
     {url:shopInfo.banner1, cap:shopInfo.banner1Cap, label:'পাঞ্জাবি · জুব্বা · টুপি'},
@@ -676,7 +817,7 @@ function renderBanners(){
   const el=document.getElementById('bannerSlider');
   el.innerHTML = slides.map((s,i)=>`
     <div class="banner-slide ${i===0?'active':''}" data-i="${i}">
-      ${s.url?`<img src="${s.url}">`:`<div class="no-img"><span class="big serif">SIRAT LIBAS</span><span class="small">${s.label} — ব্যানার ছবি এখনো দেওয়া হয়নি (অ্যাডমিন → দোকানের তথ্য থেকে যোগ করুন)</span></div>`}
+      ${s.url?isVideoUrl(s.url)?`<video src="${s.url}" autoplay muted loop playsinline></video>`:`<img src="${s.url}">`:`<div class="no-img"><span class="big serif">SIRAT LIBAS</span><span class="small">${s.label} — ব্যানার ছবি/ভিডিও এখনো দেওয়া হয়নি (অ্যাডমিন → দোকানের তথ্য থেকে যোগ করুন)</span></div>`}
       ${s.cap?`<div class="banner-caption">${s.cap}</div>`:''}
     </div>`).join('') + `<div class="banner-dots">${slides.map((_,i)=>`<span class="${i===0?'active':''}" onclick="goToBanner(${i})"></span>`).join('')}</div>`;
   bannerIdx=0;
@@ -746,7 +887,10 @@ function renderMeasureGroups(){
   document.getElementById('pmMeasureGroups').innerHTML = groups.length===0
     ? '<p class="hint">এই প্রোডাক্টের জন্য কাস্টম মাপ প্রযোজ্য নয় — স্ট্যান্ডার্ড সাইজ বেছে নিন।</p>'
     : groups.map(g=>`<div class="measure-box"><h4>${titles[g]}</h4><div class="measure-grid">
-        ${MEASURE_FIELDS[g].map(f=>`<div class="measure-field"><label>${f.label}</label><input type="text" inputmode="decimal" id="meas_${g}_${f.k}" placeholder="ইঞ্চি"></div>`).join('')}
+        ${MEASURE_FIELDS[g].map(f=>{
+          const guideUrl = measureGuide[g] && measureGuide[g][f.k];
+          return `<div class="measure-field"><label>${f.label}${guideUrl?` <a onclick="openLightbox('${guideUrl}')" style="color:var(--gold-bright);text-decoration:underline;cursor:pointer;">(কীভাবে মাপবেন?)</a>`:''}</label><input type="text" inputmode="decimal" id="meas_${g}_${f.k}" placeholder="ইঞ্চি"></div>`;
+        }).join('')}
       </div></div>`).join('');
 }
 function renderStyleOptions(){
@@ -887,10 +1031,14 @@ async function submitOrder(){
   btn.disabled=false; btn.textContent = paymentMethod==='cod' ? 'অর্ডার কনফার্ম করুন' : 'WhatsApp-এ অর্ডার পাঠান';
 
   if(paymentMethod==='cod'){
-    alert(`✅ আপনার অর্ডার কনফার্ম হয়েছে!\n\nট্র্যাকিং আইডি: ${trackingId}\nমোট: ৳${total} (ক্যাশ অন ডেলিভারি)\n\nএই আইডি দিয়ে "ট্র্যাক" অপশনে অর্ডারের অবস্থা দেখতে পারবেন।`);
+    document.getElementById('successTitle').textContent='✅ আপনার অর্ডার কনফার্ম হয়েছে!';
+    document.getElementById('successMsg').innerHTML = `মোট: <b>৳${total}</b> (ক্যাশ অন ডেলিভারি)<br>এই আইডি দিয়ে "ট্র্যাক" অপশনে অর্ডারের অবস্থা দেখতে পারবেন।`;
   } else {
-    alert(`অর্ডার সফল হয়েছে! আপনার ট্র্যাকিং আইডি: ${trackingId}\n\nWhatsApp-এ মেসেজ পাঠিয়ে অর্ডার নিশ্চিত করুন।`);
+    document.getElementById('successTitle').textContent='অর্ডার সফল হয়েছে!';
+    document.getElementById('successMsg').innerHTML = `WhatsApp-এ মেসেজ পাঠিয়ে অর্ডার নিশ্চিত করুন।`;
   }
+  document.getElementById('successTrackId').textContent = trackingId;
+  openModal('successOverlay');
 }
 
 function openTrack(){ document.getElementById('trackResult').innerHTML=''; document.getElementById('trackId').value=''; openModal('trackOverlay'); }
@@ -908,6 +1056,19 @@ async function checkTracking(){
   }catch(e){ resEl.innerHTML='<p class="hint">খুঁজে পাওয়া যায়নি।</p>'; }
 }
 
+function renderReviewHighlight(){
+  const sec=document.getElementById('reviewHighlight');
+  const withComment = reviews.filter(r=>r.comment && r.comment.trim());
+  const top = [...withComment].sort((a,b)=> (b.rating-a.rating) || (b.createdAt-a.createdAt)).slice(0,8);
+  if(top.length===0){ sec.style.display='none'; return; }
+  sec.style.display='block';
+  document.getElementById('rhScroll').innerHTML = top.map(r=>{
+    const prod = products.find(p=>p.id===r.productId);
+    return `<div class="rh-card"><span class="stars">${starsHtml(r.rating)}</span>
+      <p>"${r.comment}"</p>
+      <div class="rh-name">— ${r.name}${prod?` · ${prod.name}`:''}</div></div>`;
+  }).join('');
+}
 function renderStarSelect(){ document.getElementById('rvStars').innerHTML=[1,2,3,4,5].map(n=>`<span class="${n<=rvRating?'on':''}" onclick="setRvRating(${n})">★</span>`).join(''); }
 function setRvRating(n){ rvRating=n; renderStarSelect(); }
 function renderReviewList(){
@@ -920,7 +1081,7 @@ async function submitReview(){
   const name=document.getElementById('rvName').value.trim(); const comment=document.getElementById('rvComment').value.trim();
   if(!name){ alert('আপনার নাম দিন।'); return; }
   await addDoc(collection(db,'reviews'), { productId:currentProduct.id, name, rating:rvRating, comment, createdAt:Date.now() });
-  await loadReviews(); renderReviewList(); renderGrid();
+  await loadReviews(); renderReviewList(); renderGrid(); renderReviewHighlight();
   document.getElementById('rvName').value=''; document.getElementById('rvComment').value=''; rvRating=5; renderStarSelect();
   alert('রিভিউ যোগ করার জন্য ধন্যবাদ!');
 }
@@ -989,6 +1150,7 @@ function editProduct(id){
   document.getElementById('npName').value=p.name;
   document.getElementById('npCat').value=p.category;
   document.getElementById('npCode').value=p.clothCode||'';
+  document.getElementById('npTag').value=p.tag||'';
   document.getElementById('npIsCloth').checked=!!p.isCloth;
   document.getElementById('npMono').value=p.mono||'';
   document.getElementById('npOrig').value=p.original;
@@ -1005,6 +1167,7 @@ function cancelEditProduct(){
   document.getElementById('cancelEditBtn').style.display='none';
   ['npName','npMono','npOrig','npDisc','npDesc','npSizes','npImages','npImageFiles','npCode'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('npIsCloth').checked=false;
+  document.getElementById('npTag').value='';
   document.getElementById('npCat').value = CATEGORIES()[0];
   suggestSizes();
 }
@@ -1012,6 +1175,7 @@ async function addProduct(){
   const name=document.getElementById('npName').value.trim();
   const category=document.getElementById('npCat').value;
   const clothCode=document.getElementById('npCode').value.trim();
+  const tag=document.getElementById('npTag').value;
   const isCloth=document.getElementById('npIsCloth').checked;
   const mono=document.getElementById('npMono').value.trim()||name[0];
   const original=parseFloat(document.getElementById('npOrig').value);
@@ -1041,12 +1205,12 @@ async function addProduct(){
     if(editingProductId){
       const existing = products.find(p=>p.id===editingProductId);
       const images = [...(existing.images||[]), ...newImageUrls];
-      await updateDoc(doc(db,'products',editingProductId), { name,category,clothCode,isCloth,mono,original,discount,sizes,desc,images });
+      await updateDoc(doc(db,'products',editingProductId), { name,category,clothCode,tag,isCloth,mono,original,discount,sizes,desc,images });
       editingProductId=null;
       document.getElementById('prodFormTitle').textContent='নতুন প্রোডাক্ট যোগ করুন';
       document.getElementById('cancelEditBtn').style.display='none';
     } else {
-      await addDoc(collection(db,'products'), { name,category,clothCode,isCloth,mono,original,discount,sizes,desc,images:newImageUrls,createdAt:Date.now() });
+      await addDoc(collection(db,'products'), { name,category,clothCode,tag,isCloth,mono,original,discount,sizes,desc,images:newImageUrls,createdAt:Date.now() });
     }
   }catch(e){
     alert('সংরক্ষণে সমস্যা হয়েছে। সম্ভবত অ্যাডমিন লগইন সেশন শেষ হয়ে গেছে — লগআউট করে আবার লগইন করে দেখুন।');
@@ -1056,6 +1220,7 @@ async function addProduct(){
   await loadProducts(); renderGrid(); renderAdminProducts();
   ['npName','npMono','npOrig','npDisc','npDesc','npSizes','npImages','npImageFiles','npCode'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('npIsCloth').checked=false;
+  document.getElementById('npTag').value='';
   document.getElementById('npCat').value = CATEGORIES()[0];
   suggestSizes();
   btn.disabled=false; btn.textContent='প্রোডাক্ট যোগ করুন';
@@ -1167,9 +1332,9 @@ async function saveShopInfo(){
 
 async function init(){
   await loadCategories();
-  renderTabs(); renderFaq(); renderCatOptions(); renderCatChipList(); suggestSizes();
-  await loadProducts(); await loadShopInfo(); await loadReviews();
-  renderGrid(); renderFooter(); renderBanners();
+  renderTabs(); renderFaq(); renderCatOptions(); renderCatChipList(); suggestSizes(); renderMgAdminGrids();
+  await loadProducts(); await loadShopInfo(); await loadReviews(); await loadMeasureGuide();
+  renderGrid(); renderFooter(); renderBanners(); renderReviewHighlight(); renderMgAdminGrids();
 }
 init();
 
@@ -1178,7 +1343,8 @@ Object.assign(window, {
   openCheckout, onDistrictChange, setPayment, submitOrder, openTrack, checkTracking, setRvRating, submitReview,
   toggleFaq, openAdmin, adminSignIn, adminSignOut, switchAdminTab, suggestSizes, addProduct, editProduct,
   cancelEditProduct, deleteProduct, saveShopInfo, seedDefaultProducts, updateOrderStatus, markOrderRead, closeModal,
-  setSizeMode, addCategory, deleteCategory, renderNpMeasurePreview, goToBanner, uploadBannerImage
+  setSizeMode, addCategory, deleteCategory, renderNpMeasurePreview, goToBanner, uploadBannerImage,
+  openLightbox, closeLightbox, uploadMeasureGuideImage
 });
 </script>
 </body>
