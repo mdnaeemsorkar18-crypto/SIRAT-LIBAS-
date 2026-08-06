@@ -26,12 +26,15 @@
   #setupBanner{ display:none; background:var(--danger); color:#fff; text-align:center; padding:14px 5vw; font-size:14px; line-height:1.7; position:sticky; top:0; z-index:300; }
 
   header{ position:sticky; top:0; z-index:60; background:rgba(255,255,255,.97); backdrop-filter:blur(6px); border-bottom:1px solid var(--line);
-    display:flex; align-items:center; justify-content:space-between; padding:16px 5vw; gap:12px; flex-wrap:wrap; }
+    display:flex; align-items:center; justify-content:space-between; padding:16px 5vw; gap:12px; flex-wrap:wrap; transition:box-shadow .25s ease; }
+  header.scrolled{ box-shadow:0 4px 16px rgba(27,26,23,.08); }
   .logo{ font-family:'Cormorant Garamond',serif; font-style:italic; letter-spacing:.12em; font-size:22px; color:var(--ink); }
   .logo b{ color:var(--gold); font-weight:600; }
   nav.main-nav{ display:flex; gap:20px; font-size:13.5px; }
-  nav.main-nav a{ color:var(--ink-soft); text-decoration:none; }
+  nav.main-nav a{ color:var(--ink-soft); text-decoration:none; position:relative; padding-bottom:3px; transition:.2s; }
+  nav.main-nav a::after{ content:""; position:absolute; left:0; right:100%; bottom:0; height:1px; background:var(--gold); transition:right .25s ease; }
   nav.main-nav a:hover{ color:var(--gold); }
+  nav.main-nav a:hover::after{ right:0; }
   .head-right{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   #cartBtn, .btn-outline-sm{ background:none; border:1px solid var(--line); color:var(--ink); padding:9px 14px; border-radius:2px; font-size:13.5px; display:flex; align-items:center; gap:8px; }
   #cartBtn:hover, .btn-outline-sm:hover{ border-color:var(--gold); color:var(--gold); }
@@ -42,9 +45,19 @@
   .hero h1{ font-size:clamp(30px,6vw,52px); margin-bottom:14px; color:var(--ink); }
   .hero h1 span{ color:var(--gold); }
   .hero p{ color:var(--ink-soft); max-width:480px; margin:0 auto 24px; line-height:1.85; font-size:15.5px; }
-  .search-wrap{ max-width:420px; margin:0 auto; }
-  #searchInput{ width:100%; background:#fff; border:1px solid var(--line); color:var(--ink); padding:12px 16px; border-radius:24px; font-family:inherit; font-size:14.5px; }
+  .search-wrap{ max-width:420px; margin:0 auto; position:relative; }
+  #searchInput{ width:100%; background:#fff; border:1px solid var(--line); color:var(--ink); padding:12px 16px 12px 42px; border-radius:24px; font-family:inherit; font-size:14.5px; }
   #searchInput:focus{ outline:none; border-color:var(--gold); }
+  .search-ic{ position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--ink-soft); cursor:pointer; line-height:1; }
+
+  /* ---- Sticky gold search strip at the very top ---- */
+  .search-strip{ background:var(--ink); padding:12px 5vw; border-bottom:3px solid var(--gold); }
+  .search-strip .search-wrap{ max-width:520px; }
+  .search-strip #searchInput{ background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); color:#fff; }
+  .search-strip #searchInput::placeholder{ color:rgba(255,255,255,.55); }
+  .search-strip #searchInput:focus{ background:#fff; color:var(--ink); border-color:var(--gold); }
+  .search-strip #searchInput:focus::placeholder{ color:var(--ink-soft); }
+  .search-strip .search-ic{ color:var(--gold); }
 
   .tabs{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; padding:26px 5vw; border-bottom:1px solid var(--line); }
   .tab{ background:#fff; border:1px solid var(--line); color:var(--ink-soft); padding:9px 20px; border-radius:20px; font-size:13.5px; transition:.2s; }
@@ -53,10 +66,11 @@
   .grid-wrap{ padding:50px 5vw 90px; }
   .section-title{ text-align:center; max-width:600px; margin:0 auto 44px; }
   .section-title .eyebrow{ color:var(--gold); font-size:12.5px; letter-spacing:.28em; font-style:italic; margin-bottom:10px; }
-  .section-title h2{ font-size:clamp(24px,4vw,34px); }
+  .section-title h2{ font-size:clamp(24px,4vw,34px); position:relative; padding-bottom:16px; }
+  .section-title h2::after{ content:""; position:absolute; left:50%; bottom:0; transform:translateX(-50%); width:46px; height:2px; background:var(--gold); }
   .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:22px; max-width:1200px; margin:0 auto; }
-  .card{ background:var(--card); border:1px solid var(--line); border-radius:4px; overflow:hidden; display:flex; flex-direction:column; transition:transform .2s ease, box-shadow .2s ease; }
-  .card:hover{ transform:translateY(-3px); box-shadow:0 10px 24px rgba(169,121,31,.14); }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:4px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 2px 8px rgba(27,26,23,.05); transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+  .card:hover{ transform:translateY(-4px); box-shadow:0 14px 28px rgba(169,121,31,.16); border-color:var(--gold); }
   .thumb{ aspect-ratio:4/5; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden;
     background: repeating-linear-gradient(135deg, rgba(169,121,31,.06) 0 2px, transparent 2px 18px), linear-gradient(160deg,var(--gold-tint),#fff); }
   .thumb img{ width:100%; height:100%; object-fit:cover; }
@@ -112,8 +126,9 @@
     width:100%; background:#fff; border:1px solid var(--line); color:var(--ink); padding:11px 13px; border-radius:2px; font-family:inherit; font-size:14.5px; }
   input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--gold); }
   textarea{ resize:vertical; min-height:70px; }
-  .btn-gold{ width:100%; background:var(--gold); color:#fff; border:none; font-weight:700; padding:14px; border-radius:2px; font-size:15px; margin-top:20px; transition:.2s; }
-  .btn-gold:hover{ background:var(--gold-bright); }
+  .btn-gold{ width:100%; background:var(--gold); color:#fff; border:none; font-weight:700; padding:14px; border-radius:2px; font-size:15px; letter-spacing:.02em; margin-top:20px; transition:.2s; }
+  .btn-gold:hover{ background:var(--gold-bright); box-shadow:0 6px 16px rgba(169,121,31,.28); }
+  .btn-gold:active{ transform:scale(.98); }
   .btn-gold:disabled{ opacity:.4; }
   .btn-green{ background:var(--green); }
   .btn-green:hover{ background:#245a41; }
@@ -172,6 +187,14 @@
   .order-card{ background:var(--bg-soft); border:1px solid var(--line); border-radius:4px; padding:14px; margin-bottom:10px; }
   .order-card.unread{ border-color:var(--gold); background:var(--gold-tint); }
   .unread-dot{ width:8px; height:8px; border-radius:50%; background:var(--danger); display:inline-block; margin-right:6px; }
+
+  /* ---- Madrasa measurement banner ---- */
+  .madrasa-banner{ background:linear-gradient(135deg,var(--ink) 0%,#2b2822 100%); padding:34px 5vw; border-top:3px solid var(--gold); border-bottom:3px solid var(--gold); }
+  .mb-inner{ max-width:640px; margin:0 auto; text-align:center; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .mb-ic{ font-size:30px; }
+  .mb-text{ color:#fff; font-family:'Noto Serif Bengali',serif; font-size:16.5px; line-height:1.7; max-width:480px; }
+  .mb-btn{ display:inline-flex; align-items:center; gap:8px; background:#25D366; color:#fff; text-decoration:none; font-weight:700; font-size:14px; padding:12px 26px; border-radius:24px; transition:.2s; }
+  .mb-btn:hover{ background:#1ebc59; transform:translateY(-2px); }
 
   footer{ border-top:1px solid var(--line); padding:50px 5vw 30px; text-align:center; background:var(--bg-soft); }
   footer .logo{ display:block; margin-bottom:16px; }
@@ -269,11 +292,24 @@
 
   @media(max-width:600px){
     .form-grid, .contact-grid{ grid-template-columns:1fr; }
-    header{ padding:14px 4vw; }
-    .hero{ padding:50px 4vw 40px; }
+    header{ padding:12px 4vw; }
+    .hero{ padding:26px 4vw 30px; }
     nav.main-nav{ display:none; }
     .measure-grid{ grid-template-columns:1fr; }
-    .banner-slider{ aspect-ratio:4/5; max-height:520px; }
+    .banner-slider{ aspect-ratio:5/6; max-height:440px; }
+    .banner-caption{ font-size:12.5px; padding:7px 13px; left:4vw; bottom:16px; }
+    .banner-dots{ right:4vw; bottom:10px; }
+    .grid{ grid-template-columns:repeat(var(--mobile-cols,2), 1fr) !important; gap:10px !important; }
+    .card-body{ padding:9px 10px; gap:4px; }
+    .card-body h3{ font-size:12.5px; line-height:1.35; }
+    .thumb .mono{ font-size:26px; }
+    .price-now{ font-size:14.5px; }
+    .price-old{ font-size:11px; }
+    .card-btn{ font-size:11.5px; padding:7px; }
+    .cat-label{ font-size:9.5px; }
+    .badge, .tag-badge{ font-size:10px; padding:3px 7px; }
+    .grid-wrap{ padding:24px 4vw 60px; }
+    .search-strip{ padding:10px 4vw; }
   }
 </style>
 </head>
@@ -293,13 +329,19 @@
 </header>
 
 
+<div class="search-strip">
+  <div class="search-wrap">
+    <span class="search-ic" onclick="onSearchGo()">🔍</span>
+    <input type="text" id="searchInput" placeholder="প্রোডাক্ট খুঁজুন..." oninput="onSearch()" enterkeyhint="search" onkeydown="if(event.key==='Enter'){onSearchGo();}">
+  </div>
+</div>
+
 <div class="banner-slider" id="bannerSlider"></div>
 
 <section class="hero">
   <div class="eyebrow en">est. modest wear</div>
   <h1>বোরকা · টুপি · পাঞ্জাবি<br><span>কটি · জুব্বা</span></h1>
   <p>মানসম্মত কাপড়, পরিপাটি সেলাই — সরাসরি আপনার ঠিকানায়।</p>
-  <div class="search-wrap"><input type="text" id="searchInput" placeholder="প্রোডাক্ট খুঁজুন..." oninput="onSearch()"></div>
 </section>
 
 <div class="trust-row">
@@ -342,6 +384,14 @@
 <section class="faq-sec" id="faq">
   <div class="section-title"><div class="eyebrow en">faq</div><h2>সচরাচর জিজ্ঞাসা</h2></div>
   <div id="faqList"></div>
+</section>
+
+<section class="madrasa-banner">
+  <div class="mb-inner">
+    <div class="mb-ic">🕌</div>
+    <div class="mb-text">মাদ্রাসায় গিয়ে ছাত্রদের মাপ নেওয়া হয় — ঢাকার যেকোনো জায়গায়</div>
+    <a class="mb-btn" id="madrasaWaBtn" href="#" target="_blank">💬 WhatsApp-এ যোগাযোগ করুন</a>
+  </div>
 </section>
 
 <footer>
@@ -553,6 +603,13 @@
             <input type="text" id="siBanner3" placeholder="ছবির লিংক অথবা .mp4 ভিডিও লিংক বসান" style="margin-top:6px;"></div>
           <div class="full"><div class="field-label">ব্যানার ৩ এর ক্যাপশন</div><input type="text" id="siBanner3Cap" placeholder="যেমন: সেলোয়ার · পায়জামা"></div>
         </div>
+        <h3 style="font-size:16px;margin:24px 0 10px;">মোবাইলে প্রোডাক্ট গ্রিড</h3>
+        <div class="field-label" style="margin-top:0;">মোবাইলে একসাথে পাশাপাশি কয়টা প্রোডাক্ট দেখাবে?</div>
+        <div class="radio-row" style="max-width:320px;">
+          <div class="radio-opt" id="gridCols2" onclick="setMobileGridCols('2')">২টি</div>
+          <div class="radio-opt" id="gridCols3" onclick="setMobileGridCols('3')">৩টি</div>
+        </div>
+
         <h3 style="font-size:16px;margin:24px 0 10px;">দোকানের তথ্য</h3>
         <div class="form-grid">
           <div class="full"><div class="field-label" style="margin-top:0;">"আমাদের কথা" সেকশনের লেখা</div><textarea id="siAbout"></textarea></div>
@@ -648,18 +705,23 @@ const STYLE_OPTIONS_BY_CAT = {
     {k:'plate', label:'প্লেট', opts:['চুকা','সমান']},
     {k:'pocket', label:'বুক পকেট', opts:['নেই','গোল','কোনাকাটা']},
     {k:'button', label:'কাপড়ের সাথে মিলিয়ে বাটন', opts:['হ্যাঁ','না']},
-    {k:'sleeve', label:'হাতা', opts:['ফুল হাতা','হাফ হাতা']}
+    {k:'sleeve', label:'হাতা', opts:['ফুল হাতা','হাফ হাতা']},
+    {k:'cuff', label:'কফ হাতা লাগবে?', opts:['না','হ্যাঁ']},
+    {k:'gulpi', label:'গুলপি লাগবে?', opts:['না','হ্যাঁ']},
+    {k:'fit', label:'ফিটিং', opts:['ফিটিং','ফিটিং থেকে হালকা লুজ','মিডিয়াম লুজ','বেশি লুজ']}
   ],
   "জুব্বা": [
     {k:'collarType', label:'কলার', opts:['নরমাল কলার','শার্ট কলার','শেরওয়ানি কলার','বেন কলার']},
     {k:'plate', label:'প্লেট', opts:['চুকা','সমান']},
     {k:'pocket', label:'বুক পকেট', opts:['নেই','গোল','কোনাকাটা']},
-    {k:'gulpi', label:'গুলপি', opts:['লাগবে না','লাগবে']},
-    {k:'cuff', label:'কপ হাতা', opts:['লাগবে না','লাগবে']}
+    {k:'gulpi', label:'গুলপি লাগবে?', opts:['না','হ্যাঁ']},
+    {k:'cuff', label:'কফ হাতা লাগবে?', opts:['না','হ্যাঁ']},
+    {k:'fit', label:'ফিটিং', opts:['ফিটিং','ফিটিং থেকে হালকা লুজ','মিডিয়াম লুজ','বেশি লুজ']}
   ],
   "শার্ট-ফতুয়া": [
     {k:'sleeve', label:'হাতা', opts:['ফুল হাতা','হাফ হাতা']},
-    {k:'pocket', label:'বুক পকেট', opts:['নেই','গোল','কোনাকাটা']}
+    {k:'pocket', label:'বুক পকেট', opts:['নেই','গোল','কোনাকাটা']},
+    {k:'fit', label:'ফিটিং', opts:['ফিটিং','ফিটিং থেকে হালকা লুজ','মিডিয়াম লুজ','বেশি লুজ']}
   ]
 };
 const DISTRICTS = ["ঢাকা","ফরিদপুর","গাজীপুর","গোপালগঞ্জ","কিশোরগঞ্জ","মাদারীপুর","মানিকগঞ্জ","মুন্সিগঞ্জ","নারায়ণগঞ্জ","নরসিংদী","রাজবাড়ী","শরীয়তপুর","টাঙ্গাইল","বাগেরহাট","চুয়াডাঙ্গা","যশোর","ঝিনাইদহ","খুলনা","কুষ্টিয়া","মাগুরা","মেহেরপুর","নড়াইল","সাতক্ষীরা","বান্দরবান","ব্রাহ্মণবাড়িয়া","চাঁদপুর","চট্টগ্রাম","কুমিল্লা","কক্সবাজার","ফেনী","খাগড়াছড়ি","লক্ষ্মীপুর","নোয়াখালী","রাঙামাটি","বগুড়া","জয়পুরহাট","নওগাঁ","নাটোর","চাঁপাইনবাবগঞ্জ","পাবনা","রাজশাহী","সিরাজগঞ্জ","জামালপুর","ময়মনসিংহ","নেত্রকোণা","শেরপুর","দিনাজপুর","গাইবান্ধা","কুড়িগ্রাম","লালমনিরহাট","নীলফামারী","পঞ্চগড়","রংপুর","ঠাকুরগাঁও","বরগুনা","বরিশাল","ভোলা","ঝালকাঠি","পটুয়াখালী","পিরোজপুর","হবিগঞ্জ","মৌলভীবাজার","সুনামগঞ্জ","সিলেট"];
@@ -670,7 +732,7 @@ const FAQS = [
   {q:"পেমেন্ট কীভাবে করব?", a:"ক্যাশ অন ডেলিভারি, বিকাশ অথবা নগদে সরাসরি Send Money করে পেমেন্ট করতে পারবেন।"}
 ];
 const DEFAULT_SHOP_INFO = { about:"সিরাত লিবাস — মানসম্মত কাপড় ও পরিপাটি সেলাইয়ে তৈরি পোশাক, সরাসরি আপনার দরজায়।", address:"[ ঠিকানা যোগ করুন ]", gmail:"[ Gmail যোগ করুন ]", whatsapp:"8801873845076", facebook:"#", bkash:"[ বিকাশ নাম্বার যোগ করুন ]", nagad:"[ নগদ নাম্বার যোগ করুন ]",
-  banner1:"", banner1Cap:"পাঞ্জাবি · জুব্বা · টুপি", banner2:"", banner2Cap:"বোরকা · হিজাব", banner3:"", banner3Cap:"সেলোয়ার · পায়জামা" };
+  banner1:"", banner1Cap:"পাঞ্জাবি · জুব্বা · টুপি", banner2:"", banner2Cap:"বোরকা · হিজাব", banner3:"", banner3Cap:"সেলোয়ার · পায়জামা", mobileGridCols:"2" };
 const SEED_PRODUCTS = [
   {name:"প্রিমিয়াম নাইদা বোরকা",category:"বোরকা",mono:"ব",original:2200,discount:1800,sizes:["S","M","L","XL","XXL"],desc:"নরম ও ভারী নাইদা কাপড়।",images:[]},
   {name:"খিমার সেট বোরকা",category:"বোরকা",mono:"খ",original:2600,discount:2200,sizes:["S","M","L","XL","XXL"],desc:"খিমারসহ সম্পূর্ণ সেট।",images:[]},
@@ -761,12 +823,14 @@ function renderCatChipList(){
 async function loadShopInfo(){ if(CONFIG_MISSING){shopInfo=DEFAULT_SHOP_INFO;return;} const s=await getDoc(doc(db,'settings','shopInfo')); shopInfo=s.exists()?{...DEFAULT_SHOP_INFO,...s.data()}:DEFAULT_SHOP_INFO; }
 async function loadReviews(){ if(CONFIG_MISSING){reviews=[];return;} const s=await getDocs(collection(db,'reviews')); reviews=s.docs.map(d=>({id:d.id,...d.data()})); }
 
+function esc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function ratingFor(pid){ const rs=reviews.filter(r=>r.productId===pid); if(rs.length===0) return {avg:0,count:0}; return {avg: rs.reduce((s,r)=>s+r.rating,0)/rs.length, count:rs.length}; }
 function starsHtml(avg){ let h=''; for(let i=1;i<=5;i++) h += i<=Math.round(avg)?'★':'<span class="empty">★</span>'; return h; }
 
 function renderTabs(){ document.getElementById('tabs').innerHTML = ["সব",...CATEGORIES()].map(c=>`<button class="tab ${c===activeCategory?'active':''}" onclick="filterCat('${c}')">${c}</button>`).join(''); }
 function filterCat(c){ activeCategory=c; renderTabs(); renderGrid(); }
 function onSearch(){ searchText=document.getElementById('searchInput').value.trim().toLowerCase(); renderGrid(); }
+function onSearchGo(){ onSearch(); document.getElementById('searchInput').blur(); }
 
 function renderGrid(){
   const el=document.getElementById('grid');
@@ -805,6 +869,7 @@ function renderFooter(){
   document.getElementById('contactGmail').textContent = shopInfo.gmail;
   document.getElementById('contactFacebook').href = shopInfo.facebook || '#';
   document.getElementById('waFloat').href = 'https://wa.me/'+shopInfo.whatsapp;
+  document.getElementById('madrasaWaBtn').href = 'https://wa.me/'+shopInfo.whatsapp+'?text='+encodeURIComponent('আসসালামু আলাইকুম, মাদ্রাসায় ছাত্রদের মাপ নেওয়ার ব্যাপারে জানতে চাই।');
 }
 let bannerTimer=null, bannerIdx=0;
 function isVideoUrl(url){ return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url.trim()); }
@@ -1065,8 +1130,8 @@ function renderReviewHighlight(){
   document.getElementById('rhScroll').innerHTML = top.map(r=>{
     const prod = products.find(p=>p.id===r.productId);
     return `<div class="rh-card"><span class="stars">${starsHtml(r.rating)}</span>
-      <p>"${r.comment}"</p>
-      <div class="rh-name">— ${r.name}${prod?` · ${prod.name}`:''}</div></div>`;
+      <p>"${esc(r.comment)}"</p>
+      <div class="rh-name">— ${esc(r.name)}${prod?` · ${esc(prod.name)}`:''}</div></div>`;
   }).join('');
 }
 function renderStarSelect(){ document.getElementById('rvStars').innerHTML=[1,2,3,4,5].map(n=>`<span class="${n<=rvRating?'on':''}" onclick="setRvRating(${n})">★</span>`).join(''); }
@@ -1074,7 +1139,7 @@ function setRvRating(n){ rvRating=n; renderStarSelect(); }
 function renderReviewList(){
   const rs=reviews.filter(r=>r.productId===currentProduct.id);
   document.getElementById('pmReviewList').innerHTML = rs.length===0?'<p class="hint">এখনো কোনো রিভিউ নেই — প্রথম রিভিউটি আপনিই দিন!</p>':
-    rs.map(r=>`<div class="review-item"><span class="rname">${r.name}</span><span class="stars">${starsHtml(r.rating)}</span><div>${r.comment||''}</div></div>`).join('');
+    rs.map(r=>`<div class="review-item"><span class="rname">${esc(r.name)}</span><span class="stars">${starsHtml(r.rating)}</span><div>${esc(r.comment||'')}</div></div>`).join('');
 }
 async function submitReview(){
   if(CONFIG_MISSING){ alert('Firebase কনফিগার করা হয়নি।'); return; }
@@ -1262,20 +1327,20 @@ function renderAdminOrders(){
   el.innerHTML = orders.map(o=>`
     <div class="order-card ${!o.read?'unread':''}" onclick="markOrderRead('${o.id}')">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <b>${!o.read?'<span class="unread-dot"></span>':''}${o.name}</b><span style="color:var(--green);font-weight:700;">৳${o.total}</span>
+        <b>${!o.read?'<span class="unread-dot"></span>':''}${esc(o.name)}</b><span style="color:var(--green);font-weight:700;">৳${Number(o.total)||0}</span>
       </div>
-      <div class="hint">${o.phone} • ${o.district||''} • ${o.payment} • ${new Date(o.createdAt).toLocaleString('bn-BD')}</div>
-      <div class="hint">${o.address}</div>
-      <div class="hint">ট্র্যাকিং আইডি: <b>${o.trackingId||'—'}</b></div>
+      <div class="hint">${esc(o.phone)} • ${esc(o.district||'')} • ${esc(o.payment)} • ${new Date(o.createdAt).toLocaleString('bn-BD')}</div>
+      <div class="hint">${esc(o.address)}</div>
+      <div class="hint">ট্র্যাকিং আইডি: <b>${esc(o.trackingId||'—')}</b></div>
       <div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;">
         ${(o.items||[]).map(it=>{
-          const measTxt = it.measurements && Object.keys(it.measurements).length ? Object.entries(it.measurements).map(([k,v])=>`${k}: ${v}″`).join(' • ') : '';
-          const styleTxt = it.styleOptions && Object.keys(it.styleOptions).length ? Object.entries(it.styleOptions).map(([k,v])=>`${k}: ${v}`).join(' • ') : '';
+          const measTxt = it.measurements && Object.keys(it.measurements).length ? Object.entries(it.measurements).map(([k,v])=>`${esc(k)}: ${esc(v)}″`).join(' • ') : '';
+          const styleTxt = it.styleOptions && Object.keys(it.styleOptions).length ? Object.entries(it.styleOptions).map(([k,v])=>`${esc(k)}: ${esc(v)}`).join(' • ') : '';
           return `<div style="font-size:12.5px;margin-bottom:6px;">
-            <b>${it.name}</b> ${it.clothCode?`<span class="cloth-code-tag">${it.clothCode}</span>`:''} — সাইজ: ${it.size}, পরিমাণ: ${it.qty}
+            <b>${esc(it.name)}</b> ${it.clothCode?`<span class="cloth-code-tag">${esc(it.clothCode)}</span>`:''} — সাইজ: ${esc(it.size)}, পরিমাণ: ${Number(it.qty)||0}
             ${measTxt?`<div class="hint">মাপ: ${measTxt}</div>`:''}
             ${styleTxt?`<div class="hint">স্টাইল: ${styleTxt}</div>`:''}
-            ${it.measurePhoto?`<div class="hint">মাপের ছবি: <a href="${it.measurePhoto}" target="_blank">দেখুন</a></div>`:''}
+            ${it.measurePhoto?`<div class="hint">মাপের ছবি: <a href="${esc(it.measurePhoto)}" target="_blank">দেখুন</a></div>`:''}
           </div>`;
         }).join('')}
       </div>
@@ -1309,6 +1374,18 @@ function fillShopInfoForm(){
   document.getElementById('siBanner3Cap').value=shopInfo.banner3Cap||'';
   ['siBanner1File','siBanner2File','siBanner3File'].forEach(id=>document.getElementById(id).value='');
   ['siBanner1Status','siBanner2Status','siBanner3Status'].forEach(id=>document.getElementById(id).textContent='');
+  document.getElementById('gridCols2').classList.toggle('selected', (shopInfo.mobileGridCols||'2')==='2');
+  document.getElementById('gridCols3').classList.toggle('selected', shopInfo.mobileGridCols==='3');
+}
+function setMobileGridCols(n){
+  shopInfo.mobileGridCols=n;
+  document.getElementById('gridCols2').classList.toggle('selected', n==='2');
+  document.getElementById('gridCols3').classList.toggle('selected', n==='3');
+  applyMobileGridCols();
+}
+function applyMobileGridCols(){
+  const el=document.getElementById('grid');
+  if(el) el.style.setProperty('--mobile-cols', shopInfo.mobileGridCols||'2');
 }
 async function saveShopInfo(){
   shopInfo = {
@@ -1324,26 +1401,31 @@ async function saveShopInfo(){
     banner2:document.getElementById('siBanner2').value.trim(),
     banner2Cap:document.getElementById('siBanner2Cap').value.trim(),
     banner3:document.getElementById('siBanner3').value.trim(),
-    banner3Cap:document.getElementById('siBanner3Cap').value.trim()
+    banner3Cap:document.getElementById('siBanner3Cap').value.trim(),
+    mobileGridCols: shopInfo.mobileGridCols||'2'
   };
   await setDoc(doc(db,'settings','shopInfo'), shopInfo);
-  renderFooter(); renderBanners(); alert('দোকানের তথ্য সংরক্ষণ হয়েছে।');
+  renderFooter(); renderBanners(); applyMobileGridCols(); alert('দোকানের তথ্য সংরক্ষণ হয়েছে।');
 }
+
+window.addEventListener('scroll', ()=>{
+  document.querySelector('header').classList.toggle('scrolled', window.scrollY>4);
+}, { passive:true });
 
 async function init(){
   await loadCategories();
   renderTabs(); renderFaq(); renderCatOptions(); renderCatChipList(); suggestSizes(); renderMgAdminGrids();
   await loadProducts(); await loadShopInfo(); await loadReviews(); await loadMeasureGuide();
-  renderGrid(); renderFooter(); renderBanners(); renderReviewHighlight(); renderMgAdminGrids();
+  renderGrid(); renderFooter(); renderBanners(); renderReviewHighlight(); renderMgAdminGrids(); applyMobileGridCols();
 }
 init();
 
 Object.assign(window, {
-  filterCat, onSearch, openProduct, switchImg, selectSize, changeQty, addToCart, openCart, removeFromCart,
+  filterCat, onSearch, onSearchGo, openProduct, switchImg, selectSize, changeQty, addToCart, openCart, removeFromCart,
   openCheckout, onDistrictChange, setPayment, submitOrder, openTrack, checkTracking, setRvRating, submitReview,
   toggleFaq, openAdmin, adminSignIn, adminSignOut, switchAdminTab, suggestSizes, addProduct, editProduct,
   cancelEditProduct, deleteProduct, saveShopInfo, seedDefaultProducts, updateOrderStatus, markOrderRead, closeModal,
-  setSizeMode, addCategory, deleteCategory, renderNpMeasurePreview, goToBanner, uploadBannerImage,
+  setSizeMode, addCategory, deleteCategory, renderNpMeasurePreview, goToBanner, uploadBannerImage, setMobileGridCols,
   openLightbox, closeLightbox, uploadMeasureGuideImage
 });
 </script>
