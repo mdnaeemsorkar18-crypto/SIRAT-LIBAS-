@@ -1,0 +1,16 @@
+{
+  "name": "SIRAT LIBAS",
+  "short_name": "SIRAT LIBAS",
+  "description": "বোরকা, টুপি, পাঞ্জাবি, কটি, জুব্বা — সরাসরি আপনার ঠিকানায়।",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#faf7f0",
+  "theme_color": "#1b1a17",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' fill='%231b1a17'/%3E%3Crect x='4' y='4' width='120' height='120' fill='none' stroke='%23a9791f' stroke-width='4'/%3E%3Ctext x='64' y='78' font-size='56' font-family='serif' font-weight='bold' fill='%23a9791f' text-anchor='middle'%3ESL%3C/text%3E%3C/svg%3E",
+      "sizes": "128x128",
+      "type": "image/svg+xml"
+    }
+  ]
+}
