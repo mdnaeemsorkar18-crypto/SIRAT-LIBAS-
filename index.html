@@ -211,6 +211,9 @@
   .status-select{ font-size:12.5px; padding:6px 8px; width:auto; }
   .order-card{ background:var(--bg-soft); border:1px solid var(--line); border-radius:4px; padding:14px; margin-bottom:10px; }
   .order-card.unread{ border-color:var(--gold); background:var(--gold-tint); }
+  .risk-badge{ margin-top:8px; padding:8px 12px; border-radius:3px; font-size:12.5px; font-weight:700; }
+  .risk-badge.high{ background:#fde2e0; color:#a01d10; border:1px solid #e8998f; }
+  .risk-badge.mid{ background:#fff3cd; color:#8a6400; border:1px solid #e8cf8a; }
   .unread-dot{ width:8px; height:8px; border-radius:50%; background:var(--danger); display:inline-block; margin-right:6px; }
 
   /* ---- Madrasa measurement banner ---- */
@@ -1467,13 +1470,41 @@ function exportOrdersCsv(){
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-function renderAdminOrders(){
+async function renderAdminOrders(){
   const unread = orders.filter(o=>!o.read).length;
   const badge = document.getElementById('unreadBadge');
   badge.style.display = unread>0?'inline-block':'none'; badge.textContent = unread;
   const el=document.getElementById('adminOrderList');
   if(orders.length===0){ el.innerHTML='<p class="hint">এখনো কোনো অর্ডার নেই।</p>'; return; }
-  el.innerHTML = orders.map(o=>`
+
+  const statusMap = {};
+  await Promise.all(orders.filter(o=>o.trackingId).map(async o=>{
+    try{
+      const snap = await getDoc(doc(db,'tracking',o.trackingId));
+      statusMap[o.trackingId] = snap.exists() ? (snap.data().status||'pending') : 'pending';
+    }catch(e){ statusMap[o.trackingId]='pending'; }
+  }));
+
+  const normPhone = p => String(p||'').replace(/\D/g,'').slice(-10);
+  const phoneStats = {};
+  orders.forEach(o=>{
+    if(!o.phone) return;
+    const key = normPhone(o.phone);
+    const st = o.trackingId ? statusMap[o.trackingId] : null;
+    if(!phoneStats[key]) phoneStats[key]={total:0, bad:0};
+    phoneStats[key].total++;
+    if(st==='returned' || st==='cancelled') phoneStats[key].bad++;
+  });
+
+  el.innerHTML = orders.map(o=>{
+    const curStatusForThis = o.trackingId ? (statusMap[o.trackingId]||'pending') : 'pending';
+    const selfIsBad = (curStatusForThis==='returned' || curStatusForThis==='cancelled') ? 1 : 0;
+    const allStat = phoneStats[normPhone(o.phone)] || {total:0,bad:0};
+    const stat = { total: allStat.total, bad: Math.max(0, allStat.bad - selfIsBad) };
+    const riskBadge = stat.bad>=2 ? `<div class="risk-badge high">⚠️ ঝুঁকিপূর্ণ কাস্টমার — আগে ${stat.bad}টি অর্ডার রিটার্ন/বাতিল হয়েছে</div>`
+      : stat.bad===1 ? `<div class="risk-badge mid">⚠️ এই নাম্বার থেকে আগে ১টি অর্ডার রিটার্ন/বাতিল হয়েছিল</div>` : '';
+    const curStatus = o.trackingId ? (statusMap[o.trackingId]||'pending') : 'pending';
+    return `
     <div class="order-card ${!o.read?'unread':''}" onclick="markOrderRead('${o.id}')">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <b>${!o.read?'<span class="unread-dot"></span>':''}${esc(o.name)}</b><span style="color:var(--green);font-weight:700;">৳${Number(o.total)||0}</span>
@@ -1481,6 +1512,7 @@ function renderAdminOrders(){
       <div class="hint">${esc(o.phone)} • ${esc(o.district||'')} • ${esc(o.payment)} • ${new Date(o.createdAt).toLocaleString('bn-BD')}</div>
       <div class="hint">${esc(o.address)}</div>
       <div class="hint">ট্র্যাকিং আইডি: <b>${esc(o.trackingId||'—')}</b></div>
+      ${riskBadge}
       <div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;">
         ${(o.items||[]).map(it=>{
           const measTxt = it.measurements && Object.keys(it.measurements).length ? Object.entries(it.measurements).map(([k,v])=>`${esc(k)}: ${esc(v)}″`).join(' • ') : '';
@@ -1496,14 +1528,15 @@ function renderAdminOrders(){
       ${o.trackingId?`<div style="margin-top:8px;display:flex;align-items:center;gap:8px;" onclick="event.stopPropagation()">
         <span class="hint">স্ট্যাটাস:</span>
         <select class="status-select" data-tid="${o.trackingId}" onchange="updateOrderStatus('${o.trackingId}', this.value)">
-          <option value="pending">গৃহীত</option><option value="processing">প্রসেসিং</option><option value="shipped">পাঠানো হয়েছে</option><option value="delivered">ডেলিভারি সম্পন্ন</option>
+          <option value="pending" ${curStatus==='pending'?'selected':''}>গৃহীত</option>
+          <option value="processing" ${curStatus==='processing'?'selected':''}>প্রসেসিং</option>
+          <option value="shipped" ${curStatus==='shipped'?'selected':''}>পাঠানো হয়েছে</option>
+          <option value="delivered" ${curStatus==='delivered'?'selected':''}>ডেলিভারি সম্পন্ন</option>
+          <option value="returned" ${curStatus==='returned'?'selected':''}>রিটার্ন হয়েছে</option>
+          <option value="cancelled" ${curStatus==='cancelled'?'selected':''}>বাতিল হয়েছে</option>
         </select></div>`:''}
-    </div>`).join('');
-  orders.forEach(async o=>{
-    if(!o.trackingId) return;
-    const snap = await getDoc(doc(db,'tracking',o.trackingId));
-    if(snap.exists()){ const sel=document.querySelector(`select[data-tid="${o.trackingId}"]`); if(sel) sel.value=snap.data().status||'pending'; }
-  });
+    </div>`;
+  }).join('');
 }
 async function updateOrderStatus(trackingId, status){ await setDoc(doc(db,'tracking',trackingId), { status }, { merge:true }); }
 
