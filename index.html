@@ -81,6 +81,8 @@
   .section-title h2::after{ content:""; position:absolute; left:50%; bottom:0; transform:translateX(-50%); width:46px; height:2px; background:var(--gold); }
   .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:22px; max-width:1200px; margin:0 auto; }
   .card{ background:var(--card); border:1px solid var(--line); border-radius:4px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 2px 8px rgba(27,26,23,.05); transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+  .skel-card{ aspect-ratio:3/4; border-radius:4px; background:linear-gradient(90deg, var(--bg-soft) 25%, var(--line) 50%, var(--bg-soft) 75%); background-size:200% 100%; animation:skel-shine 1.4s ease-in-out infinite; }
+  @keyframes skel-shine{ 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
   .card:hover{ transform:translateY(-4px); box-shadow:0 14px 28px rgba(169,121,31,.16); border-color:var(--gold); }
   .card.out-of-stock .thumb img, .card.out-of-stock .thumb .mono{ opacity:.45; filter:grayscale(60%); }
   .card.out-of-stock .card-btn{ background:#9a9a9a; }
@@ -383,7 +385,7 @@
 
 <div id="shop">
   <div class="tabs" id="tabs"></div>
-  <div class="grid-wrap"><div class="grid" id="grid">
+  <div class="grid-wrap"><div class="grid" id="grid"></div>
     <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-line"></div><div class="skeleton-line w60"></div></div>
     <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-line"></div><div class="skeleton-line w60"></div></div>
     <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-line"></div><div class="skeleton-line w60"></div></div>
@@ -923,7 +925,7 @@ function renderGrid(){
       const pct = hasDisc ? Math.round((1-discount/original)*100) : 0;
       const r = ratingFor(p.id);
       const inStock = p.inStock !== false;
-      const img = images.length ? `<img src="${images[0]}">` : `<span class="mono">${(p.mono||name[0]||'?')}</span>`;
+      const img = images.length ? `<img src="${images[0]}" loading="lazy" decoding="async">` : `<span class="mono">${(p.mono||name[0]||'?')}</span>`;
       const tagBadge = p.tag==='নতুন' ? `<div class="tag-badge">নতুন</div>` : p.tag==='বেস্ট সেলার' ? `<div class="tag-badge best">বেস্ট সেলার</div>` : '';
       return `<div class="card${inStock?'':' out-of-stock'}">
         <div class="thumb">${hasDisc?`<div class="badge">${pct}% ছাড়</div>`:''}${tagBadge}${!inStock?`<div class="stock-badge">স্টক নেই</div>`:''}${img}</div>
@@ -1028,7 +1030,7 @@ function renderRelatedProducts(){
       const imgs=Array.isArray(p.images)?p.images:[];
       const price = (p.discount && Number(p.discount)<Number(p.original)) ? p.discount : p.original;
       return `<div class="related-card" onclick="openProduct('${p.id}')">
-        <div class="related-thumb">${imgs.length?`<img src="${imgs[0]}">`:`<span class="mono">${p.mono||p.name[0]}</span>`}</div>
+        <div class="related-thumb">${imgs.length?`<img src="${imgs[0]}" loading="lazy" decoding="async">`:`<span class="mono">${p.mono||p.name[0]}</span>`}</div>
         <div class="related-name">${p.name}</div>
         <div class="related-price">৳${price}</div>
       </div>`;
