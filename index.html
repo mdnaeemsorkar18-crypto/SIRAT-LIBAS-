@@ -1103,7 +1103,7 @@ function renderMeasureGroups(){
     : groups.map(g=>`<div class="measure-box"><h4>${titles[g]}</h4><div class="measure-grid">
         ${MEASURE_FIELDS[g].map(f=>{
           const guideUrl = measureGuide[g] && measureGuide[g][f.k];
-          return `<div class="measure-field"><label>${f.label}${guideUrl?` <a onclick="openLightbox('${guideUrl}')" style="color:var(--gold-bright);text-decoration:underline;cursor:pointer;">(কীভাবে মাপবেন?)</a>`:''}</label><input type="text" inputmode="decimal" id="meas_${g}_${f.k}" placeholder="ইঞ্চি"></div>`;
+          return `<div class="measure-field"><label>${f.label}${guideUrl?` <a onclick="openLightbox('${guideUrl}')" style="color:var(--gold-bright);text-decoration:underline;cursor:pointer;">(কীভাবে মাপবেন?)</a>`:''}</label><input type="text" id="meas_${g}_${f.k}" placeholder="ইঞ্চি"></div>`;
         }).join('')}
       </div></div>`).join('');
 }
@@ -1372,6 +1372,7 @@ if(!CONFIG_MISSING){
       document.getElementById('adminGate').style.display='none';
       document.getElementById('adminBody').style.display='block';
       document.getElementById('adminEmailShow').textContent='লগইন: '+user.email;
+      await loadShopInfo();
       renderAdminProducts(); fillShopInfoForm();
       document.getElementById('seedRow').style.display = products.length===0?'block':'none';
       startOrdersListener();
@@ -1653,24 +1654,28 @@ function applyMobileGridCols(){
   if(el) el.style.setProperty('--mobile-cols', shopInfo.mobileGridCols||'2');
 }
 async function saveShopInfo(){
+  const fresh = await getDoc(doc(db,'settings','shopInfo'));
+  const latest = fresh.exists() ? {...DEFAULT_SHOP_INFO, ...fresh.data()} : DEFAULT_SHOP_INFO;
+  const val = id => document.getElementById(id).value.trim();
   shopInfo = {
-    about:document.getElementById('siAbout').value.trim(),
-    address:document.getElementById('siAddress').value.trim(),
-    gmail:document.getElementById('siGmail').value.trim(),
-    whatsapp:document.getElementById('siWhatsapp').value.trim().replace(/^0/,'880'),
-    facebook:document.getElementById('siFacebook').value.trim(),
-    bkashSend:document.getElementById('siBkashSend').value.trim(),
-    bkashMerchant:document.getElementById('siBkashMerchant').value.trim(),
-    nagad:document.getElementById('siNagad').value.trim(),
-    banner1:document.getElementById('siBanner1').value.trim(),
-    banner1Cap:document.getElementById('siBanner1Cap').value.trim(),
-    banner2:document.getElementById('siBanner2').value.trim(),
-    banner2Cap:document.getElementById('siBanner2Cap').value.trim(),
-    banner3:document.getElementById('siBanner3').value.trim(),
-    banner3Cap:document.getElementById('siBanner3Cap').value.trim(),
-    mobileGridCols: shopInfo.mobileGridCols||'2',
-    couponCode: document.getElementById('siCouponCode').value.trim().toUpperCase(),
-    couponPercent: document.getElementById('siCouponPercent').value.trim()
+    ...latest,
+    about: val('siAbout'),
+    address: val('siAddress'),
+    gmail: val('siGmail'),
+    whatsapp: val('siWhatsapp').replace(/^0/,'880'),
+    facebook: val('siFacebook'),
+    bkashSend: val('siBkashSend'),
+    bkashMerchant: val('siBkashMerchant'),
+    nagad: val('siNagad'),
+    banner1: val('siBanner1') || latest.banner1,
+    banner1Cap: val('siBanner1Cap'),
+    banner2: val('siBanner2') || latest.banner2,
+    banner2Cap: val('siBanner2Cap'),
+    banner3: val('siBanner3') || latest.banner3,
+    banner3Cap: val('siBanner3Cap'),
+    mobileGridCols: shopInfo.mobileGridCols || latest.mobileGridCols || '2',
+    couponCode: val('siCouponCode').toUpperCase(),
+    couponPercent: val('siCouponPercent')
   };
   await setDoc(doc(db,'settings','shopInfo'), shopInfo);
   renderFooter(); renderBanners(); applyMobileGridCols(); alert('দোকানের তথ্য সংরক্ষণ হয়েছে।');
