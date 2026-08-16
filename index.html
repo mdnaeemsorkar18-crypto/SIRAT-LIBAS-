@@ -906,7 +906,17 @@ async function uploadMeasureGuideImage(group, key, inputEl){
 function openLightbox(url){ if(!url) return; document.getElementById('lightboxImg').src=url; document.getElementById('lightboxOverlay').classList.add('open'); }
 function closeLightbox(){ document.getElementById('lightboxOverlay').classList.remove('open'); }
 
-async function loadProducts(){ if(CONFIG_MISSING){products=[];return;} const s=await getDocs(collection(db,'products')); products=s.docs.map(d=>({id:d.id,...d.data()})); }
+function fixDigitsDeep(val){
+  if(typeof val === 'string') return fixDigits(val);
+  if(Array.isArray(val)) return val.map(fixDigitsDeep);
+  if(val && typeof val === 'object'){
+    const out = {};
+    for(const k in val) out[k] = fixDigitsDeep(val[k]);
+    return out;
+  }
+  return val;
+}
+async function loadProducts(){ if(CONFIG_MISSING){products=[];return;} const s=await getDocs(collection(db,'products')); products=s.docs.map(d=>({id:d.id,...fixDigitsDeep(d.data())})); }
 async function loadCategories(){
   if(CONFIG_MISSING){ CATEGORY_DEFS=[...DEFAULT_CATEGORY_DEFS]; return; }
   const s=await getDoc(doc(db,'settings','categories'));
@@ -940,10 +950,36 @@ function renderCatChipList(){
   document.getElementById('catChipList').innerHTML = CATEGORY_DEFS.map(c=>
     `<div class="cat-chip">${c.name} <button onclick="deleteCategory('${c.name}')" title="মুছুন">&times;</button></div>`).join('');
 }
-async function loadShopInfo(){ if(CONFIG_MISSING){shopInfo=DEFAULT_SHOP_INFO;return;} const s=await getDoc(doc(db,'settings','shopInfo')); shopInfo=s.exists()?{...DEFAULT_SHOP_INFO,...s.data()}:DEFAULT_SHOP_INFO; }
-async function loadReviews(){ if(CONFIG_MISSING){reviews=[];return;} const s=await getDocs(collection(db,'reviews')); reviews=s.docs.map(d=>({id:d.id,...d.data()})); }
+async function loadShopInfo(){ if(CONFIG_MISSING){shopInfo=DEFAULT_SHOP_INFO;return;} const s=await getDoc(doc(db,'settings','shopInfo')); shopInfo=s.exists()?{...DEFAULT_SHOP_INFO,...fixDigitsDeep(s.data())}:DEFAULT_SHOP_INFO; }
+async function loadReviews(){ if(CONFIG_MISSING){reviews=[];return;} const s=await getDocs(collection(db,'reviews')); reviews=s.docs.map(d=>({id:d.id,...fixDigitsDeep(d.data())})); }
 
 function esc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+// Some phone keyboards insert Arabic-Indic / Extended Arabic-Indic (Persian) digits when the
+// person means to type Bengali digits (they look similar but are different characters, and
+// render oddly since most Bengali fonts don't have proper glyphs for them). Normalize any of
+// those to proper Bengali digits so text always displays correctly regardless of keyboard.
+function fixDigits(s){
+  if(!s) return s;
+  const arabicIndic = '٠١٢٣٤٥٦٧٨٩', extArabicIndic = '۰۱۲۳۴۵۶۷۸۹', bengali = '০১২৩৪৫৬৭৮৯';
+  return String(s).replace(/[٠-٩۰-۹]/g, ch=>{
+    let i = arabicIndic.indexOf(ch);
+    if(i===-1) i = extArabicIndic.indexOf(ch);
+    return i!==-1 ? bengali[i] : ch;
+  });
+}
+// For anything that needs to be parsed as a NUMBER (price, qty, percent) — converts Bengali,
+// Arabic-Indic, and Extended Arabic-Indic digits all to plain ASCII so parseFloat/parseInt works
+// no matter which digit style the person's keyboard typed.
+function toAsciiDigits(s){
+  if(!s) return s;
+  const bengali = '০১২৩৪৫৬৭৮৯', arabicIndic = '٠١٢٣٤٥٦٧٨٩', extArabicIndic = '۰۱۲۳۴۵۶۷۸۹';
+  return String(s).replace(/[০-৯٠-٩۰-۹]/g, ch=>{
+    let i = bengali.indexOf(ch);
+    if(i===-1) i = arabicIndic.indexOf(ch);
+    if(i===-1) i = extArabicIndic.indexOf(ch);
+    return i!==-1 ? String(i) : ch;
+  });
+}
 function ratingFor(pid){ const rs=reviews.filter(r=>r.productId===pid); if(rs.length===0) return {avg:0,count:0}; return {avg: rs.reduce((s,r)=>s+r.rating,0)/rs.length, count:rs.length}; }
 function starsHtml(avg){ let h=''; for(let i=1;i<=5;i++) h += i<=Math.round(avg)?'★':'<span class="empty">★</span>'; return h; }
 
@@ -1261,11 +1297,11 @@ function genTrackingId(){ const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s=''; 
 
 async function submitOrder(){
   if(CONFIG_MISSING){ alert('Firebase কনফিগার করা হয়নি।'); return; }
-  const name=document.getElementById('coName').value.trim();
-  const phone=document.getElementById('coPhone').value.trim();
+  const name=fixDigits(document.getElementById('coName').value.trim());
+  const phone=toAsciiDigits(document.getElementById('coPhone').value.trim());
   const district=document.getElementById('coDistrict').value;
-  const address=document.getElementById('coAddress').value.trim();
-  const trxId=document.getElementById('coTrxId').value.trim();
+  const address=fixDigits(document.getElementById('coAddress').value.trim());
+  const trxId=toAsciiDigits(document.getElementById('coTrxId').value.trim());
   if(!name||!phone||!address){ alert('নাম, মোবাইল নাম্বার ও ঠিকানা দিন।'); return; }
   if(paymentMethod!=='cod' && !trxId){ alert('Transaction ID দিন।'); return; }
   const btn=document.getElementById('submitOrderBtn'); btn.disabled=true; btn.textContent='সংরক্ষণ হচ্ছে...';
@@ -1321,7 +1357,7 @@ async function checkTracking(){
   try{
     const snap=await getDoc(doc(db,'tracking',id));
     if(!snap.exists()){ resEl.innerHTML='<p class="hint">এই আইডি দিয়ে কোনো অর্ডার পাওয়া যায়নি।</p>'; return; }
-    const t=snap.data();
+    const t=fixDigitsDeep(snap.data());
     const steps=[{key:'pending',label:'গৃহীত'},{key:'processing',label:'প্রসেসিং'},{key:'shipped',label:'পাঠানো হয়েছে'},{key:'delivered',label:'ডেলিভারি সম্পন্ন'}];
     const curIdx=steps.findIndex(s=>s.key===t.status);
     resEl.innerHTML=`<div class="track-status"><div class="hint">${t.itemsSummary}</div><div class="big">৳${t.total}</div>
@@ -1388,7 +1424,7 @@ function startOrdersListener(){
   if(ordersUnsub) return;
   firstOrderLoad=true;
   ordersUnsub = onSnapshot(query(collection(db,'orders'), orderBy('createdAt','desc')), (snap) => {
-    orders = snap.docs.map(d=>({id:d.id,...d.data()}));
+    orders = snap.docs.map(d=>({id:d.id,...fixDigitsDeep(d.data())}));
     if(!firstOrderLoad){
       snap.docChanges().forEach(ch => {
         if(ch.type==='added'){
@@ -1448,18 +1484,18 @@ function cancelEditProduct(){
   suggestSizes();
 }
 async function addProduct(){
-  const name=document.getElementById('npName').value.trim();
+  const name=fixDigits(document.getElementById('npName').value.trim());
   const category=document.getElementById('npCat').value;
-  const clothCode=document.getElementById('npCode').value.trim();
+  const clothCode=fixDigits(document.getElementById('npCode').value.trim());
   const tag=document.getElementById('npTag').value;
   const isCloth=document.getElementById('npIsCloth').checked;
   const inStock=document.getElementById('npInStock').checked;
-  const mono=document.getElementById('npMono').value.trim()||name[0];
-  const original=parseFloat(document.getElementById('npOrig').value);
-  const discRaw=document.getElementById('npDisc').value.trim();
+  const mono=fixDigits(document.getElementById('npMono').value.trim())||name[0];
+  const original=parseFloat(toAsciiDigits(document.getElementById('npOrig').value));
+  const discRaw=toAsciiDigits(document.getElementById('npDisc').value.trim());
   const discount=discRaw?parseFloat(discRaw):null;
-  const sizes=document.getElementById('npSizes').value.split(',').map(s=>s.trim()).filter(Boolean);
-  const desc=document.getElementById('npDesc').value.trim();
+  const sizes=fixDigits(document.getElementById('npSizes').value).split(',').map(s=>s.trim()).filter(Boolean);
+  const desc=fixDigits(document.getElementById('npDesc').value.trim());
   const pastedUrls = document.getElementById('npImages').value.split(',').map(s=>s.trim()).filter(Boolean);
   const files = Array.from(document.getElementById('npImageFiles').files);
   if(!name||!original||sizes.length===0){ alert('নাম, অরিজিনাল মূল্য ও সাইজ দিন।'); return; }
@@ -1656,7 +1692,7 @@ function applyMobileGridCols(){
 async function saveShopInfo(){
   const fresh = await getDoc(doc(db,'settings','shopInfo'));
   const latest = fresh.exists() ? {...DEFAULT_SHOP_INFO, ...fresh.data()} : DEFAULT_SHOP_INFO;
-  const val = id => document.getElementById(id).value.trim();
+  const val = id => fixDigits(document.getElementById(id).value.trim());
   shopInfo = {
     ...latest,
     about: val('siAbout'),
@@ -1675,7 +1711,7 @@ async function saveShopInfo(){
     banner3Cap: val('siBanner3Cap'),
     mobileGridCols: shopInfo.mobileGridCols || latest.mobileGridCols || '2',
     couponCode: val('siCouponCode').toUpperCase(),
-    couponPercent: val('siCouponPercent')
+    couponPercent: toAsciiDigits(val('siCouponPercent'))
   };
   await setDoc(doc(db,'settings','shopInfo'), shopInfo);
   renderFooter(); renderBanners(); applyMobileGridCols(); alert('দোকানের তথ্য সংরক্ষণ হয়েছে।');
