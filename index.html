@@ -149,6 +149,12 @@
   input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--gold); }
   textarea{ resize:vertical; min-height:70px; }
   .btn-gold{ width:100%; background:var(--gold); color:#fff; border:none; font-weight:700; padding:14px; border-radius:2px; font-size:15px; letter-spacing:.02em; margin-top:20px; transition:.2s; }
+  .pm-btn-row{ display:flex; gap:10px; margin-top:20px; }
+  .pm-btn-row .btn-gold, .pm-btn-row .btn-outline-gold{ margin-top:0; flex:1; }
+  .btn-outline-gold{ width:100%; background:#fff; color:var(--gold); border:1.5px solid var(--gold); font-weight:700; padding:14px; border-radius:2px; font-size:14px; letter-spacing:.02em; transition:.2s; }
+  .btn-outline-gold:hover{ background:var(--gold-tint); }
+  .btn-outline-gold:disabled{ opacity:.4; }
+  @media(max-width:420px){ .pm-btn-row{ flex-direction:column; } }
   .btn-gold:hover{ background:var(--gold-bright); box-shadow:0 6px 16px rgba(169,121,31,.28); }
   .btn-gold:active{ transform:scale(.98); }
   .btn-gold:disabled{ opacity:.4; }
@@ -167,6 +173,10 @@
   .ci-remove{ background:none; border:none; color:var(--danger); font-size:12px; margin-top:4px; }
   .cart-summary{ border-top:1px solid var(--line); padding-top:16px; margin-top:8px; }
   .coupon-row{ display:flex; gap:8px; margin-top:10px; }
+  .co-items-summary{ background:var(--bg-soft); border:1px solid var(--line); border-radius:4px; padding:10px 12px; margin-bottom:16px; font-size:12.5px; }
+  .co-items-summary .co-item-line{ display:flex; justify-content:space-between; gap:10px; padding:4px 0; border-bottom:1px dashed var(--line); }
+  .co-items-summary .co-item-line:last-of-type{ border-bottom:none; }
+  .co-items-summary .co-total-line{ display:flex; justify-content:space-between; font-weight:700; margin-top:6px; padding-top:6px; border-top:1px solid var(--line); }
   .coupon-row input{ flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:2px; font-family:inherit; font-size:13px; }
   .coupon-btn{ background:var(--ink); color:#fff; border:none; padding:0 16px; border-radius:2px; font-size:12.5px; font-weight:700; white-space:nowrap; }
   .sum-row{ display:flex; justify-content:space-between; font-size:14px; margin-bottom:8px; color:var(--ink-soft); }
@@ -496,7 +506,10 @@
 
     <div class="field-label">পরিমাণ</div>
     <div class="qty-row"><button class="qty-btn" onclick="changeQty(-1)">−</button><span id="pmQty">1</span><button class="qty-btn" onclick="changeQty(1)">+</button></div>
-    <button class="btn-gold" id="pmAddBtn" onclick="addToCart()">কার্টে যোগ করুন</button>
+    <div class="pm-btn-row">
+      <button class="btn-outline-gold" id="pmAddBtn" onclick="addToCart()">কার্টে যোগ করুন</button>
+      <button class="btn-gold" id="pmBuyBtn" onclick="buyNow()">সরাসরি অর্ডার করুন</button>
+    </div>
 
     <div class="related-block" id="pmRelated"></div>
 
@@ -536,8 +549,9 @@
 
 <div class="overlay" id="checkoutOverlay">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('checkoutOverlay')">&times;</button>
+    <button class="modal-close" onclick="closeCheckout()">&times;</button>
     <h2>অর্ডার তথ্য দিন</h2>
+    <div id="coItemsSummary" class="co-items-summary"></div>
     <div class="field-label" style="margin-top:0;">পুরো নাম</div><input type="text" id="coName">
     <div class="field-label">মোবাইল নাম্বার</div><input type="tel" id="coPhone">
     <div class="field-label">জেলা</div><select id="coDistrict" onchange="onDistrictChange()"></select>
@@ -545,7 +559,8 @@
     <div class="field-label">পেমেন্ট মাধ্যম</div>
     <div class="radio-row">
       <div class="radio-opt selected" id="payCod" onclick="setPayment('cod')">ক্যাশ অন ডেলিভারি</div>
-      <div class="radio-opt" id="payBkash" onclick="setPayment('bkash')">বিকাশ</div>
+      <div class="radio-opt" id="payBkashSend" onclick="setPayment('bkashSend')">বিকাশ (সেন্ড মানি)</div>
+      <div class="radio-opt" id="payBkashMerchant" onclick="setPayment('bkashMerchant')">বিকাশ (মার্চেন্ট পেমেন্ট)</div>
       <div class="radio-opt" id="payNagad" onclick="setPayment('nagad')">নগদ</div>
     </div>
     <div class="note-box" id="payNote">অর্ডার হাতে পাওয়ার সময় টাকা পরিশোধ করবেন — মোট: <b id="payNoteTotal">৳0</b></div>
@@ -692,9 +707,11 @@
           <div><div class="field-label">Gmail</div><input type="text" id="siGmail"></div>
           <div><div class="field-label">WhatsApp নাম্বার</div><input type="text" id="siWhatsapp"></div>
           <div><div class="field-label">ফেসবুক পেজ লিংক</div><input type="text" id="siFacebook"></div>
-          <div><div class="field-label">বিকাশ নাম্বার</div><input type="text" id="siBkash"></div>
+          <div><div class="field-label">বিকাশ নাম্বার (সেন্ড মানি)</div><input type="text" id="siBkashSend"></div>
+          <div><div class="field-label">বিকাশ মার্চেন্ট নাম্বার (Payment)</div><input type="text" id="siBkashMerchant"></div>
           <div><div class="field-label">নগদ নাম্বার</div><input type="text" id="siNagad"></div>
         </div>
+        <div class="hint">"বিকাশ (সেন্ড মানি)" হলো আপনার ব্যক্তিগত বিকাশ নাম্বার, যেখানে কাস্টমার সরাসরি Send Money করবে। "বিকাশ মার্চেন্ট (Payment)" হলো আপনার মার্চেন্ট/এজেন্ট নাম্বার, যেখানে কাস্টমার বিকাশ অ্যাপের "Payment" অপশন দিয়ে টাকা পাঠাবে।</div>
         <button class="btn-gold" onclick="saveShopInfo()">সংরক্ষণ করুন</button>
       </div>
     </div>
@@ -725,10 +742,37 @@ if (CONFIG_MISSING) document.getElementById('setupBanner').style.display = 'bloc
 const IMGBB_API_KEY = "de27c91b3af2e2bd3167cd688fd65703";
 const IMGBB_CONFIGURED = IMGBB_API_KEY && !IMGBB_API_KEY.startsWith("PASTE_");
 
-async function uploadToImgbb(file){
+async function compressImage(file, maxDim=1600, quality=0.8){
+  if(!file.type.startsWith('image/') || file.type==='image/gif') return file;
+  try{
+    const bitmap = await createImageBitmap(file);
+    let { width, height } = bitmap;
+    if(width>maxDim || height>maxDim){
+      const scale = maxDim/Math.max(width,height);
+      width=Math.round(width*scale); height=Math.round(height*scale);
+    }
+    const canvas=document.createElement('canvas'); canvas.width=width; canvas.height=height;
+    canvas.getContext('2d').drawImage(bitmap,0,0,width,height);
+    const blob = await new Promise(res=>canvas.toBlob(res,'image/jpeg',quality));
+    if(!blob || blob.size>=file.size) return file;
+    return new File([blob], file.name.replace(/\.\w+$/,'.jpg'), { type:'image/jpeg' });
+  }catch(e){ return file; }
+}
+async function uploadToImgbb(file, timeoutMs=45000){
+  const compressed = await compressImage(file);
   const formData = new FormData();
-  formData.append('image', file);
-  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method:'POST', body: formData });
+  formData.append('image', compressed);
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), timeoutMs);
+  let res;
+  try{
+    res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method:'POST', body: formData, signal: controller.signal });
+  }catch(e){
+    if(e.name==='AbortError') throw new Error('ছবি আপলোড হতে অনেক সময় লাগছে (ইন্টারনেট স্লো হতে পারে) — আবার চেষ্টা করুন।');
+    throw new Error('ইন্টারনেট সংযোগে সমস্যা — আবার চেষ্টা করুন।');
+  }finally{
+    clearTimeout(timer);
+  }
   const json = await res.json();
   if(!json.success) throw new Error('imgbb upload failed');
   return json.data.url;
@@ -806,7 +850,7 @@ const FAQS = [
   {q:"কীভাবে অর্ডার ট্র্যাক করব?", a:"অর্ডার করার পর একটা ট্র্যাকিং আইডি পাবেন। উপরের 'ট্র্যাক' বাটনে গিয়ে সেই আইডি দিলেই বর্তমান অবস্থা দেখা যাবে।"},
   {q:"পেমেন্ট কীভাবে করব?", a:"ক্যাশ অন ডেলিভারি, বিকাশ অথবা নগদে সরাসরি Send Money করে পেমেন্ট করতে পারবেন।"}
 ];
-const DEFAULT_SHOP_INFO = { about:"সিরাত লিবাস — মানসম্মত কাপড় ও পরিপাটি সেলাইয়ে তৈরি পোশাক, সরাসরি আপনার দরজায়।", address:"[ ঠিকানা যোগ করুন ]", gmail:"[ Gmail যোগ করুন ]", whatsapp:"8801873845076", facebook:"#", bkash:"[ বিকাশ নাম্বার যোগ করুন ]", nagad:"[ নগদ নাম্বার যোগ করুন ]",
+const DEFAULT_SHOP_INFO = { about:"সিরাত লিবাস — মানসম্মত কাপড় ও পরিপাটি সেলাইয়ে তৈরি পোশাক, সরাসরি আপনার দরজায়।", address:"[ ঠিকানা যোগ করুন ]", gmail:"[ Gmail যোগ করুন ]", whatsapp:"8801873845076", facebook:"#", bkashSend:"[ বিকাশ নাম্বার যোগ করুন ]", bkashMerchant:"[ বিকাশ মার্চেন্ট নাম্বার যোগ করুন ]", nagad:"[ নগদ নাম্বার যোগ করুন ]",
   banner1:"", banner1Cap:"পাঞ্জাবি · জুব্বা · টুপি", banner2:"", banner2Cap:"বোরকা · হিজাব", banner3:"", banner3Cap:"সেলোয়ার · পায়জামা", mobileGridCols:"2", couponCode:"", couponPercent:"" };
 const SEED_PRODUCTS = [
   {name:"প্রিমিয়াম নাইদা বোরকা",category:"বোরকা",mono:"ব",original:2200,discount:1800,sizes:["S","M","L","XL","XXL"],desc:"নরম ও ভারী নাইদা কাপড়।",images:[]},
@@ -818,7 +862,8 @@ const SEED_PRODUCTS = [
   {name:"সৌদি জুব্বা",category:"জুব্বা",mono:"জ",original:3200,discount:2800,sizes:["S","M","L","XL","XXL"],desc:"প্রিমিয়াম ফেব্রিকের জুব্বা।",images:[]}
 ];
 
-let products=[], shopInfo={...DEFAULT_SHOP_INFO}, orders=[], reviews=[], cart=[];
+let products=[], shopInfo={...DEFAULT_SHOP_INFO}, orders=[], reviews=[], cart=[], directOrderItem=null;
+function activeItems(){ return directOrderItem ? [directOrderItem] : cart; }
 let activeCategory="সব", searchText="", paymentMethod="cod", appliedCoupon=null;
 let currentProduct=null, currentSize=null, currentQty=1, rvRating=5, sizeMode='std';
 let editingProductId=null;
@@ -983,6 +1028,7 @@ function toggleFaq(i){ document.getElementById('faq'+i).classList.toggle('open')
 
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function closeCheckout(){ directOrderItem=null; closeModal('checkoutOverlay'); }
 function openReturnPolicy(){ openModal('returnPolicyOverlay'); }
 
 function openProduct(id){
@@ -1009,6 +1055,9 @@ function openProduct(id){
   const addBtn = document.getElementById('pmAddBtn');
   addBtn.disabled = !inStock;
   addBtn.textContent = inStock ? 'কার্টে যোগ করুন' : 'স্টক নেই';
+  const buyBtn = document.getElementById('pmBuyBtn');
+  buyBtn.disabled = !inStock;
+  buyBtn.textContent = inStock ? 'সরাসরি অর্ডার করুন' : 'স্টক নেই';
   document.getElementById('pmQty').textContent=currentQty;
   document.getElementById('pmSizes').innerHTML = currentProduct.sizes.map((s,i)=>`<button class="size-opt ${i===0?'selected':''}" onclick="selectSize('${s}',this)">${s}</button>`).join('');
   renderReviewList(); rvRating=5; renderStarSelect();
@@ -1080,8 +1129,8 @@ function collectStyleOptions(){
 function switchImg(i){ document.getElementById('pmMainThumb').innerHTML=`<img src="${currentProduct.images[i]}">`; document.querySelectorAll('#pmThumbs img').forEach((el,idx)=>el.classList.toggle('active',idx===i)); }
 function selectSize(s,btn){ currentSize=s; document.querySelectorAll('#pmSizes .size-opt').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); }
 function changeQty(d){ currentQty=Math.max(1,currentQty+d); document.getElementById('pmQty').textContent=currentQty; }
-async function addToCart(){
-  if(currentProduct.inStock===false){ alert('এই প্রোডাক্টটি বর্তমানে স্টকে নেই।'); return; }
+async function buildOrderItem(){
+  if(currentProduct.inStock===false){ alert('এই প্রোডাক্টটি বর্তমানে স্টকে নেই।'); return null; }
   const hasDisc=currentProduct.discount && currentProduct.discount<currentProduct.original;
   const price=hasDisc?currentProduct.discount:currentProduct.original;
   const img=(currentProduct.images&&currentProduct.images[0])||null;
@@ -1099,14 +1148,28 @@ async function addToCart(){
       } else { alert('ছবি আপলোড এখনো চালু করা হয়নি, তাই ছবি ছাড়াই মাপ যোগ হচ্ছে।'); }
     }
     if(Object.keys(item.measurements).length===0 && !item.measurePhoto){
-      alert('অন্তত একটা মাপ লিখুন অথবা মাপের ছবি দিন।'); return;
+      alert('অন্তত একটা মাপ লিখুন অথবা মাপের ছবি দিন।'); return null;
     }
   } else {
     item.size=currentSize;
   }
-
+  return item;
+}
+async function addToCart(){
+  const item = await buildOrderItem();
+  if(!item) return;
   cart.push(item);
   updateCartCount(); closeModal('productOverlay'); openCart();
+}
+async function buyNow(){
+  const item = await buildOrderItem();
+  if(!item) return;
+  directOrderItem = item;
+  closeModal('productOverlay');
+  populateDistricts();
+  setPayment(paymentMethod);
+  renderCheckoutSummary();
+  openModal('checkoutOverlay');
 }
 function updateCartCount(){ document.getElementById('cartCount').textContent=cart.reduce((s,i)=>s+i.qty,0); }
 function openCart(){ renderCart(); openModal('cartOverlay'); }
@@ -1123,7 +1186,7 @@ function renderCart(){
   updateSummary();
 }
 function removeFromCart(idx){ cart.splice(idx,1); updateCartCount(); renderCart(); }
-function getSubtotal(){ return cart.reduce((s,i)=>s+i.price*i.qty,0); }
+function getSubtotal(){ return activeItems().reduce((s,i)=>s+i.price*i.qty,0); }
 function getDeliveryCharge(){ const d=document.getElementById('coDistrict'); return (d && d.value==='ঢাকা')?60:120; }
 function getCouponDiscount(sub){
   if(!appliedCoupon) return 0;
@@ -1154,24 +1217,38 @@ function updateSummary(){
 }
 function populateDistricts(){ document.getElementById('coDistrict').innerHTML = DISTRICTS.map(d=>`<option value="${d}">${d}</option>`).join(''); }
 function onDistrictChange(){ setPayment(paymentMethod); }
+function renderCheckoutSummary(){
+  const items=activeItems();
+  const sub=getSubtotal(); const disc=getCouponDiscount(sub);
+  const lines = items.map(i=>`<div class="co-item-line"><span>${i.name} (${i.size}) ×${i.qty}</span><span>৳${i.price*i.qty}</span></div>`).join('');
+  const discLine = disc>0 ? `<div class="co-item-line" style="color:var(--green);"><span>কুপন ছাড়</span><span>-৳${disc}</span></div>` : '';
+  document.getElementById('coItemsSummary').innerHTML = `${lines}${discLine}<div class="co-total-line"><span>সাবটোটাল</span><span>৳${sub-disc}</span></div>`;
+}
 function openCheckout(){
   if(cart.length===0) return;
+  directOrderItem=null;
   closeModal('cartOverlay'); populateDistricts();
   setPayment(paymentMethod);
+  renderCheckoutSummary();
   openModal('checkoutOverlay');
 }
 function setPayment(m){
   paymentMethod=m;
-  ['payCod','payBkash','payNagad'].forEach(id=>document.getElementById(id).classList.remove('selected'));
-  document.getElementById('pay'+m[0].toUpperCase()+m.slice(1)).classList.add('selected');
+  ['payCod','payBkashSend','payBkashMerchant','payNagad'].forEach(id=>document.getElementById(id).classList.remove('selected'));
+  const idMap={cod:'payCod',bkashSend:'payBkashSend',bkashMerchant:'payBkashMerchant',nagad:'payNagad'};
+  document.getElementById(idMap[m]).classList.add('selected');
   const sub=getSubtotal(); const disc=getCouponDiscount(sub); const total=sub-disc+getDeliveryCharge(); const noteEl=document.getElementById('payNote');
   const btn=document.getElementById('submitOrderBtn'); const trxWrap=document.getElementById('trxWrap');
   if(m==='cod'){
     noteEl.innerHTML=`ক্লিক করলেই অর্ডার সরাসরি কনফার্ম হয়ে যাবে — পণ্য হাতে পাওয়ার সময় টাকা পরিশোধ করবেন। মোট: <b>৳${total}</b>`;
     btn.textContent='অর্ডার কনফার্ম করুন';
     trxWrap.style.display='none';
-  } else if(m==='bkash'){
-    noteEl.innerHTML=`বিকাশ নাম্বারে <b>৳${total}</b> পেমেন্ট করে নিচে Transaction ID দিন: <b>${shopInfo.bkash}</b>`;
+  } else if(m==='bkashSend'){
+    noteEl.innerHTML=`বিকাশ নাম্বারে <b>"সেন্ড মানি"</b> করে <b>৳${total}</b> পাঠান, তারপর নিচে Transaction ID দিন: <b>${shopInfo.bkashSend||shopInfo.bkash||'নাম্বার সেট করা হয়নি'}</b>`;
+    btn.textContent='WhatsApp-এ অর্ডার পাঠান';
+    trxWrap.style.display='block';
+  } else if(m==='bkashMerchant'){
+    noteEl.innerHTML=`বিকাশ অ্যাপে <b>"Payment"</b> অপশন দিয়ে (Send Money না) এই নাম্বারে <b>৳${total}</b> পাঠান, তারপর নিচে Transaction ID দিন: <b>${shopInfo.bkashMerchant||'নাম্বার সেট করা হয়নি'}</b>`;
     btn.textContent='WhatsApp-এ অর্ডার পাঠান';
     trxWrap.style.display='block';
   } else {
@@ -1193,13 +1270,15 @@ async function submitOrder(){
   if(paymentMethod!=='cod' && !trxId){ alert('Transaction ID দিন।'); return; }
   const btn=document.getElementById('submitOrderBtn'); btn.disabled=true; btn.textContent='সংরক্ষণ হচ্ছে...';
 
+  const items=activeItems();
   const sub=getSubtotal(), disc=getCouponDiscount(sub), del=getDeliveryCharge(), total=sub-disc+del;
-  const payLabel=paymentMethod==='cod'?'ক্যাশ অন ডেলিভারি':(paymentMethod==='bkash'?'বিকাশ':'নগদ');
+  const payLabelMap={cod:'ক্যাশ অন ডেলিভারি', bkashSend:'বিকাশ (সেন্ড মানি)', bkashMerchant:'বিকাশ (মার্চেন্ট পেমেন্ট)', nagad:'নগদ'};
+  const payLabel=payLabelMap[paymentMethod];
   const trackingId=genTrackingId();
-  const itemsSummary=cart.map(i=>`${i.name} (${i.size}) x${i.qty}`).join(', ');
+  const itemsSummary=items.map(i=>`${i.name} (${i.size}) x${i.qty}`).join(', ');
 
   try{
-    await addDoc(collection(db,'orders'), { name,phone,district,address,payment:payLabel,trxId:trxId||null,couponCode:appliedCoupon?appliedCoupon.code:null,items:cart,subtotal:sub,discount:disc,delivery:del,total,trackingId,read:false,createdAt:Date.now() });
+    await addDoc(collection(db,'orders'), { name,phone,district,address,payment:payLabel,trxId:trxId||null,couponCode:appliedCoupon?appliedCoupon.code:null,items,subtotal:sub,discount:disc,delivery:del,total,trackingId,read:false,createdAt:Date.now() });
     await setDoc(doc(db,'tracking',trackingId), { status:'pending', itemsSummary, total, createdAt:Date.now() });
   }catch(e){
     alert('অর্ডার সংরক্ষণে সমস্যা হয়েছে। ইন্টারনেট সংযোগ চেক করে আবার চেষ্টা করুন।');
@@ -1208,19 +1287,20 @@ async function submitOrder(){
   }
 
   if(paymentMethod !== 'cod'){
-    const itemsText=cart.map(i=>{
+    const itemsText=items.map(i=>{
       let line=`${i.name} (সাইজ: ${i.size}, পরিমাণ: ${i.qty}) — ৳${i.price*i.qty}`;
       if(i.measurements && Object.keys(i.measurements).length) line += ' | মাপ: '+Object.entries(i.measurements).map(([k,v])=>`${k}:${v}"`).join(', ');
       if(i.measurePhoto) line += ' | মাপের ছবি সংযুক্ত (অ্যাডমিন প্যানেলে দেখুন)';
       return line;
     }).join('%0A');
-    const payNote = (paymentMethod==='bkash' ? 'বিকাশে পেমেন্ট করা হয়েছে' : 'নগদে সেন্ড মানি করা হয়েছে') + ` (TrxID: ${trxId})`;
+    const payNote = (paymentMethod==='bkashSend' ? 'বিকাশ সেন্ড মানিতে পেমেন্ট করা হয়েছে' : paymentMethod==='bkashMerchant' ? 'বিকাশ মার্চেন্ট পেমেন্টে পেমেন্ট করা হয়েছে' : 'নগদে সেন্ড মানি করা হয়েছে') + ` (TrxID: ${trxId})`;
     const discLine = disc>0 ? `%0Aকুপন ছাড় (${appliedCoupon.code}): -৳${disc}` : '';
     const msg=`নতুন অর্ডার — SIRAT LIBAS%0A%0Aনাম: ${name}%0Aমোবাইল: ${phone}%0Aজেলা: ${district}%0Aঠিকানা: ${address}%0A%0Aপণ্য:%0A${itemsText}%0A%0Aসাবটোটাল: ৳${sub}${discLine}%0Aডেলিভারি চার্জ: ৳${del}%0Aসর্বমোট: ৳${total}%0Aপেমেন্ট: ${payLabel} (${payNote})%0Aট্র্যাকিং আইডি: ${trackingId}`;
     window.open(`https://wa.me/${shopInfo.whatsapp}?text=${msg}`, '_blank');
   }
 
-  cart=[]; updateCartCount(); closeModal('checkoutOverlay');
+  if(directOrderItem){ directOrderItem=null; } else { cart=[]; }
+  updateCartCount(); closeModal('checkoutOverlay');
   btn.disabled=false; btn.textContent = paymentMethod==='cod' ? 'অর্ডার কনফার্ম করুন' : 'WhatsApp-এ অর্ডার পাঠান';
 
   if(paymentMethod==='cod'){
@@ -1391,7 +1471,7 @@ async function addProduct(){
     for(let i=0;i<files.length;i++){
       btn.textContent = `ছবি আপলোড হচ্ছে (${i+1}/${files.length})...`;
       try{ uploadedUrls.push(await uploadToImgbb(files[i])); }
-      catch(e){ alert(`${i+1} নম্বর ছবিটা আপলোড করা যায়নি, বাকিগুলো চালিয়ে যাচ্ছি।`); }
+      catch(e){ alert(`${i+1} নম্বর ছবি আপলোড করা যায়নি: ${e.message||'অজানা সমস্যা'} — বাকিগুলো চালিয়ে যাচ্ছি।`); }
     }
   }
   const newImageUrls = [...uploadedUrls, ...pastedUrls];
@@ -1546,7 +1626,8 @@ function fillShopInfoForm(){
   document.getElementById('siGmail').value=shopInfo.gmail;
   document.getElementById('siWhatsapp').value=shopInfo.whatsapp;
   document.getElementById('siFacebook').value=shopInfo.facebook;
-  document.getElementById('siBkash').value=shopInfo.bkash;
+  document.getElementById('siBkashSend').value=shopInfo.bkashSend||shopInfo.bkash||'';
+  document.getElementById('siBkashMerchant').value=shopInfo.bkashMerchant||'';
   document.getElementById('siNagad').value=shopInfo.nagad;
   document.getElementById('siBanner1').value=shopInfo.banner1||'';
   document.getElementById('siBanner1Cap').value=shopInfo.banner1Cap||'';
@@ -1578,7 +1659,8 @@ async function saveShopInfo(){
     gmail:document.getElementById('siGmail').value.trim(),
     whatsapp:document.getElementById('siWhatsapp').value.trim().replace(/^0/,'880'),
     facebook:document.getElementById('siFacebook').value.trim(),
-    bkash:document.getElementById('siBkash').value.trim(),
+    bkashSend:document.getElementById('siBkashSend').value.trim(),
+    bkashMerchant:document.getElementById('siBkashMerchant').value.trim(),
     nagad:document.getElementById('siNagad').value.trim(),
     banner1:document.getElementById('siBanner1').value.trim(),
     banner1Cap:document.getElementById('siBanner1Cap').value.trim(),
@@ -1607,7 +1689,7 @@ async function init(){
 init();
 
 Object.assign(window, {
-  filterCat, onSearch, onSearchGo, openProduct, switchImg, selectSize, changeQty, addToCart, openCart, removeFromCart, applyCoupon,
+  filterCat, onSearch, onSearchGo, openProduct, switchImg, selectSize, changeQty, addToCart, buyNow, closeCheckout, openCart, removeFromCart, applyCoupon,
   openCheckout, onDistrictChange, setPayment, submitOrder, openTrack, checkTracking, setRvRating, submitReview,
   toggleFaq, openAdmin, adminSignIn, adminSignOut, switchAdminTab, suggestSizes, addProduct, editProduct,
   cancelEditProduct, deleteProduct, saveShopInfo, seedDefaultProducts, updateOrderStatus, markOrderRead, closeModal,
