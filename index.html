@@ -553,7 +553,7 @@
     <h2>অর্ডার তথ্য দিন</h2>
     <div id="coItemsSummary" class="co-items-summary"></div>
     <div class="field-label" style="margin-top:0;">পুরো নাম</div><input type="text" id="coName">
-    <div class="field-label">মোবাইল নাম্বার</div><input type="tel" id="coPhone">
+    <div class="field-label">মোবাইল নাম্বার</div><input type="tel" id="coPhone" oninput="this.value=toAsciiDigits(this.value)">
     <div class="field-label">জেলা</div><select id="coDistrict" onchange="onDistrictChange()"></select>
     <div class="field-label">সম্পূর্ণ ঠিকানা (বাসা/রোড, এলাকা, থানা)</div><textarea id="coAddress"></textarea>
     <div class="field-label">পেমেন্ট মাধ্যম</div>
@@ -566,7 +566,7 @@
     <div class="note-box" id="payNote">অর্ডার হাতে পাওয়ার সময় টাকা পরিশোধ করবেন — মোট: <b id="payNoteTotal">৳0</b></div>
     <div id="trxWrap" style="display:none;">
       <div class="field-label">Transaction ID (TrxID)</div>
-      <input type="text" id="coTrxId" placeholder="যেমন: 8N7A2K9XYZ">
+      <input type="text" id="coTrxId" placeholder="যেমন: 8N7A2K9XYZ" oninput="this.value=toAsciiDigits(this.value)">
     </div>
     <button class="btn-gold" id="submitOrderBtn" onclick="submitOrder()">WhatsApp-এ অর্ডার পাঠান</button>
   </div>
@@ -617,8 +617,8 @@
             </select>
           </div>
           <div><div class="field-label">মনোগ্রাম অক্ষর</div><input type="text" id="npMono" maxlength="1"></div>
-          <div><div class="field-label">অরিজিনাল মূল্য (৳)</div><input type="text" id="npOrig"></div>
-          <div><div class="field-label">ডিসকাউন্ট মূল্য (৳)</div><input type="text" id="npDisc"></div>
+          <div><div class="field-label">অরিজিনাল মূল্য (৳)</div><input type="text" id="npOrig" oninput="this.value=toAsciiDigits(this.value)"></div>
+          <div><div class="field-label">ডিসকাউন্ট মূল্য (৳)</div><input type="text" id="npDisc" oninput="this.value=toAsciiDigits(this.value)"></div>
           <div class="full" style="display:flex;align-items:center;gap:8px;">
             <input type="checkbox" id="npIsCloth" style="width:auto;" onchange="renderNpMeasurePreview()">
             <label for="npIsCloth" style="font-size:13.5px;">এটি শুধু কাপড় (থান) — পাঞ্জাবি ও সেলোয়ার দুই ধরনের মাপ একসাথে দেখাবে</label>
@@ -703,13 +703,14 @@
         <h3 style="font-size:16px;margin:24px 0 10px;">দোকানের তথ্য</h3>
         <div class="form-grid">
           <div class="full"><div class="field-label" style="margin-top:0;">"আমাদের কথা" সেকশনের লেখা</div><textarea id="siAbout"></textarea></div>
-          <div class="full"><div class="field-label">দোকানের ঠিকানা</div><textarea id="siAddress"></textarea></div>
+          <div class="full"><div class="field-label">দোকানের ঠিকানা</div><textarea id="siAddress" onblur="this.value=toAsciiDigits(this.value)"></textarea></div>
+          <div class="hint">ঠিকানায় পোস্ট কোড/ঘর নম্বরে ইংরেজি সংখ্যা (1, 2, 3...) ব্যবহার করাই ভালো — বাংলা সংখ্যায় মাঝেমধ্যে ভুল কী চেপে ফেলার সুযোগ থাকে (যেমন ১-এর জায়গায় ৯), যা দেখতে বোঝা কঠিন।</div>
           <div><div class="field-label">Gmail</div><input type="text" id="siGmail"></div>
-          <div><div class="field-label">WhatsApp নাম্বার</div><input type="text" id="siWhatsapp"></div>
+          <div><div class="field-label">WhatsApp নাম্বার</div><input type="text" id="siWhatsapp" oninput="this.value=toAsciiDigits(this.value)"></div>
           <div><div class="field-label">ফেসবুক পেজ লিংক</div><input type="text" id="siFacebook"></div>
-          <div><div class="field-label">বিকাশ নাম্বার (সেন্ড মানি)</div><input type="text" id="siBkashSend"></div>
-          <div><div class="field-label">বিকাশ মার্চেন্ট নাম্বার (Payment)</div><input type="text" id="siBkashMerchant"></div>
-          <div><div class="field-label">নগদ নাম্বার</div><input type="text" id="siNagad"></div>
+          <div><div class="field-label">বিকাশ নাম্বার (সেন্ড মানি)</div><input type="text" id="siBkashSend" oninput="this.value=toAsciiDigits(this.value)"></div>
+          <div><div class="field-label">বিকাশ মার্চেন্ট নাম্বার (Payment)</div><input type="text" id="siBkashMerchant" oninput="this.value=toAsciiDigits(this.value)"></div>
+          <div><div class="field-label">নগদ নাম্বার</div><input type="text" id="siNagad" oninput="this.value=toAsciiDigits(this.value)"></div>
         </div>
         <div class="hint">"বিকাশ (সেন্ড মানি)" হলো আপনার ব্যক্তিগত বিকাশ নাম্বার, যেখানে কাস্টমার সরাসরি Send Money করবে। "বিকাশ মার্চেন্ট (Payment)" হলো আপনার মার্চেন্ট/এজেন্ট নাম্বার, যেখানে কাস্টমার বিকাশ অ্যাপের "Payment" অপশন দিয়ে টাকা পাঠাবে।</div>
         <button class="btn-gold" onclick="saveShopInfo()">সংরক্ষণ করুন</button>
@@ -1139,7 +1140,7 @@ function renderMeasureGroups(){
     : groups.map(g=>`<div class="measure-box"><h4>${titles[g]}</h4><div class="measure-grid">
         ${MEASURE_FIELDS[g].map(f=>{
           const guideUrl = measureGuide[g] && measureGuide[g][f.k];
-          return `<div class="measure-field"><label>${f.label}${guideUrl?` <a onclick="openLightbox('${guideUrl}')" style="color:var(--gold-bright);text-decoration:underline;cursor:pointer;">(কীভাবে মাপবেন?)</a>`:''}</label><input type="text" id="meas_${g}_${f.k}" placeholder="ইঞ্চি"></div>`;
+          return `<div class="measure-field"><label>${f.label}${guideUrl?` <a onclick="openLightbox('${guideUrl}')" style="color:var(--gold-bright);text-decoration:underline;cursor:pointer;">(কীভাবে মাপবেন?)</a>`:''}</label><input type="text" id="meas_${g}_${f.k}" placeholder="ইঞ্চি (যেমন: 15)" oninput="this.value=toAsciiDigits(this.value)"></div>`;
         }).join('')}
       </div></div>`).join('');
 }
@@ -1153,7 +1154,7 @@ function renderStyleOptions(){
 function collectCustomMeasurements(){
   const groups=measureGroupsForProduct(currentProduct);
   const measurements={};
-  groups.forEach(g=>{ MEASURE_FIELDS[g].forEach(f=>{ const el=document.getElementById(`meas_${g}_${f.k}`); if(el && el.value.trim()) measurements[f.label]=el.value.trim(); }); });
+  groups.forEach(g=>{ MEASURE_FIELDS[g].forEach(f=>{ const el=document.getElementById(`meas_${g}_${f.k}`); if(el && el.value.trim()) measurements[f.label]=toAsciiDigits(el.value.trim()); }); });
   return measurements;
 }
 function collectStyleOptions(){
