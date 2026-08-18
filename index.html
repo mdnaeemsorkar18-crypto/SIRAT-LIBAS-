@@ -387,7 +387,7 @@
 <div class="trust-row">
   <div class="trust-item"><span class="ic">🚚</span> সারাদেশে ডেলিভারি</div>
   <div class="trust-item"><span class="ic">💵</span> ক্যাশ অন ডেলিভারি</div>
-  <div class="trust-item"><span class="ic">🧵</span> ১০০% অথেন্টিক কাপড়</div>
+  <div class="trust-item"><span class="ic">🧵</span> 100% অথেন্টিক কাপড়</div>
   <div class="trust-item"><span class="ic">📏</span> নিজের মাপে অর্ডার</div>
 </div>
 
@@ -497,6 +497,7 @@
       <div class="size-opts" id="pmSizes"></div>
     </div>
     <div id="pmCustomWrap" style="display:none;">
+      <div id="pmSalwarToggle"></div>
       <div id="pmMeasureGroups"></div>
       <div id="pmStyleOptions"></div>
       <div class="field-label">মাপের কাগজ/ছবি থাকলে দিন (ঐচ্ছিক)</div>
@@ -557,12 +558,13 @@
     <div class="field-label">জেলা</div><select id="coDistrict" onchange="onDistrictChange()"></select>
     <div class="field-label">সম্পূর্ণ ঠিকানা (বাসা/রোড, এলাকা, থানা)</div><textarea id="coAddress"></textarea>
     <div class="field-label">পেমেন্ট মাধ্যম</div>
-    <div class="radio-row">
+    <div class="radio-row" id="paymentMethodRow">
       <div class="radio-opt selected" id="payCod" onclick="setPayment('cod')">ক্যাশ অন ডেলিভারি</div>
       <div class="radio-opt" id="payBkashSend" onclick="setPayment('bkashSend')">বিকাশ (সেন্ড মানি)</div>
       <div class="radio-opt" id="payBkashMerchant" onclick="setPayment('bkashMerchant')">বিকাশ (মার্চেন্ট পেমেন্ট)</div>
       <div class="radio-opt" id="payNagad" onclick="setPayment('nagad')">নগদ</div>
     </div>
+    <div class="note-box" id="clothOrderNote" style="display:none;">এটি কাস্টম মাপে তৈরি করা অর্ডার — <b>ক্যাশ অন ডেলিভারি নেই</b>। WhatsApp-এ অর্ডার পাঠানোর পর আমরা যোগাযোগ করব, বিকাশে <b>অগ্রিম পেমেন্ট</b> করলেই অর্ডার কাজ শুরু হবে।</div>
     <div class="note-box" id="payNote">অর্ডার হাতে পাওয়ার সময় টাকা পরিশোধ করবেন — মোট: <b id="payNoteTotal">৳0</b></div>
     <div id="trxWrap" style="display:none;">
       <div class="field-label">Transaction ID (TrxID)</div>
@@ -844,6 +846,16 @@ const STYLE_OPTIONS_BY_CAT = {
     {k:'fit', label:'ফিটিং', opts:['ফিটিং','ফিটিং থেকে হালকা লুজ','মিডিয়াম লুজ','বেশি লুজ']}
   ]
 };
+const CLOTH_STYLE_OPTIONS = [
+  {k:'collarType', label:'কলার', opts:['নরমাল কলার','শার্ট কলার','শেরওয়ানি কলার','বেন কলার']},
+  {k:'plate', label:'প্লেট', opts:['চুকা','সমান']},
+  {k:'pocket', label:'বুক পকেট', opts:['নেই','গোল','কোনাকাটা']},
+  {k:'button', label:'কাপড়ের সাথে মিলিয়ে বাটন', opts:['হ্যাঁ','না']},
+  {k:'sleeve', label:'হাতা', opts:['ফুল হাতা','হাফ হাতা']},
+  {k:'cuff', label:'কফ হাতা লাগবে?', opts:['না','হ্যাঁ']},
+  {k:'gulpi', label:'গুলপি লাগবে?', opts:['না','হ্যাঁ']},
+  {k:'fit', label:'ফিটিং', opts:['ফিটিং','ফিটিং থেকে হালকা লুজ','মিডিয়াম লুজ','বেশি লুজ']}
+];
 const DISTRICTS = ["ঢাকা","ফরিদপুর","গাজীপুর","গোপালগঞ্জ","কিশোরগঞ্জ","মাদারীপুর","মানিকগঞ্জ","মুন্সিগঞ্জ","নারায়ণগঞ্জ","নরসিংদী","রাজবাড়ী","শরীয়তপুর","টাঙ্গাইল","বাগেরহাট","চুয়াডাঙ্গা","যশোর","ঝিনাইদহ","খুলনা","কুষ্টিয়া","মাগুরা","মেহেরপুর","নড়াইল","সাতক্ষীরা","বান্দরবান","ব্রাহ্মণবাড়িয়া","চাঁদপুর","চট্টগ্রাম","কুমিল্লা","কক্সবাজার","ফেনী","খাগড়াছড়ি","লক্ষ্মীপুর","নোয়াখালী","রাঙামাটি","বগুড়া","জয়পুরহাট","নওগাঁ","নাটোর","চাঁপাইনবাবগঞ্জ","পাবনা","রাজশাহী","সিরাজগঞ্জ","জামালপুর","ময়মনসিংহ","নেত্রকোণা","শেরপুর","দিনাজপুর","গাইবান্ধা","কুড়িগ্রাম","লালমনিরহাট","নীলফামারী","পঞ্চগড়","রংপুর","ঠাকুরগাঁও","বরগুনা","বরিশাল","ভোলা","ঝালকাঠি","পটুয়াখালী","পিরোজপুর","হবিগঞ্জ","মৌলভীবাজার","সুনামগঞ্জ","সিলেট"];
 const FAQS = [
   {q:"অর্ডার করলে ডেলিভারি পেতে কতদিন লাগে?", a:"ঢাকার ভিতরে সাধারণত ১-২ দিন, ঢাকার বাইরে ৩-৫ দিন সময় লাগে।"},
@@ -866,7 +878,7 @@ const SEED_PRODUCTS = [
 let products=[], shopInfo={...DEFAULT_SHOP_INFO}, orders=[], reviews=[], cart=[], directOrderItem=null;
 function activeItems(){ return directOrderItem ? [directOrderItem] : cart; }
 let activeCategory="সব", searchText="", paymentMethod="cod", appliedCoupon=null;
-let currentProduct=null, currentSize=null, currentQty=1, rvRating=5, sizeMode='std';
+let currentProduct=null, currentSize=null, currentQty=1, rvRating=5, sizeMode='std', wantsSalwar=false;
 let editingProductId=null;
 let ordersUnsub=null, firstOrderLoad=true;
 
@@ -1073,7 +1085,7 @@ function openProduct(id){
   if(!currentProduct){ alert('প্রোডাক্টটি পাওয়া যায়নি।'); return; }
   if(!Array.isArray(currentProduct.sizes) || currentProduct.sizes.length===0) currentProduct.sizes=['Free Size'];
   if(!Array.isArray(currentProduct.images)) currentProduct.images=[];
-  currentQty=1; currentSize=currentProduct.sizes[0];
+  currentQty=1; currentSize=currentProduct.sizes[0]; wantsSalwar=false;
   const imgs=currentProduct.images||[];
   document.getElementById('pmMainThumb').innerHTML = imgs.length?`<img src="${imgs[0]}">`:`<span class="mono">${currentProduct.mono||currentProduct.name[0]}</span>`;
   document.getElementById('pmThumbs').innerHTML = imgs.map((u,i)=>`<img src="${u}" class="${i===0?'active':''}" onclick="switchImg(${i})">`).join('');
@@ -1099,7 +1111,8 @@ function openProduct(id){
   document.getElementById('pmSizes').innerHTML = currentProduct.sizes.map((s,i)=>`<button class="size-opt ${i===0?'selected':''}" onclick="selectSize('${s}',this)">${s}</button>`).join('');
   renderReviewList(); rvRating=5; renderStarSelect();
   document.getElementById('pmMeasurePhoto').value='';
-  setSizeMode('std');
+  document.getElementById('sizeModeStd').style.display = currentProduct.isCloth ? 'none' : '';
+  setSizeMode(currentProduct.isCloth ? 'custom' : 'std');
   renderMeasureGroups();
   renderStyleOptions();
   renderRelatedProducts();
@@ -1128,11 +1141,22 @@ function setSizeMode(mode){
   document.getElementById('pmCustomWrap').style.display = mode==='custom'?'block':'none';
 }
 function measureGroupsForProduct(p){
-  if(p.isCloth) return ['top6','bottom3'];
+  if(p.isCloth) return wantsSalwar ? ['top6','bottom3'] : ['top6'];
   const g=catGroup(p.category);
   return g==='none'?[]:[g];
 }
+function toggleWantsSalwar(v){ wantsSalwar=v; renderMeasureGroups(); }
+function renderSalwarToggle(){
+  const el = document.getElementById('pmSalwarToggle');
+  if(!currentProduct.isCloth){ el.innerHTML=''; return; }
+  el.innerHTML = `<div class="style-opt-row"><div class="field-label" style="margin-top:0;">সেলোয়ার/পায়জামাও লাগবে?</div>
+    <div class="radio-row" style="max-width:260px;">
+      <div class="radio-opt ${!wantsSalwar?'selected':''}" onclick="toggleWantsSalwar(false)">না</div>
+      <div class="radio-opt ${wantsSalwar?'selected':''}" onclick="toggleWantsSalwar(true)">হ্যাঁ</div>
+    </div></div>`;
+}
 function renderMeasureGroups(){
+  renderSalwarToggle();
   const groups=measureGroupsForProduct(currentProduct);
   const titles={top6:'উপরের পোশাকের মাপ (ইঞ্চিতে)', bottom3:'সেলোয়ার/পায়জামার মাপ (ইঞ্চিতে)'};
   document.getElementById('pmMeasureGroups').innerHTML = groups.length===0
@@ -1145,7 +1169,7 @@ function renderMeasureGroups(){
       </div></div>`).join('');
 }
 function renderStyleOptions(){
-  const opts = STYLE_OPTIONS_BY_CAT[currentProduct.category] || [];
+  const opts = currentProduct.isCloth ? CLOTH_STYLE_OPTIONS : [];
   document.getElementById('pmStyleOptions').innerHTML = opts.length===0 ? '' :
     `<div class="style-opt-row"><div class="field-label" style="margin-top:0;">পোশাকের স্টাইল বেছে নিন</div>
      ${opts.map(o=>`<div class="field-label">${o.label}</div><select id="style_${o.k}">${o.opts.map(v=>`<option value="${v}">${v}</option>`).join('')}</select>`).join('')}
@@ -1158,7 +1182,7 @@ function collectCustomMeasurements(){
   return measurements;
 }
 function collectStyleOptions(){
-  const opts = STYLE_OPTIONS_BY_CAT[currentProduct.category] || [];
+  const opts = currentProduct.isCloth ? CLOTH_STYLE_OPTIONS : [];
   const chosen={};
   opts.forEach(o=>{ const el=document.getElementById(`style_${o.k}`); if(el) chosen[o.label]=el.value; });
   return chosen;
@@ -1171,7 +1195,7 @@ async function buildOrderItem(){
   const hasDisc=currentProduct.discount && currentProduct.discount<currentProduct.original;
   const price=hasDisc?currentProduct.discount:currentProduct.original;
   const img=(currentProduct.images&&currentProduct.images[0])||null;
-  const item={id:currentProduct.id,name:currentProduct.name,mono:currentProduct.mono,img,qty:currentQty,price,clothCode:currentProduct.clothCode||null};
+  const item={id:currentProduct.id,name:currentProduct.name,mono:currentProduct.mono,img,qty:currentQty,price,clothCode:currentProduct.clothCode||null,isCloth:!!currentProduct.isCloth,custom:sizeMode==='custom'};
 
   if(sizeMode==='custom'){
     item.size='নিজের মাপ (কাস্টম)';
@@ -1204,6 +1228,7 @@ async function buyNow(){
   directOrderItem = item;
   closeModal('productOverlay');
   populateDistricts();
+  applyCustomOrderRestrictions();
   setPayment(paymentMethod);
   renderCheckoutSummary();
   openModal('checkoutOverlay');
@@ -1254,6 +1279,13 @@ function updateSummary(){
 }
 function populateDistricts(){ document.getElementById('coDistrict').innerHTML = DISTRICTS.map(d=>`<option value="${d}">${d}</option>`).join(''); }
 function onDistrictChange(){ setPayment(paymentMethod); }
+function hasCustomItems(){ return activeItems().some(i=>i.custom); }
+function applyCustomOrderRestrictions(){
+  const custom = hasCustomItems();
+  document.getElementById('clothOrderNote').style.display = custom ? 'block' : 'none';
+  document.getElementById('payCod').style.display = custom ? 'none' : '';
+  if(custom && paymentMethod==='cod') paymentMethod='bkashSend';
+}
 function renderCheckoutSummary(){
   const items=activeItems();
   const sub=getSubtotal(); const disc=getCouponDiscount(sub);
@@ -1265,6 +1297,7 @@ function openCheckout(){
   if(cart.length===0) return;
   directOrderItem=null;
   closeModal('cartOverlay'); populateDistricts();
+  applyCustomOrderRestrictions();
   setPayment(paymentMethod);
   renderCheckoutSummary();
   openModal('checkoutOverlay');
@@ -1304,6 +1337,7 @@ async function submitOrder(){
   const address=fixDigits(document.getElementById('coAddress').value.trim());
   const trxId=toAsciiDigits(document.getElementById('coTrxId').value.trim());
   if(!name||!phone||!address){ alert('নাম, মোবাইল নাম্বার ও ঠিকানা দিন।'); return; }
+  if(hasCustomItems() && paymentMethod==='cod'){ alert('কাস্টম মাপের অর্ডারে ক্যাশ অন ডেলিভারি নেই — বিকাশ বা নগদে অগ্রিম পেমেন্ট বেছে নিন।'); return; }
   if(paymentMethod!=='cod' && !trxId){ alert('Transaction ID দিন।'); return; }
   const btn=document.getElementById('submitOrderBtn'); btn.disabled=true; btn.textContent='সংরক্ষণ হচ্ছে...';
 
@@ -1327,12 +1361,14 @@ async function submitOrder(){
     const itemsText=items.map(i=>{
       let line=`${i.name} (সাইজ: ${i.size}, পরিমাণ: ${i.qty}) — ৳${i.price*i.qty}`;
       if(i.measurements && Object.keys(i.measurements).length) line += ' | মাপ: '+Object.entries(i.measurements).map(([k,v])=>`${k}:${v}"`).join(', ');
+      if(i.styleOptions && Object.keys(i.styleOptions).length) line += ' | স্টাইল: '+Object.entries(i.styleOptions).map(([k,v])=>`${k}:${v}`).join(', ');
       if(i.measurePhoto) line += ' | মাপের ছবি সংযুক্ত (অ্যাডমিন প্যানেলে দেখুন)';
       return line;
     }).join('%0A');
     const payNote = (paymentMethod==='bkashSend' ? 'বিকাশ সেন্ড মানিতে পেমেন্ট করা হয়েছে' : paymentMethod==='bkashMerchant' ? 'বিকাশ মার্চেন্ট পেমেন্টে পেমেন্ট করা হয়েছে' : 'নগদে সেন্ড মানি করা হয়েছে') + ` (TrxID: ${trxId})`;
     const discLine = disc>0 ? `%0Aকুপন ছাড় (${appliedCoupon.code}): -৳${disc}` : '';
-    const msg=`নতুন অর্ডার — SIRAT LIBAS%0A%0Aনাম: ${name}%0Aমোবাইল: ${phone}%0Aজেলা: ${district}%0Aঠিকানা: ${address}%0A%0Aপণ্য:%0A${itemsText}%0A%0Aসাবটোটাল: ৳${sub}${discLine}%0Aডেলিভারি চার্জ: ৳${del}%0Aসর্বমোট: ৳${total}%0Aপেমেন্ট: ${payLabel} (${payNote})%0Aট্র্যাকিং আইডি: ${trackingId}`;
+    const advanceNote = hasCustomItems() ? '%0A%0A⚠️ এটি কাস্টম মাপের অর্ডার — অগ্রিম পেমেন্ট নিশ্চিত হওয়ার পর কাজ শুরু হবে।' : '';
+    const msg=`নতুন অর্ডার — SIRAT LIBAS%0A%0Aনাম: ${name}%0Aমোবাইল: ${phone}%0Aজেলা: ${district}%0Aঠিকানা: ${address}%0A%0Aপণ্য:%0A${itemsText}%0A%0Aসাবটোটাল: ৳${sub}${discLine}%0Aডেলিভারি চার্জ: ৳${del}%0Aসর্বমোট: ৳${total}%0Aপেমেন্ট: ${payLabel} (${payNote})%0Aট্র্যাকিং আইডি: ${trackingId}${advanceNote}`;
     window.open(`https://wa.me/${shopInfo.whatsapp}?text=${msg}`, '_blank');
   }
 
@@ -1736,7 +1772,7 @@ Object.assign(window, {
   toggleFaq, openAdmin, adminSignIn, adminSignOut, switchAdminTab, suggestSizes, addProduct, editProduct,
   cancelEditProduct, deleteProduct, saveShopInfo, seedDefaultProducts, updateOrderStatus, markOrderRead, closeModal,
   setSizeMode, addCategory, deleteCategory, renderNpMeasurePreview, goToBanner, uploadBannerImage, setMobileGridCols, exportOrdersCsv, openReturnPolicy,
-  openLightbox, closeLightbox, uploadMeasureGuideImage, toAsciiDigits, fixDigits
+  openLightbox, closeLightbox, uploadMeasureGuideImage, toAsciiDigits, fixDigits, toggleWantsSalwar
 });
 </script>
 </body>
