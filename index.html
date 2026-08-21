@@ -96,6 +96,8 @@
   .thumb{ aspect-ratio:4/5; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden;
     background: repeating-linear-gradient(135deg, rgba(169,121,31,.06) 0 2px, transparent 2px 18px), linear-gradient(160deg,var(--gold-tint),#fff); }
   .thumb img{ width:100%; height:100%; object-fit:cover; }
+  .thumb img.thumb-hover{ position:absolute; inset:0; opacity:0; transition:opacity .35s ease; }
+  .card:hover .thumb img.thumb-hover{ opacity:1; }
   .thumb .mono{ font-family:'Noto Serif Bengali',serif; font-size:42px; color:var(--gold); opacity:.55; }
   .badge{ position:absolute; top:10px; left:10px; background:var(--green); color:#fff; font-weight:700; font-size:11.5px; padding:4px 9px; border-radius:2px; }
   .card-body{ padding:16px; display:flex; flex-direction:column; gap:6px; flex:1; }
@@ -114,6 +116,12 @@
   .about-sec, .contact-sec, .faq-sec{ padding:70px 5vw; border-top:1px solid var(--line); }
   .about-sec{ background:var(--bg-soft); }
   .about-sec p{ max-width:680px; margin:0 auto; text-align:center; color:var(--ink-soft); line-height:2; font-size:15.5px; white-space:pre-line; }
+  .craft-strip{ display:grid; grid-template-columns:repeat(3,1fr); gap:30px; max-width:900px; margin:48px auto 0; }
+  .craft-item{ text-align:center; }
+  .craft-ic{ font-size:26px; margin-bottom:12px; }
+  .craft-item h5{ font-family:'Noto Serif Bengali',serif; font-size:16px; color:var(--ink); margin-bottom:8px; font-weight:700; }
+  .craft-item p{ font-size:12.5px; color:var(--ink-soft); line-height:1.8; max-width:220px; margin:0 auto; }
+  @media(max-width:640px){ .craft-strip{ grid-template-columns:1fr; gap:26px; } }
   .contact-grid{ max-width:720px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
   .contact-card{ background:var(--bg-soft); border:1px solid var(--line); border-radius:4px; padding:22px; text-align:center; }
   .contact-card .ic{ font-size:26px; margin-bottom:10px; }
@@ -234,12 +242,18 @@
   .mb-btn{ display:inline-flex; align-items:center; gap:8px; background:#25D366; color:#fff; text-decoration:none; font-weight:700; font-size:14px; padding:12px 26px; border-radius:24px; transition:.2s; }
   .mb-btn:hover{ background:#1ebc59; transform:translateY(-2px); }
 
-  footer{ border-top:1px solid var(--line); padding:50px 5vw 30px; text-align:center; background:var(--bg-soft); }
-  footer .logo{ display:block; margin-bottom:16px; }
-  .foot-info{ font-size:13.5px; color:var(--ink-soft); line-height:2.1; margin-bottom:14px; }
-  .foot-info a{ color:var(--gold); text-decoration:none; }
-  .foot-links{ font-size:12px; color:var(--ink-soft); margin-bottom:16px; }
-  .copyright{ font-size:12px; opacity:.6; }
+  footer{ border-top:1px solid var(--line); padding:56px 5vw 24px; background:var(--bg-soft); }
+  .foot-grid{ max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1.4fr 1fr 1fr 1.2fr; gap:36px; text-align:left; }
+  .foot-brand .foot-tagline{ font-size:13px; color:var(--ink-soft); margin:14px 0 16px; max-width:280px; line-height:1.7; }
+  .foot-social a{ font-size:13px; color:var(--gold); text-decoration:none; }
+  .foot-col h4{ font-size:12.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink); margin-bottom:16px; font-weight:700; }
+  .foot-col{ display:flex; flex-direction:column; gap:11px; }
+  .foot-col a{ font-size:13.5px; color:var(--ink-soft); text-decoration:none; transition:.15s; width:fit-content; }
+  .foot-col a:hover{ color:var(--gold); }
+  .foot-col .foot-static{ font-size:13.5px; color:var(--ink-soft); }
+  #footInfo{ display:flex; flex-direction:column; gap:11px; }
+  .copyright{ font-size:12px; opacity:.6; text-align:center; margin-top:44px; padding-top:22px; border-top:1px solid var(--line); max-width:1100px; margin-left:auto; margin-right:auto; }
+  @media(max-width:760px){ .foot-grid{ grid-template-columns:1fr 1fr; gap:28px 20px; } .foot-brand{ grid-column:1/-1; } }
 
   /* ---- Hero banner slider ---- */
   .banner-slider{ position:relative; width:100%; aspect-ratio:2.5/1; max-height:420px; overflow:hidden; background:var(--gold-tint); border-bottom:1px solid var(--line); }
@@ -409,6 +423,11 @@
 <section class="about-sec" id="about">
   <div class="section-title"><div class="eyebrow en">our story</div><h2>আমাদের কথা</h2></div>
   <p id="aboutText">সিরাত লিবাস — মানসম্মত কাপড় ও পরিপাটি সেলাইয়ে তৈরি পোশাক, সরাসরি আপনার দরজায়।</p>
+  <div class="craft-strip">
+    <div class="craft-item"><div class="craft-ic">✂️</div><h5>নিখুঁত কারুকাজ</h5><p>প্রতিটা সেলাই পরিপাটি হাতে যাচাই করা হয়, মান নিয়ে কোনো আপস নেই।</p></div>
+    <div class="craft-item"><div class="craft-ic">🧵</div><h5>বাছাই করা কাপড়</h5><p>নরম, টেকসই ও আরামদায়ক অনুভূতির জন্য বেছে নেওয়া প্রিমিয়াম ফেব্রিক।</p></div>
+    <div class="craft-item"><div class="craft-ic">📐</div><h5>আপনার মাপেই তৈরি</h5><p>চাইলে নিজের মাপ দিয়ে একদম নিজের মতো করে বানিয়ে নিন।</p></div>
+  </div>
 </section>
 
 <section class="contact-sec" id="contact">
@@ -435,10 +454,29 @@
 </section>
 
 <footer>
-  <div class="logo">SIRAT <b>LIBAS</b></div>
-  <div class="foot-info" id="footInfo"></div>
-  <div class="foot-links">ডেলিভারি: সারাদেশে &nbsp;•&nbsp; পেমেন্ট: ক্যাশ অন ডেলিভারি, বিকাশ, নগদ</div>
-  <div class="foot-links"><a href="#" onclick="openReturnPolicy();return false;" style="color:var(--gold);text-decoration:none;">রিটার্ন ও রিফান্ড পলিসি</a></div>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <div class="logo">SIRAT <b>LIBAS</b></div>
+      <p class="foot-tagline">মানসম্মত কাপড়, পরিপাটি সেলাই — সরাসরি আপনার দরজায়।</p>
+      <div class="foot-social" id="footSocial"></div>
+    </div>
+    <div class="foot-col">
+      <h4>কেনাকাটা</h4>
+      <a href="#shop">সব প্রোডাক্ট</a>
+      <a href="#" onclick="openTrack();return false;">অর্ডার ট্র্যাক করুন</a>
+      <a href="#" id="footSizeGuide" onclick="document.querySelector('.faq-item')?.scrollIntoView({behavior:'smooth'});return false;">সাইজ গাইড</a>
+    </div>
+    <div class="foot-col">
+      <h4>সার্ভিস</h4>
+      <a href="#" onclick="openReturnPolicy();return false;">রিটার্ন ও রিফান্ড</a>
+      <span class="foot-static">ডেলিভারি: সারাদেশে</span>
+      <span class="foot-static">পেমেন্ট: COD, বিকাশ, নগদ</span>
+    </div>
+    <div class="foot-col">
+      <h4>যোগাযোগ</h4>
+      <div id="footInfo"></div>
+    </div>
+  </div>
   <div class="copyright">© 2026 Sirat Libas. সর্বস্বত্ব সংরক্ষিত। &nbsp;•&nbsp; <a href="#" onclick="openAdmin();return false;" style="opacity:.6;">Admin</a></div>
 </footer>
 
@@ -854,6 +892,8 @@ const CLOTH_STYLE_OPTIONS = [
   {k:'sleeve', label:'হাতা', opts:['ফুল হাতা','হাফ হাতা']},
   {k:'cuff', label:'কফ হাতা লাগবে?', opts:['না','হ্যাঁ']},
   {k:'gulpi', label:'গুলপি লাগবে?', opts:['না','হ্যাঁ']},
+  {k:'pocketZip', label:'পকেটে চেইন লাগবে?', opts:['না','হ্যাঁ']},
+  {k:'cuffButton', label:'হাতার মুখে বোতাম লাগবে?', opts:['না','হ্যাঁ']},
   {k:'fit', label:'ফিটিং', opts:['ফিটিং','ফিটিং থেকে হালকা লুজ','মিডিয়াম লুজ','বেশি লুজ']}
 ];
 const DISTRICTS = ["ঢাকা","ফরিদপুর","গাজীপুর","গোপালগঞ্জ","কিশোরগঞ্জ","মাদারীপুর","মানিকগঞ্জ","মুন্সিগঞ্জ","নারায়ণগঞ্জ","নরসিংদী","রাজবাড়ী","শরীয়তপুর","টাঙ্গাইল","বাগেরহাট","চুয়াডাঙ্গা","যশোর","ঝিনাইদহ","খুলনা","কুষ্টিয়া","মাগুরা","মেহেরপুর","নড়াইল","সাতক্ষীরা","বান্দরবান","ব্রাহ্মণবাড়িয়া","চাঁদপুর","চট্টগ্রাম","কুমিল্লা","কক্সবাজার","ফেনী","খাগড়াছড়ি","লক্ষ্মীপুর","নোয়াখালী","রাঙামাটি","বগুড়া","জয়পুরহাট","নওগাঁ","নাটোর","চাঁপাইনবাবগঞ্জ","পাবনা","রাজশাহী","সিরাজগঞ্জ","জামালপুর","ময়মনসিংহ","নেত্রকোণা","শেরপুর","দিনাজপুর","গাইবান্ধা","কুড়িগ্রাম","লালমনিরহাট","নীলফামারী","পঞ্চগড়","রংপুর","ঠাকুরগাঁও","বরগুনা","বরিশাল","ভোলা","ঝালকাঠি","পটুয়াখালী","পিরোজপুর","হবিগঞ্জ","মৌলভীবাজার","সুনামগঞ্জ","সিলেট"];
@@ -1019,8 +1059,9 @@ function renderGrid(){
       const inStock = p.inStock !== false;
       const img = images.length ? `<img src="${images[0]}" loading="lazy" decoding="async">` : `<span class="mono">${(p.mono||name[0]||'?')}</span>`;
       const tagBadge = p.tag==='নতুন' ? `<div class="tag-badge">নতুন</div>` : p.tag==='বেস্ট সেলার' ? `<div class="tag-badge best">বেস্ট সেলার</div>` : '';
+      const img2 = images.length>1 ? `<img src="${images[1]}" class="thumb-hover" loading="lazy" decoding="async">` : '';
       return `<div class="card${inStock?'':' out-of-stock'}">
-        <div class="thumb">${hasDisc?`<div class="badge">${pct}% ছাড়</div>`:''}${tagBadge}${!inStock?`<div class="stock-badge">স্টক নেই</div>`:''}${img}</div>
+        <div class="thumb">${hasDisc?`<div class="badge">${pct}% ছাড়</div>`:''}${tagBadge}${!inStock?`<div class="stock-badge">স্টক নেই</div>`:''}${img}${img2}</div>
         <div class="card-body">
           <div class="cat-label">${category}${p.clothCode?`<span class="cloth-code-tag">${p.clothCode}</span>`:''}</div><h3>${name}</h3>
           ${r.count>0?`<div><span class="stars">${starsHtml(r.avg)}</span> <span class="rating-count">(${r.count})</span></div>`:''}
@@ -1032,7 +1073,8 @@ function renderGrid(){
 }
 
 function renderFooter(){
-  document.getElementById('footInfo').innerHTML = `ঠিকানা: ${shopInfo.address} &nbsp;•&nbsp; WhatsApp: <a href="https://wa.me/${shopInfo.whatsapp}" target="_blank">+${shopInfo.whatsapp}</a> &nbsp;•&nbsp; Gmail: ${shopInfo.gmail}`;
+  document.getElementById('footInfo').innerHTML = `<span class="foot-static">ঠিকানা: ${shopInfo.address}</span><a href="https://wa.me/${shopInfo.whatsapp}" target="_blank">WhatsApp: +${shopInfo.whatsapp}</a><a href="mailto:${shopInfo.gmail}">${shopInfo.gmail}</a>`;
+  document.getElementById('footSocial').innerHTML = shopInfo.facebook && shopInfo.facebook!=='#' ? `<a href="${shopInfo.facebook}" target="_blank" aria-label="Facebook">📘 ফেসবুক পেজ</a>` : '';
   document.getElementById('aboutText').textContent = shopInfo.about;
   document.getElementById('contactAddress').textContent = shopInfo.address;
   document.getElementById('contactWhatsapp').href = 'https://wa.me/'+shopInfo.whatsapp;
