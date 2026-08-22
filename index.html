@@ -100,7 +100,7 @@
   .card:hover .thumb img.thumb-hover{ opacity:1; }
   .thumb .mono{ font-family:'Noto Serif Bengali',serif; font-size:42px; color:var(--gold); opacity:.55; }
   .badge{ position:absolute; top:10px; left:10px; background:var(--green); color:#fff; font-weight:700; font-size:11.5px; padding:4px 9px; border-radius:2px; }
-  .card-body{ padding:16px; display:flex; flex-direction:column; gap:6px; flex:1; }
+  .card-body{ padding:13px 14px 15px; display:flex; flex-direction:column; gap:5px; flex:1; }
   .cat-label{ font-size:11px; letter-spacing:.14em; color:var(--gold); text-transform:uppercase; }
   .card-body h3{ font-size:16px; line-height:1.4; color:var(--ink); }
   .stars{ color:var(--gold); font-size:13px; letter-spacing:1px; }
@@ -139,13 +139,17 @@
   .modal-close{ position:absolute; top:16px; right:16px; background:none; border:none; color:var(--ink-soft); font-size:22px; line-height:1; }
   .modal h2{ font-size:22px; margin-bottom:18px; padding-right:24px; color:var(--ink); }
 
-  .pm-thumb{ aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; margin-bottom:12px; overflow:hidden;
-    background:repeating-linear-gradient(135deg, rgba(169,121,31,.07) 0 2px, transparent 2px 20px), linear-gradient(160deg,var(--gold-tint),#fff); border-radius:4px; }
-  .pm-thumb img{ width:100%; height:100%; object-fit:cover; }
-  .pm-thumb .mono{ font-family:'Noto Serif Bengali',serif; font-size:60px; color:var(--gold); opacity:.55; }
-  .pm-thumbs{ display:flex; gap:8px; margin-bottom:16px; }
-  .pm-thumbs img{ width:52px; height:52px; object-fit:cover; border-radius:2px; border:1px solid var(--line); cursor:pointer; opacity:.6; }
-  .pm-thumbs img.active{ opacity:1; border-color:var(--gold); }
+  .pm-gallery{ position:relative; margin:0 -28px 16px; }
+  .pm-gallery-track{ display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; -ms-overflow-style:none; }
+  .pm-gallery-track::-webkit-scrollbar{ display:none; }
+  .pm-gallery-track > *{ flex:0 0 100%; scroll-snap-align:center; }
+  .pm-gallery-track img{ width:100%; aspect-ratio:4/5; object-fit:cover; display:block; background:repeating-linear-gradient(135deg, rgba(169,121,31,.07) 0 2px, transparent 2px 20px), linear-gradient(160deg,var(--gold-tint),#fff); }
+  .pm-gallery-track .mono{ width:100%; aspect-ratio:4/5; display:flex; align-items:center; justify-content:center; font-family:'Noto Serif Bengali',serif; font-size:60px; color:var(--gold); opacity:.55;
+    background:repeating-linear-gradient(135deg, rgba(169,121,31,.07) 0 2px, transparent 2px 20px), linear-gradient(160deg,var(--gold-tint),#fff); }
+  .pm-gallery-dots{ display:flex; justify-content:center; gap:6px; margin-top:10px; }
+  .pm-gallery-dots span{ width:6px; height:6px; border-radius:50%; background:var(--line); cursor:pointer; transition:.2s; }
+  .pm-gallery-dots span.active{ background:var(--gold); width:18px; border-radius:3px; }
+  @media(min-width:641px){ .pm-gallery{ margin:0 0 16px; border-radius:4px; overflow:hidden; } }
   .field-label{ font-size:13px; color:var(--ink-soft); margin:16px 0 8px; letter-spacing:.03em; }
   .size-opts{ display:flex; gap:8px; flex-wrap:wrap; }
   .size-opt{ border:1px solid var(--line); background:#fff; color:var(--ink); padding:8px 15px; border-radius:2px; font-size:13.5px; }
@@ -514,8 +518,10 @@
 <div class="overlay" id="productOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('productOverlay')">&times;</button>
-    <div class="pm-thumb" id="pmMainThumb"><span class="mono" id="pmMono">স</span></div>
-    <div class="pm-thumbs" id="pmThumbs"></div>
+    <div class="pm-gallery" id="pmGallery">
+      <div class="pm-gallery-track" id="pmGalleryTrack"><span class="mono" id="pmMono">স</span></div>
+      <div class="pm-gallery-dots" id="pmGalleryDots"></div>
+    </div>
     <div class="cat-label" id="pmCat"></div>
     <h2 id="pmName"></h2>
     <div class="review-summary"><span class="stars" id="pmStars"></span><span class="rating-count" id="pmRatingCount"></span></div>
@@ -799,8 +805,8 @@ async function compressImage(file, maxDim=1600, quality=0.8){
     return new File([blob], file.name.replace(/\.\w+$/,'.jpg'), { type:'image/jpeg' });
   }catch(e){ return file; }
 }
-async function uploadToImgbb(file, timeoutMs=45000){
-  const compressed = await compressImage(file);
+async function uploadToImgbb(file, timeoutMs=45000, maxDim=1600, quality=0.8){
+  const compressed = await compressImage(file, maxDim, quality);
   const formData = new FormData();
   formData.append('image', compressed);
   const controller = new AbortController();
@@ -1046,20 +1052,22 @@ function renderGrid(){
   let list = activeCategory==="সব"?products:products.filter(p=>p.category===activeCategory);
   if(searchText) list=list.filter(p=>(p.name && p.name.toLowerCase().includes(searchText)) || (p.clothCode && p.clothCode.toLowerCase().includes(searchText)));
   if(list.length===0){ el.innerHTML=`<div class="empty-msg">${CONFIG_MISSING?'Firebase কনফিগার করা হয়নি।':'কোনো প্রোডাক্ট পাওয়া যায়নি।'}</div>`; return; }
-  el.innerHTML = list.map(p=>{
+  el.innerHTML = list.map((p,idx)=>{
     try{
       const name = p.name || '(নাম নেই)';
       const category = p.category || 'অন্যান্য';
       const original = Number(p.original) || 0;
       const discount = (p.discount && Number(p.discount)) || null;
       const images = Array.isArray(p.images) ? p.images : [];
+      const cardImgs = Array.isArray(p.thumbs) && p.thumbs.length ? p.thumbs : images;
       const hasDisc = discount && discount < original;
       const pct = hasDisc ? Math.round((1-discount/original)*100) : 0;
       const r = ratingFor(p.id);
       const inStock = p.inStock !== false;
-      const img = images.length ? `<img src="${images[0]}" loading="lazy" decoding="async">` : `<span class="mono">${(p.mono||name[0]||'?')}</span>`;
+      const eager = idx < 4;
+      const img = cardImgs.length ? `<img src="${cardImgs[0]}" ${eager?'fetchpriority="high"':'loading="lazy"'} decoding="async">` : `<span class="mono">${(p.mono||name[0]||'?')}</span>`;
       const tagBadge = p.tag==='নতুন' ? `<div class="tag-badge">নতুন</div>` : p.tag==='বেস্ট সেলার' ? `<div class="tag-badge best">বেস্ট সেলার</div>` : '';
-      const img2 = images.length>1 ? `<img src="${images[1]}" class="thumb-hover" loading="lazy" decoding="async">` : '';
+      const img2 = cardImgs.length>1 ? `<img src="${cardImgs[1]}" class="thumb-hover" loading="lazy" decoding="async">` : '';
       return `<div class="card${inStock?'':' out-of-stock'}">
         <div class="thumb">${hasDisc?`<div class="badge">${pct}% ছাড়</div>`:''}${tagBadge}${!inStock?`<div class="stock-badge">স্টক নেই</div>`:''}${img}${img2}</div>
         <div class="card-body">
@@ -1129,8 +1137,7 @@ function openProduct(id){
   if(!Array.isArray(currentProduct.images)) currentProduct.images=[];
   currentQty=1; currentSize=currentProduct.sizes[0]; wantsSalwar=false;
   const imgs=currentProduct.images||[];
-  document.getElementById('pmMainThumb').innerHTML = imgs.length?`<img src="${imgs[0]}">`:`<span class="mono">${currentProduct.mono||currentProduct.name[0]}</span>`;
-  document.getElementById('pmThumbs').innerHTML = imgs.map((u,i)=>`<img src="${u}" class="${i===0?'active':''}" onclick="switchImg(${i})">`).join('');
+  renderPmGallery(imgs);
   document.getElementById('pmCat').innerHTML = currentProduct.category + (currentProduct.clothCode?`<span class="cloth-code-tag">${currentProduct.clothCode}</span>`:'');
   document.getElementById('pmName').textContent=currentProduct.name;
   document.getElementById('pmDesc').textContent=currentProduct.desc||'';
@@ -1166,7 +1173,7 @@ function renderRelatedProducts(){
   if(related.length===0){ el.innerHTML=''; return; }
   el.innerHTML = `<div class="field-label" style="margin-top:0;">আরও দেখুন</div>
     <div class="related-grid">${related.map(p=>{
-      const imgs=Array.isArray(p.images)?p.images:[];
+      const imgs=Array.isArray(p.thumbs)&&p.thumbs.length ? p.thumbs : (Array.isArray(p.images)?p.images:[]);
       const price = (p.discount && Number(p.discount)<Number(p.original)) ? p.discount : p.original;
       return `<div class="related-card" onclick="openProduct('${p.id}')">
         <div class="related-thumb">${imgs.length?`<img src="${imgs[0]}" loading="lazy" decoding="async">`:`<span class="mono">${p.mono||p.name[0]}</span>`}</div>
@@ -1229,7 +1236,27 @@ function collectStyleOptions(){
   opts.forEach(o=>{ const el=document.getElementById(`style_${o.k}`); if(el) chosen[o.label]=el.value; });
   return chosen;
 }
-function switchImg(i){ document.getElementById('pmMainThumb').innerHTML=`<img src="${currentProduct.images[i]}">`; document.querySelectorAll('#pmThumbs img').forEach((el,idx)=>el.classList.toggle('active',idx===i)); }
+function renderPmGallery(imgs){
+  const track=document.getElementById('pmGalleryTrack'), dots=document.getElementById('pmGalleryDots');
+  if(imgs.length===0){
+    track.innerHTML = `<span class="mono">${currentProduct.mono||currentProduct.name[0]}</span>`;
+    dots.innerHTML=''; return;
+  }
+  track.innerHTML = imgs.map((u,i)=>`<img src="${u}" ${i===0?'fetchpriority="high"':'loading="lazy" decoding="async"'}>`).join('');
+  dots.innerHTML = imgs.length>1 ? imgs.map((_,i)=>`<span class="${i===0?'active':''}" onclick="scrollPmGallery(${i})"></span>`).join('') : '';
+  track.scrollLeft = 0;
+  track.onscroll = () => {
+    clearTimeout(track._t);
+    track._t = setTimeout(()=>{
+      const idx = Math.round(track.scrollLeft / track.clientWidth);
+      dots.querySelectorAll('span').forEach((el,i)=>el.classList.toggle('active', i===idx));
+    }, 80);
+  };
+}
+function scrollPmGallery(i){
+  const track=document.getElementById('pmGalleryTrack');
+  track.scrollTo({ left: i*track.clientWidth, behavior:'smooth' });
+}
 function selectSize(s,btn){ currentSize=s; document.querySelectorAll('#pmSizes .size-opt').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); }
 function changeQty(d){ currentQty=Math.max(1,currentQty+d); document.getElementById('pmQty').textContent=currentQty; }
 async function buildOrderItem(){
@@ -1582,27 +1609,35 @@ async function addProduct(){
 
   const btn=document.getElementById('addProdBtn'); btn.disabled=true;
 
-  let uploadedUrls = [];
+  let uploadedUrls = [], uploadedThumbs = [];
   if(files.length){
     for(let i=0;i<files.length;i++){
       btn.textContent = `ছবি আপলোড হচ্ছে (${i+1}/${files.length})...`;
-      try{ uploadedUrls.push(await uploadToImgbb(files[i])); }
+      try{
+        const [full, thumb] = await Promise.all([
+          uploadToImgbb(files[i]),
+          uploadToImgbb(files[i], 45000, 480, 0.72)
+        ]);
+        uploadedUrls.push(full); uploadedThumbs.push(thumb);
+      }
       catch(e){ alert(`${i+1} নম্বর ছবি আপলোড করা যায়নি: ${e.message||'অজানা সমস্যা'} — বাকিগুলো চালিয়ে যাচ্ছি।`); }
     }
   }
   const newImageUrls = [...uploadedUrls, ...pastedUrls];
+  const newThumbUrls = [...uploadedThumbs, ...pastedUrls];
   btn.textContent='সংরক্ষণ হচ্ছে...';
 
   try{
     if(editingProductId){
       const existing = products.find(p=>p.id===editingProductId);
       const images = [...(existing.images||[]), ...newImageUrls];
-      await updateDoc(doc(db,'products',editingProductId), { name,category,clothCode,tag,isCloth,inStock,mono,original,discount,sizes,desc,images });
+      const thumbs = [...(existing.thumbs||existing.images||[]), ...newThumbUrls];
+      await updateDoc(doc(db,'products',editingProductId), { name,category,clothCode,tag,isCloth,inStock,mono,original,discount,sizes,desc,images,thumbs });
       editingProductId=null;
       document.getElementById('prodFormTitle').textContent='নতুন প্রোডাক্ট যোগ করুন';
       document.getElementById('cancelEditBtn').style.display='none';
     } else {
-      await addDoc(collection(db,'products'), { name,category,clothCode,tag,isCloth,inStock,mono,original,discount,sizes,desc,images:newImageUrls,createdAt:Date.now() });
+      await addDoc(collection(db,'products'), { name,category,clothCode,tag,isCloth,inStock,mono,original,discount,sizes,desc,images:newImageUrls,thumbs:newThumbUrls,createdAt:Date.now() });
     }
   }catch(e){
     alert('সংরক্ষণে সমস্যা হয়েছে। সম্ভবত অ্যাডমিন লগইন সেশন শেষ হয়ে গেছে — লগআউট করে আবার লগইন করে দেখুন।');
@@ -1809,7 +1844,7 @@ async function init(){
 init();
 
 Object.assign(window, {
-  filterCat, onSearch, onSearchGo, openProduct, switchImg, selectSize, changeQty, addToCart, buyNow, closeCheckout, openCart, removeFromCart, applyCoupon,
+  filterCat, onSearch, onSearchGo, openProduct, scrollPmGallery, selectSize, changeQty, addToCart, buyNow, closeCheckout, openCart, removeFromCart, applyCoupon,
   openCheckout, onDistrictChange, setPayment, submitOrder, openTrack, checkTracking, setRvRating, submitReview,
   toggleFaq, openAdmin, adminSignIn, adminSignOut, switchAdminTab, suggestSizes, addProduct, editProduct,
   cancelEditProduct, deleteProduct, saveShopInfo, seedDefaultProducts, updateOrderStatus, markOrderRead, closeModal,
