@@ -293,10 +293,12 @@
   .cat-chip{ display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:16px; padding:5px 10px 5px 12px; font-size:12.5px; background:var(--bg-soft); }
   .cat-chip button{ background:none; border:none; color:var(--danger); font-size:13px; }
 
-  /* ---- Trust badges ---- */
-  .trust-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding:16px 5vw 6px; }
-  .trust-item{ display:flex; align-items:center; gap:7px; font-size:12px; color:var(--ink-soft); border:1px solid var(--line); border-radius:20px; padding:7px 13px; background:#fff; }
-  .trust-item .ic{ font-size:15px; }
+  /* ---- Trust ticker (scrolling marquee) ---- */
+  .trust-ticker{ background:var(--ink); height:46px; overflow:hidden; position:relative; border-bottom:2px solid var(--gold); }
+  .trust-ticker-track{ display:flex; align-items:center; height:100%; width:max-content; animation:ticker-scroll 22s linear infinite; }
+  .trust-ticker-track span{ color:#fff; font-size:13px; font-weight:600; letter-spacing:.03em; padding:0 34px; white-space:nowrap; border-right:1px solid rgba(255,255,255,.2); display:flex; align-items:center; height:100%; }
+  @keyframes ticker-scroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  @media(prefers-reduced-motion:reduce){ .trust-ticker-track{ animation:none; overflow-x:auto; } }
 
   /* ---- Product tag badge (নতুন/বেস্ট সেলার) ---- */
   .tag-badge{ position:absolute; top:10px; right:10px; background:var(--ink); color:#fff; font-weight:700; font-size:11px; padding:4px 9px; border-radius:2px; letter-spacing:.03em; }
@@ -368,6 +370,11 @@
     .badge, .tag-badge{ font-size:10px; padding:3px 7px; }
     .grid-wrap{ padding:24px 4vw 60px; }
     .search-strip{ padding:10px 4vw; }
+    .overlay#productOverlay{ padding:0; align-items:flex-start; }
+    #productOverlay .modal{ max-width:100%; width:100%; border-radius:0; max-height:100vh; height:100vh; padding:0 20px 28px; }
+    .pm-gallery{ margin:0 -20px 16px; }
+    .pm-gallery-track img, .pm-gallery-track .mono{ aspect-ratio:3/4; }
+    #productOverlay .modal-close{ background:rgba(27,26,23,.55); color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; top:14px; right:14px; z-index:5; }
   }
 </style>
 </head>
@@ -396,18 +403,24 @@
 
 <div class="banner-slider" id="bannerSlider"></div>
 
+<div class="trust-ticker">
+  <div class="trust-ticker-track">
+    <span>🚚 সারাদেশে ডেলিভারি</span>
+    <span>💵 ক্যাশ অন ডেলিভারি</span>
+    <span>🧵 100% অথেন্টিক কাপড়</span>
+    <span>📏 নিজের মাপে অর্ডার</span>
+    <span>🚚 সারাদেশে ডেলিভারি</span>
+    <span>💵 ক্যাশ অন ডেলিভারি</span>
+    <span>🧵 100% অথেন্টিক কাপড়</span>
+    <span>📏 নিজের মাপে অর্ডার</span>
+  </div>
+</div>
+
 <section class="hero">
   <div class="eyebrow en">est. modest wear</div>
   <h1>বোরকা · টুপি · পাঞ্জাবি<br><span>কটি · জুব্বা</span></h1>
   <p>মানসম্মত কাপড়, পরিপাটি সেলাই — সরাসরি আপনার ঠিকানায়।</p>
 </section>
-
-<div class="trust-row">
-  <div class="trust-item"><span class="ic">🚚</span> সারাদেশে ডেলিভারি</div>
-  <div class="trust-item"><span class="ic">💵</span> ক্যাশ অন ডেলিভারি</div>
-  <div class="trust-item"><span class="ic">🧵</span> 100% অথেন্টিক কাপড়</div>
-  <div class="trust-item"><span class="ic">📏</span> নিজের মাপে অর্ডার</div>
-</div>
 
 <div id="shop">
   <div class="tabs" id="tabs"></div>
