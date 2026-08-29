@@ -1881,9 +1881,8 @@ window.addEventListener('scroll', ()=>{
 }, { passive:true });
 
 async function init(){
-  await loadCategories();
-  renderTabs(); renderFaq(); renderCatOptions(); renderCatChipList(); suggestSizes(); renderMgAdminGrids();
-  await loadProducts(); await loadShopInfo(); await loadReviews(); await loadMeasureGuide();
+  await Promise.all([loadCategories(), loadProducts(), loadShopInfo(), loadReviews(), loadMeasureGuide()]);
+  renderTabs(); renderFaq(); renderCatOptions(); renderCatChipList(); suggestSizes();
   renderGrid(); renderFooter(); renderBanners(); renderReviewHighlight(); renderMgAdminGrids(); applyMobileGridCols();
 }
 init();
