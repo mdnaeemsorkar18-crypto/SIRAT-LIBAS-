@@ -41,6 +41,18 @@
   header.scrolled{ box-shadow:0 4px 16px rgba(27,26,23,.08); }
   .logo{ font-family:'Cormorant Garamond',serif; font-style:italic; letter-spacing:.12em; font-size:22px; color:var(--ink); }
   .logo b{ color:var(--gold); font-weight:600; }
+
+  /* ---- Intro splash (once per session) ---- */
+  #introSplash{ position:fixed; inset:0; z-index:9999; background:var(--ink); display:flex; align-items:center; justify-content:center; transition:opacity .6s ease, visibility .6s; }
+  #introSplash.hide{ opacity:0; visibility:hidden; pointer-events:none; }
+  .intro-logo{ font-family:'Cormorant Garamond',serif; font-style:italic; letter-spacing:.16em; font-size:34px; color:#fff; opacity:0; animation:intro-reveal 1s ease forwards; text-shadow:0 0 0 rgba(169,121,31,0); }
+  .intro-logo span{ color:var(--gold); font-weight:600; }
+  @keyframes intro-reveal{
+    0%{ opacity:0; letter-spacing:.4em; text-shadow:0 0 0 rgba(169,121,31,0); }
+    55%{ opacity:1; letter-spacing:.16em; text-shadow:0 0 22px rgba(169,121,31,.85); }
+    100%{ opacity:1; letter-spacing:.16em; text-shadow:0 0 6px rgba(169,121,31,.35); }
+  }
+  @media(max-width:480px){ .intro-logo{ font-size:24px; } }
   nav.main-nav{ display:flex; gap:20px; font-size:13.5px; }
   nav.main-nav a{ color:var(--ink-soft); text-decoration:none; position:relative; padding-bottom:3px; transition:.2s; }
   nav.main-nav a::after{ content:""; position:absolute; left:0; right:100%; bottom:0; height:1px; background:var(--gold); transition:right .25s ease; }
@@ -55,6 +67,8 @@
   .hero .eyebrow{ color:var(--gold); font-size:13px; letter-spacing:.32em; font-style:italic; margin-bottom:16px; }
   .hero h1{ font-size:clamp(30px,6vw,52px); margin-bottom:14px; color:var(--ink); }
   .hero h1 span{ color:var(--gold); }
+  .hero h1.hero-lux{ font-family:'Cormorant Garamond',serif; font-weight:600; letter-spacing:.12em; font-size:clamp(26px,5.4vw,44px); line-height:1.35; }
+  .hero h1.hero-lux span{ display:inline-block; margin-top:8px; font-size:.46em; letter-spacing:.28em; text-transform:uppercase; font-style:italic; font-weight:500; color:var(--gold-bright); }
   .hero p{ color:var(--ink-soft); max-width:480px; margin:0 auto 24px; line-height:1.85; font-size:15.5px; }
   .search-wrap{ max-width:420px; margin:0 auto; position:relative; }
   #searchInput{ width:100%; background:#fff; border:1px solid var(--line); color:var(--ink); padding:12px 16px 12px 42px; border-radius:24px; font-family:inherit; font-size:14.5px; }
@@ -380,6 +394,24 @@
 </head>
 <body>
 
+<div id="introSplash">
+  <div class="intro-logo">SIRAT <span>LIBAS</span></div>
+</div>
+<script>
+(function(){
+  var el = document.getElementById('introSplash');
+  if(sessionStorage.getItem('slSplashShown')){
+    el.style.display='none';
+  } else {
+    sessionStorage.setItem('slSplashShown','1');
+    setTimeout(function(){
+      el.classList.add('hide');
+      setTimeout(function(){ el.remove(); }, 650);
+    }, 1100);
+  }
+})();
+</script>
+
 <div id="setupBanner">⚠ Firebase কনফিগার করা হয়নি।</div>
 
 <header>
@@ -418,7 +450,7 @@
 
 <section class="hero">
   <div class="eyebrow en">est. modest wear</div>
-  <h1>বোরকা · টুপি · পাঞ্জাবি<br><span>কটি · জুব্বা</span></h1>
+  <h1 class="hero-lux">PANJABI LUXURIA<br><span>জুব্বা · ইসলামিক কালেকশন</span></h1>
   <p>মানসম্মত কাপড়, পরিপাটি সেলাই — সরাসরি আপনার ঠিকানায়।</p>
 </section>
 
