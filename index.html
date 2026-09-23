@@ -1153,18 +1153,44 @@ function renderBanners(){
     {url:shopInfo.banner3, cap:shopInfo.banner3Cap, label:'সেলোয়ার · পায়জামা'}
   ];
   const el=document.getElementById('bannerSlider');
-  el.innerHTML = slides.map((s,i)=>`
-    <div class="banner-slide ${i===0?'active':''}" data-i="${i}">
-      ${s.url?isVideoUrl(s.url)?`<video src="${s.url}" autoplay muted loop playsinline></video>`:`<img src="${s.url}">`:`<div class="no-img"><span class="big serif">SIRAT LIBAS</span><span class="small">${s.label} — ব্যানার ছবি/ভিডিও এখনো দেওয়া হয়নি (অ্যাডমিন → দোকানের তথ্য থেকে যোগ করুন)</span></div>`}
-      ${s.cap?`<div class="banner-caption">${s.cap}</div>`:''}
-    </div>`).join('') + `<div class="banner-dots">${slides.map((_,i)=>`<span class="${i===0?'active':''}" onclick="goToBanner(${i})"></span>`).join('')}</div>`;
+  el.innerHTML = slides.map((s,i)=>{
+    const eager = i===0;
+    let media = '';
+    if(s.url){
+      if(isVideoUrl(s.url)){
+        media = eager ? `<video src="${s.url}" autoplay muted loop playsinline preload="auto"></video>`
+                       : `<video data-src="${s.url}" muted loop playsinline preload="none"></video>`;
+      } else {
+        media = eager ? `<img src="${s.url}" fetchpriority="high">`
+                       : `<img data-src="${s.url}" loading="lazy">`;
+      }
+    } else {
+      media = `<div class="no-img"><span class="big serif">SIRAT LIBAS</span><span class="small">${s.label} — ব্যানার ছবি/ভিডিও এখনো দেওয়া হয়নি (অ্যাডমিন → দোকানের তথ্য থেকে যোগ করুন)</span></div>`;
+    }
+    return `<div class="banner-slide ${eager?'active':''}" data-i="${i}">${media}${s.cap?`<div class="banner-caption">${s.cap}</div>`:''}</div>`;
+  }).join('') + `<div class="banner-dots">${slides.map((_,i)=>`<span class="${i===0?'active':''}" onclick="goToBanner(${i})"></span>`).join('')}</div>`;
   bannerIdx=0;
   if(bannerTimer) clearInterval(bannerTimer);
   bannerTimer=setInterval(()=>goToBanner((bannerIdx+1)%slides.length), 4200);
+  if(slides.length>1){
+    setTimeout(()=>{
+      const next = document.querySelector('.banner-slide[data-i="1"]');
+      if(next) loadBannerSlide(next);
+    }, 2500);
+  }
+}
+function loadBannerSlide(slideEl){
+  const media = slideEl.querySelector('video[data-src], img[data-src]');
+  if(!media) return;
+  media.src = media.dataset.src;
+  media.removeAttribute('data-src');
+  if(media.tagName==='VIDEO'){ media.load(); media.play().catch(()=>{}); }
 }
 function goToBanner(i){
   bannerIdx=i;
-  document.querySelectorAll('.banner-slide').forEach((el,idx)=>el.classList.toggle('active', idx===i));
+  const slideEls = document.querySelectorAll('.banner-slide');
+  slideEls.forEach((el,idx)=>el.classList.toggle('active', idx===i));
+  if(slideEls[i]) loadBannerSlide(slideEls[i]);
   document.querySelectorAll('.banner-dots span').forEach((el,idx)=>el.classList.toggle('active', idx===i));
 }
 function renderFaq(){
