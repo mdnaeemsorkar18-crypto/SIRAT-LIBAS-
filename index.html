@@ -751,6 +751,12 @@
         <div class="mg-admin-grid" id="mgBottom3Grid"></div>
 
         <h3 style="font-size:16px;margin:28px 0 10px;">বর্তমান প্রোডাক্ট তালিকা</h3>
+        <div class="note-box" id="optimizeBox" style="margin-bottom:16px;">
+          <b>পুরনো প্রোডাক্টের ছবি ছোট/দ্রুত করুন</b><br>
+          নতুন প্রোডাক্টের ছবি স্বয়ংক্রিয়ভাবে ছোট করে আপলোড হয়, কিন্তু আগে থেকে যোগ করা প্রোডাক্টের ছবি এখনো বড় সাইজেই আছে — এই কারণেই সাইট স্লো লোড হচ্ছে। নিচের বাটনে চাপলে সব পুরনো প্রোডাক্টের ছবি স্বয়ংক্রিয়ভাবে ছোট করে আবার আপলোড হয়ে যাবে (কয়েক মিনিট সময় লাগতে পারে, এই ট্যাব বন্ধ করবেন না)।
+          <button class="btn-outline-sm" style="margin-top:10px;" onclick="optimizeAllProductImages()">🚀 সব প্রোডাক্টের ছবি অপ্টিমাইজ করুন</button>
+          <div id="optimizeStatus" class="hint" style="margin-top:8px;"></div>
+        </div>
         <div id="adminProdList"></div>
       </div>
 
@@ -1677,6 +1683,36 @@ function cancelEditProduct(){
   document.getElementById('npCat').value = CATEGORIES()[0];
   suggestSizes();
 }
+async function optimizeAllProductImages(){
+  const statusEl = document.getElementById('optimizeStatus');
+  const btn = document.querySelector('#optimizeBox button');
+  const toDo = products.filter(p => Array.isArray(p.images) && p.images.length>0 && (!Array.isArray(p.thumbs) || p.thumbs.length!==p.images.length));
+  if(toDo.length===0){ statusEl.textContent='✓ সব প্রোডাক্টের ছবি ইতিমধ্যে অপ্টিমাইজ করা আছে।'; return; }
+  if(!confirm(`${toDo.length}টা প্রোডাক্টের ছবি অপ্টিমাইজ করা হবে, কিছুটা সময় লাগতে পারে (নেট স্পিডের উপর নির্ভর করে)। শুরু করবেন?`)) return;
+  btn.disabled = true;
+  let done=0, failed=0;
+  for(let pi=0; pi<toDo.length; pi++){
+    const p = toDo[pi];
+    statusEl.textContent = `প্রসেস হচ্ছে... (${pi+1}/${toDo.length}) — ${p.name||''}`;
+    try{
+      const newImages=[], newThumbs=[];
+      for(const url of p.images){
+        const blob = await fetch(url).then(r=>{ if(!r.ok) throw new Error('fetch failed'); return r.blob(); });
+        const file = new File([blob], 'img.jpg', { type: blob.type||'image/jpeg' });
+        const [full, thumb] = await Promise.all([
+          uploadToImgbb(file),
+          uploadToImgbb(file, 45000, 480, 0.72)
+        ]);
+        newImages.push(full); newThumbs.push(thumb);
+      }
+      await updateDoc(doc(db,'products',p.id), { images:newImages, thumbs:newThumbs });
+      done++;
+    }catch(e){ failed++; }
+  }
+  btn.disabled = false;
+  statusEl.textContent = `সম্পন্ন! ${done}টা প্রোডাক্ট অপ্টিমাইজ হয়েছে।${failed?` ${failed}টা প্রোডাক্টে সমস্যা হয়েছে (হোস্টিং সীমাবদ্ধতার কারণে হতে পারে) — সেগুলোর ছবি অ্যাডমিন প্যানেল থেকে ম্যানুয়ালি আবার আপলোড করে দিন।`:''}`;
+  await loadProducts(); renderGrid(); renderAdminProducts();
+}
 async function addProduct(){
   const name=fixDigits(document.getElementById('npName').value.trim());
   const category=document.getElementById('npCat').value;
@@ -1743,6 +1779,9 @@ async function addProduct(){
   alert('সংরক্ষণ সম্পন্ন হয়েছে।');
 }
 function renderAdminProducts(){
+  const needsOptimize = products.some(p => Array.isArray(p.images) && p.images.length>0 && (!Array.isArray(p.thumbs) || p.thumbs.length!==p.images.length));
+  const box = document.getElementById('optimizeBox');
+  if(box) box.style.display = needsOptimize ? 'block' : 'none';
   document.getElementById('adminProdList').innerHTML = products.map(p=>{
     try{
       const name = p.name || '(নাম নেই)';
@@ -1937,7 +1976,7 @@ Object.assign(window, {
   openCheckout, onDistrictChange, setPayment, submitOrder, openTrack, checkTracking, setRvRating, submitReview,
   toggleFaq, openAdmin, adminSignIn, adminSignOut, switchAdminTab, suggestSizes, addProduct, editProduct,
   cancelEditProduct, deleteProduct, saveShopInfo, seedDefaultProducts, updateOrderStatus, markOrderRead, closeModal,
-  setSizeMode, addCategory, deleteCategory, renderNpMeasurePreview, goToBanner, uploadBannerImage, setMobileGridCols, exportOrdersCsv, openReturnPolicy,
+  setSizeMode, addCategory, deleteCategory, renderNpMeasurePreview, goToBanner, uploadBannerImage, setMobileGridCols, exportOrdersCsv, openReturnPolicy, optimizeAllProductImages,
   openLightbox, closeLightbox, uploadMeasureGuideImage, toAsciiDigits, fixDigits, toggleWantsSalwar
 });
 </script>
