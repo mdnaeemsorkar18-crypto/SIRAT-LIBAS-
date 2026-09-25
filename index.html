@@ -1885,7 +1885,7 @@ async function renderAdminOrders(){
           </div>`;
         }).join('')}
       </div>
-      ${o.trackingId?`<div style="margin-top:8px;display:flex;align-items:center;gap:8px;" onclick="event.stopPropagation()">
+      ${o.trackingId?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;" onclick="event.stopPropagation()">
         <span class="hint">স্ট্যাটাস:</span>
         <select class="status-select" data-tid="${o.trackingId}" onchange="updateOrderStatus('${o.trackingId}', this.value)">
           <option value="pending" ${curStatus==='pending'?'selected':''}>গৃহীত</option>
@@ -1894,11 +1894,44 @@ async function renderAdminOrders(){
           <option value="delivered" ${curStatus==='delivered'?'selected':''}>ডেলিভারি সম্পন্ন</option>
           <option value="returned" ${curStatus==='returned'?'selected':''}>রিটার্ন হয়েছে</option>
           <option value="cancelled" ${curStatus==='cancelled'?'selected':''}>বাতিল হয়েছে</option>
-        </select></div>`:''}
+        </select>
+        <button type="button" class="btn-outline-sm" style="padding:4px 10px;font-size:12px;" onclick="notifyCustomer('${o.trackingId}','${esc(o.phone)}',this)">💬 WhatsApp-এ জানান</button>
+        <button type="button" class="btn-outline-sm" style="padding:4px 10px;font-size:12px;" onclick="notifyCustomerSms('${o.trackingId}','${esc(o.phone)}',this)">✉️ SMS পাঠান</button>
+      </div>`:''}
     </div>`;
   }).join('');
 }
 async function updateOrderStatus(trackingId, status){ await setDoc(doc(db,'tracking',trackingId), { status }, { merge:true }); }
+
+/* কাস্টমারকে অর্ডারের অবস্থা জানানোর জন্য রেডিমেড মেসেজ */
+function statusMessageBn(status){
+  const map = {
+    pending:'আপনার অর্ডারটি আমরা পেয়েছি ✅ শীঘ্রই প্রসেসিং শুরু হবে।',
+    processing:'আপনার অর্ডারটি এখন প্রসেসিং/তৈরি হচ্ছে 🛠️',
+    shipped:'আপনার অর্ডারটি পাঠানো হয়েছে 🚚 শীঘ্রই হাতে পাবেন।',
+    delivered:'আপনার অর্ডারটি ডেলিভারি সম্পন্ন হয়েছে ✅ ধন্যবাদ আমাদের সাথে থাকার জন্য!',
+    returned:'আপনার অর্ডারটি রিটার্ন হিসেবে নথিভুক্ত হয়েছে।',
+    cancelled:'দুঃখিত, আপনার অর্ডারটি বাতিল করা হয়েছে।'
+  };
+  return map[status] || ('আপনার অর্ডারের সর্বশেষ অবস্থা: '+status);
+}
+function currentStatusOf(trackingId){
+  const sel = document.querySelector(`.status-select[data-tid="${trackingId}"]`);
+  return sel ? sel.value : 'pending';
+}
+function waPhoneFormat(phone){
+  let p=(phone||'').replace(/\D/g,'');
+  if(p.startsWith('0')) p='88'+p; else if(!p.startsWith('880')) p='880'+p;
+  return p;
+}
+function notifyCustomer(trackingId, phone){
+  const msg = `SIRAT LIBAS — ${statusMessageBn(currentStatusOf(trackingId))}\nট্র্যাকিং আইডি: ${trackingId}`;
+  window.open(`https://wa.me/${waPhoneFormat(phone)}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+function notifyCustomerSms(trackingId, phone){
+  const msg = `SIRAT LIBAS - ${statusMessageBn(currentStatusOf(trackingId))} Tracking ID: ${trackingId}`;
+  window.location.href = `sms:${phone}?body=${encodeURIComponent(msg)}`;
+}
 
 function fillShopInfoForm(){
   document.getElementById('siAbout').value=shopInfo.about;
